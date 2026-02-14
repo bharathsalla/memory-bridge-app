@@ -7,6 +7,7 @@ import VoiceOverIndicator from '@/components/VoiceOverIndicator';
 import OnboardingScreen from '@/screens/OnboardingScreen';
 import TodayScreen from '@/screens/TodayScreen';
 import MemoriesScreen from '@/screens/MemoriesScreen';
+import MemoryLaneScreen from '@/screens/MemoryLaneScreen';
 import SafetyScreen from '@/screens/SafetyScreen';
 import CareScreen from '@/screens/CareScreen';
 import WellbeingScreen from '@/screens/WellbeingScreen';
@@ -15,6 +16,7 @@ import CaregiverDashboard from '@/screens/CaregiverDashboard';
 const navTitles: Record<string, string> = {
   today: 'Today',
   memories: 'Memories',
+  memorylane: 'Memory Lane',
   safety: 'Safety',
   care: 'Care Circle',
   wellbeing: 'My Wellbeing',
@@ -48,7 +50,7 @@ const Index = () => {
             onBack={toggleCaregiverView}
             rightAction={
               isCaregiverView ? (
-                <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary">
+                <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary font-semibold">
                   Patient
                 </button>
               ) : undefined
@@ -72,6 +74,7 @@ const Index = () => {
                 <>
                   {activePatientTab === 'today' && <TodayScreen />}
                   {activePatientTab === 'memories' && <MemoriesScreen />}
+                  {activePatientTab === 'memorylane' && <MemoryLaneScreen />}
                   {activePatientTab === 'safety' && <SafetyScreen />}
                   {activePatientTab === 'care' && <CareScreen />}
                   {activePatientTab === 'wellbeing' && <WellbeingScreen />}

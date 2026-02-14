@@ -1,13 +1,13 @@
 import { useApp, PatientTab, CaregiverTab } from '@/contexts/AppContext';
-import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, BarChart3, Settings } from 'lucide-react';
+import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, BarChart3, Settings, BookHeart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
   { id: 'memories', label: 'Memories', icon: Image },
+  { id: 'memorylane', label: 'Timeline', icon: BookHeart },
   { id: 'safety', label: 'Safety', icon: Shield },
   { id: 'care', label: 'Care', icon: Users },
-  { id: 'wellbeing', label: 'Me', icon: Heart },
 ];
 
 const simplifiedTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
@@ -31,7 +31,7 @@ export default function TabBar() {
 
   if (isCaregiverView) {
     return (
-      <div className="bg-background border-t border-border/50 shrink-0">
+      <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 shrink-0">
         <div className="flex items-center justify-around px-1 pt-1.5 pb-1">
           {caregiverTabs.map(tab => {
             const active = activeCaregiverTab === tab.id;
@@ -52,7 +52,7 @@ export default function TabBar() {
                   />
                 )}
                 <Icon className={`w-5 h-5 relative z-10 transition-colors ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className={`text-[10px] relative z-10 transition-colors ${active ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+                <span className={`text-[10px] relative z-10 transition-colors ${active ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
                   {tab.label}
                 </span>
               </button>
@@ -67,7 +67,7 @@ export default function TabBar() {
   const isSimplified = mode === 'simplified';
 
   return (
-    <div className="bg-background border-t border-border/50 shrink-0">
+    <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 shrink-0">
       <div className="flex items-center justify-around px-2 pt-1.5 pb-1">
         {tabs.map(tab => {
           const active = activePatientTab === tab.id;
@@ -76,7 +76,7 @@ export default function TabBar() {
             <button
               key={tab.id}
               onClick={() => setActivePatientTab(tab.id)}
-              className={`flex flex-col items-center gap-0.5 py-1 px-3 relative ${isSimplified ? 'touch-target-xl' : 'touch-target'}`}
+              className={`flex flex-col items-center gap-0.5 py-1 px-2 relative ${isSimplified ? 'touch-target-xl' : 'touch-target'}`}
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
             >
@@ -88,7 +88,7 @@ export default function TabBar() {
                 />
               )}
               <Icon className={`relative z-10 transition-colors ${isSimplified ? 'w-7 h-7' : 'w-5 h-5'} ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-              <span className={`relative z-10 transition-colors ${isSimplified ? 'text-[13px]' : 'text-[10px]'} ${active ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+              <span className={`relative z-10 transition-colors ${isSimplified ? 'text-[13px]' : 'text-[10px]'} ${active ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
                 {tab.label}
               </span>
             </button>

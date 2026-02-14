@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 export type AppMode = 'full' | 'simplified' | 'essential';
-export type PatientTab = 'today' | 'memories' | 'safety' | 'care' | 'wellbeing';
+export type PatientTab = 'today' | 'memories' | 'memorylane' | 'safety' | 'care' | 'wellbeing';
 export type CaregiverTab = 'dashboard' | 'health' | 'tasks' | 'reports' | 'settings';
 
 interface Medication {

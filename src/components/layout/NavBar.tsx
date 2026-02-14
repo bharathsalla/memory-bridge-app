@@ -15,13 +15,13 @@ export default function NavBar({ title, showBack, onBack, rightAction }: NavBarP
   if (mode === 'essential') return null;
 
   return (
-    <div className="z-30 bg-background/90 backdrop-blur-xl border-b border-border shrink-0">
+    <div className="z-30 bg-background/90 backdrop-blur-xl border-b border-border/20 shrink-0">
       <div className="flex items-center justify-between px-4 h-11">
         <div className="w-20 flex items-start">
           {showBack && (
             <button onClick={onBack} className="touch-target flex items-center gap-0.5 text-primary -ml-2">
               <ChevronLeft className="w-5 h-5" />
-              <span className="text-ios-body">Back</span>
+              <span className="text-ios-body font-semibold">Back</span>
             </button>
           )}
         </div>
