@@ -1,9 +1,9 @@
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, X } from 'lucide-react';
+import { Mic, MicOff, Volume2, X, Pause } from 'lucide-react';
 
 export default function VoiceOverIndicator() {
-  const { isVoiceOverActive, isListening, isSpeaking, lastUserSpeech, stopVoiceOver, startVoiceOver } = useVoiceOver();
+  const { isVoiceOverActive, isListening, isSpeaking, isOnHold, lastUserSpeech, stopVoiceOver, startVoiceOver } = useVoiceOver();
 
   // Floating activation button when voice over is OFF
   if (!isVoiceOverActive) {
@@ -31,12 +31,14 @@ export default function VoiceOverIndicator() {
         exit={{ y: -60, opacity: 0 }}
         className="absolute top-0 left-0 right-0 z-50 px-3 pt-1 pb-2"
       >
-        <div className="ios-card-elevated rounded-2xl p-3 flex items-center gap-3" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
+        <div className={`ios-card-elevated rounded-2xl p-3 flex items-center gap-3 ${isOnHold ? 'ring-2 ring-amber-400' : ''}`} style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
           {/* Status indicator */}
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-            isSpeaking ? 'bg-secondary/15' : isListening ? 'bg-success/15' : 'bg-muted'
+            isOnHold ? 'bg-amber-500/15' : isSpeaking ? 'bg-secondary/15' : isListening ? 'bg-success/15' : 'bg-muted'
           }`}>
-            {isSpeaking ? (
+            {isOnHold ? (
+              <Pause className="w-5 h-5 text-amber-500" />
+            ) : isSpeaking ? (
               <Volume2 className="w-5 h-5 text-secondary animate-pulse" />
             ) : isListening ? (
               <Mic className="w-5 h-5 text-success listening-pulse" />
@@ -48,14 +50,19 @@ export default function VoiceOverIndicator() {
           {/* Status text */}
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              {isSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Voice Over Active'}
+              {isOnHold ? 'On Hold — say "continue"' : isSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Voice Over Active'}
             </div>
-            {lastUserSpeech && !isSpeaking && (
+            {lastUserSpeech && !isSpeaking && !isOnHold && (
               <div className="text-[11px] text-muted-foreground truncate mt-0.5">
                 You said: "{lastUserSpeech}"
               </div>
             )}
-            {isSpeaking && (
+            {isOnHold && (
+              <div className="text-[11px] text-amber-600 mt-0.5">
+                Say "continue" or "go on" to resume
+              </div>
+            )}
+            {isSpeaking && !isOnHold && (
               <div className="flex gap-1 mt-1">
                 {[0, 1, 2, 3, 4].map(i => (
                   <motion.div

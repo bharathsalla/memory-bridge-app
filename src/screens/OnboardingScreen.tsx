@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,19 +8,43 @@ const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as
 
 export default function OnboardingScreen() {
   const { completeOnboarding } = useApp();
-  const { startVoiceOver } = useVoiceOver();
+  const { startVoiceOver, setOnboardingStep, setInputCallback, isVoiceOverActive, highlightedInputId } = useVoiceOver();
   const [step, setStep] = useState<typeof steps[number]>('welcome');
   const [name, setName] = useState('');
   const [selectedMode, setSelectedMode] = useState<AppMode>('full');
+  const [voiceSelected, setVoiceSelected] = useState(false);
+
+  // Notify voice-over of step changes
+  useEffect(() => {
+    setOnboardingStep(step);
+  }, [step, setOnboardingStep]);
+
+  // Set input callback for name field
+  useEffect(() => {
+    if (step === 'personalize') {
+      setInputCallback((value: string) => {
+        setName(value);
+      });
+    } else {
+      setInputCallback(null);
+    }
+    return () => setInputCallback(null);
+  }, [step, setInputCallback]);
 
   const next = () => {
     const i = steps.indexOf(step);
     if (i < steps.length - 1) setStep(steps[i + 1]);
   };
 
+  const handleVoiceChoice = useCallback(() => {
+    setVoiceSelected(true);
+    startVoiceOver();
+    next();
+  }, [startVoiceOver]);
+
   const finish = (withVoice: boolean = false) => {
     completeOnboarding(name || 'Friend', selectedMode);
-    if (withVoice) {
+    if (withVoice && !isVoiceOverActive) {
       setTimeout(() => startVoiceOver(), 800);
     }
   };
@@ -30,6 +54,8 @@ export default function OnboardingScreen() {
     { mode: 'simplified', title: 'Somewhat comfortable', desc: 'I prefer simple, larger buttons', icon: Hand },
     { mode: 'essential', title: 'I need help', desc: 'A caregiver will set things up for me', icon: Users },
   ];
+
+  const isHighlighted = (id: string) => highlightedInputId === id;
 
   return (
     <div className="h-full bg-background flex flex-col">
@@ -103,7 +129,7 @@ export default function OnboardingScreen() {
               <div className="w-full space-y-3">
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={next}
+                  onClick={handleVoiceChoice}
                   className="w-full ios-card-elevated p-5 flex items-center gap-4 text-left touch-target-xl rounded-2xl ring-2 ring-secondary/30"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0">
@@ -165,16 +191,28 @@ export default function OnboardingScreen() {
             <div className="flex-1 flex flex-col">
               <h1 className="text-ios-title1 text-foreground mb-2">What should we call you?</h1>
               <p className="text-ios-body text-muted-foreground mb-8">We'll use this to personalize your experience.</p>
-              <div className="ios-card-elevated rounded-2xl overflow-hidden">
+              <div className={`ios-card-elevated rounded-2xl overflow-hidden transition-all duration-300 ${
+                isHighlighted('onboarding-name') ? 'ring-4 ring-secondary shadow-lg shadow-secondary/20' : ''
+              }`}>
                 <input
+                  id="onboarding-name"
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder={isHighlighted('onboarding-name') ? '🎤 Listening for your name...' : 'Your name'}
                   className="w-full h-14 px-5 bg-transparent text-ios-body text-foreground placeholder:text-muted-foreground/60 outline-none"
                   autoFocus
                 />
               </div>
+              {isHighlighted('onboarding-name') && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 text-center text-[14px] text-secondary font-medium"
+                >
+                  🎙️ Say your name clearly — I will type it for you
+                </motion.div>
+              )}
               <div className="mt-auto mb-8">
                 <button
                   onClick={() => setStep('complete')}
