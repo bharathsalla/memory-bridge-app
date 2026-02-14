@@ -6,8 +6,13 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check, Settings2
+  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan
 } from 'lucide-react';
+import {
+  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid,
+  PolarAngleAxis, Radar, Legend
+} from 'recharts';
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function CaregiverDashboard() {
@@ -379,28 +384,95 @@ export default function CaregiverDashboard() {
         </div>
 
         {/* Caregiver Manage FAB */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
+        <button
           onClick={() => setManageOpen(true)}
-          className="fixed bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground flex items-center justify-center z-30 ios-card-elevated"
-          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+          className="absolute bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
           aria-label="Manage patient data"
         >
-          <Settings2 className="w-6 h-6" />
-        </motion.button>
+          <Settings2 className="w-6 h-6 text-white" />
+        </button>
 
         <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
       </div>
     );
   }
 
-  // Reports Tab
+  // Reports Tab — Behavioral Analytics Dashboard
   if (activeCaregiverTab === 'reports') {
+    const weeklyActivity = [
+      { day: 'Mon', steps: 3200, screenTime: 45, taskRate: 88, cogScore: 82 },
+      { day: 'Tue', steps: 2800, screenTime: 52, taskRate: 75, cogScore: 79 },
+      { day: 'Wed', steps: 1500, screenTime: 68, taskRate: 60, cogScore: 71 },
+      { day: 'Thu', steps: 3400, screenTime: 38, taskRate: 92, cogScore: 85 },
+      { day: 'Fri', steps: 2100, screenTime: 55, taskRate: 70, cogScore: 74 },
+      { day: 'Sat', steps: 3800, screenTime: 30, taskRate: 95, cogScore: 88 },
+      { day: 'Sun', steps: 2900, screenTime: 42, taskRate: 82, cogScore: 80 },
+    ];
+
+    const behaviorRadar = [
+      { metric: 'Focus', patient: 65, baseline: 85 },
+      { metric: 'Navigation', patient: 70, baseline: 90 },
+      { metric: 'Response', patient: 55, baseline: 80 },
+      { metric: 'Memory', patient: 45, baseline: 85 },
+      { metric: 'Voice', patient: 72, baseline: 88 },
+      { metric: 'Motor', patient: 68, baseline: 82 },
+    ];
+
+    const screenTimeBySection = [
+      { name: 'Today', value: 35, color: 'hsl(var(--primary))' },
+      { name: 'Memories', value: 25, color: 'hsl(var(--accent))' },
+      { name: 'Safety', value: 15, color: 'hsl(var(--destructive))' },
+      { name: 'Care', value: 15, color: 'hsl(var(--sage))' },
+      { name: 'Wellbeing', value: 10, color: 'hsl(var(--lavender))' },
+    ];
+
+    const eyeTrackingData = [
+      { time: '9AM', fixations: 12, saccades: 8, dwellTime: 2.1 },
+      { time: '10AM', fixations: 18, saccades: 14, dwellTime: 1.8 },
+      { time: '11AM', fixations: 8, saccades: 22, dwellTime: 3.2 },
+      { time: '12PM', fixations: 15, saccades: 10, dwellTime: 2.0 },
+      { time: '1PM', fixations: 6, saccades: 18, dwellTime: 4.1 },
+      { time: '2PM', fixations: 20, saccades: 12, dwellTime: 1.5 },
+      { time: '3PM', fixations: 10, saccades: 16, dwellTime: 2.8 },
+    ];
+
+    const voicePatterns = [
+      { day: 'Mon', onTopic: 85, offTopic: 10, silences: 5 },
+      { day: 'Tue', onTopic: 78, offTopic: 15, silences: 7 },
+      { day: 'Wed', onTopic: 60, offTopic: 28, silences: 12 },
+      { day: 'Thu', onTopic: 82, offTopic: 12, silences: 6 },
+      { day: 'Fri', onTopic: 70, offTopic: 20, silences: 10 },
+      { day: 'Sat', onTopic: 88, offTopic: 8, silences: 4 },
+      { day: 'Sun', onTopic: 80, offTopic: 14, silences: 6 },
+    ];
+
+    const tabSwitching = [
+      { day: 'Mon', switches: 8, avgDwell: 45 },
+      { day: 'Tue', switches: 12, avgDwell: 32 },
+      { day: 'Wed', switches: 22, avgDwell: 18 },
+      { day: 'Thu', switches: 6, avgDwell: 55 },
+      { day: 'Fri', switches: 15, avgDwell: 28 },
+      { day: 'Sat', switches: 5, avgDwell: 60 },
+      { day: 'Sun', switches: 9, avgDwell: 40 },
+    ];
+
+    const predictions = [
+      { label: 'Cognitive Decline Risk', value: 'Moderate', color: 'text-warning', bg: 'bg-warning/10', detail: 'Based on 7-day pattern analysis' },
+      { label: 'Mode Switch Likely', value: 'In ~2 weeks', color: 'text-accent', bg: 'bg-accent/10', detail: 'Task completion trending down 8%' },
+      { label: 'Confusion Episodes', value: '↑ 15%', color: 'text-destructive', bg: 'bg-destructive/10', detail: 'Increased screen switching mid-task' },
+      { label: 'Voice Engagement', value: 'Stable', color: 'text-success', bg: 'bg-success/10', detail: 'On-topic speech at 78% average' },
+    ];
+
+    const chartTooltipStyle = {
+      contentStyle: { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '11px' },
+      labelStyle: { color: 'hsl(var(--foreground))', fontWeight: 600 },
+    };
+
     return (
       <div className="h-full overflow-y-auto warm-gradient pb-6">
         <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-bold text-foreground">Reports</h1>
+            <h1 className="text-[22px] font-bold text-foreground">Behavioral Analytics</h1>
             <button className="flex items-center gap-1 text-[14px] text-primary font-medium touch-target">
               <Share2 className="w-4 h-4" /> Export
             </button>
@@ -418,38 +490,194 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        <div className="px-5 mt-3">
+        {/* Predictive Insights */}
+        <div className="px-5 mt-2">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Brain className="w-4 h-4 text-accent" /> Predictive Insights
+          </h2>
           <div className="grid grid-cols-2 gap-2.5">
-            {[
-              { label: 'Active Days', value: '28/30', color: 'text-success' },
-              { label: 'Med Adherence', value: `${medicationAdherence}%`, color: 'text-primary' },
-              { label: 'Task Completion', value: `${taskCompletionRate}%`, color: 'text-accent' },
-              { label: 'Health Score', value: '8.2/10', color: 'text-sage' },
-            ].map(stat => (
-              <div key={stat.label} className="ios-card-elevated p-4 text-center">
-                <div className={`text-[22px] font-bold ${stat.color}`}>{stat.value}</div>
-                <div className="text-[12px] text-muted-foreground mt-1">{stat.label}</div>
+            {predictions.map(p => (
+              <div key={p.label} className={`ios-card-elevated p-3.5`}>
+                <div className={`text-[16px] font-bold ${p.color}`}>{p.value}</div>
+                <div className="text-[12px] font-semibold text-foreground mt-1">{p.label}</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{p.detail}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Trend Bars */}
+        {/* Cognitive & Activity Trends */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Activity Trends</h2>
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" /> Activity & Cognitive Trends
+          </h2>
           <div className="ios-card-elevated p-4">
-            <div className="flex items-end gap-2 h-28">
-              {[65, 80, 45, 90, 70, 85, 78].map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${val}%` }}
-                    transition={{ delay: i * 0.06, duration: 0.5 }}
-                    className="w-full rounded-lg bg-primary/60"
-                  />
-                  <span className="text-[9px] text-muted-foreground font-medium">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
-                </div>
-              ))}
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={weeklyActivity}>
+                <defs>
+                  <linearGradient id="gradSteps" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradCog" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip {...chartTooltipStyle} />
+                <Area type="monotone" dataKey="cogScore" name="Cognitive Score" stroke="hsl(var(--accent))" fill="url(#gradCog)" strokeWidth={2} />
+                <Area type="monotone" dataKey="taskRate" name="Task Rate %" stroke="hsl(var(--primary))" fill="url(#gradSteps)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="flex gap-4 mt-2 justify-center">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Task Rate</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-accent" />Cognitive</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Behavioral Radar */}
+        <div className="px-5 mt-5">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Scan className="w-4 h-4 text-lavender" /> Behavioral Profile
+          </h2>
+          <div className="ios-card-elevated p-4">
+            <ResponsiveContainer width="100%" height={200}>
+              <RadarChart data={behaviorRadar}>
+                <PolarGrid stroke="hsl(var(--border))" />
+                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <Radar name="Baseline" dataKey="baseline" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeDasharray="4 4" />
+                <Radar name="Patient" dataKey="patient" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} strokeWidth={2} />
+                <Tooltip {...chartTooltipStyle} />
+              </RadarChart>
+            </ResponsiveContainer>
+            <div className="flex gap-4 mt-1 justify-center">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Patient</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-muted-foreground" />Baseline</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Eye Tracking */}
+        <div className="px-5 mt-5">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Eye className="w-4 h-4 text-sage" /> Eye Movement Analysis
+          </h2>
+          <div className="ios-card-elevated p-4">
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart data={eyeTrackingData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip {...chartTooltipStyle} />
+                <Line type="monotone" dataKey="fixations" name="Fixations" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="saccades" name="Saccades" stroke="hsl(var(--warning))" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="dwellTime" name="Dwell (s)" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+            <div className="flex gap-3 mt-2 justify-center flex-wrap">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Fixations</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-warning" />Saccades</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-accent" />Dwell Time</span>
+            </div>
+            <div className="mt-3 p-2.5 rounded-xl bg-warning/8 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+              <span className="text-[11px] text-foreground">Increased dwell time at 1PM suggests confusion during medication reminder screen</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Screen Switching / Tab Behavior */}
+        <div className="px-5 mt-5">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Monitor className="w-4 h-4 text-destructive" /> Screen Switching Patterns
+          </h2>
+          <div className="ios-card-elevated p-4">
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={tabSwitching}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip {...chartTooltipStyle} />
+                <Bar dataKey="switches" name="Tab Switches" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} opacity={0.7} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <div className="p-2.5 rounded-xl bg-muted/50 text-center">
+                <div className="text-[16px] font-bold text-foreground">11</div>
+                <div className="text-[10px] text-muted-foreground">Avg switches/day</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-muted/50 text-center">
+                <div className="text-[16px] font-bold text-foreground">39s</div>
+                <div className="text-[10px] text-muted-foreground">Avg dwell time</div>
+              </div>
+            </div>
+            <div className="mt-3 p-2.5 rounded-xl bg-destructive/8 flex items-start gap-2">
+              <MousePointer className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+              <span className="text-[11px] text-foreground">Wednesday spike (22 switches) correlates with low cognitive score — possible agitation</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Screen Time Distribution */}
+        <div className="px-5 mt-5">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Timer className="w-4 h-4 text-primary" /> Screen Time Distribution
+          </h2>
+          <div className="ios-card-elevated p-4">
+            <div className="flex items-center gap-4">
+              <ResponsiveContainer width={120} height={120}>
+                <PieChart>
+                  <Pie data={screenTimeBySection} cx="50%" cy="50%" innerRadius={30} outerRadius={55} paddingAngle={3} dataKey="value">
+                    {screenTimeBySection.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 space-y-1.5">
+                {screenTimeBySection.map(s => (
+                  <div key={s.name} className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-[12px] text-foreground">
+                      <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
+                      {s.name}
+                    </span>
+                    <span className="text-[12px] font-semibold text-foreground">{s.value}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Voice Over Analysis */}
+        <div className="px-5 mt-5">
+          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
+            <Mic className="w-4 h-4 text-secondary" /> Voice Interaction Analysis
+          </h2>
+          <div className="ios-card-elevated p-4">
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={voicePatterns} stackOffset="expand" barSize={20}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip {...chartTooltipStyle} />
+                <Bar dataKey="onTopic" name="On-Topic" stackId="a" fill="hsl(var(--success))" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="offTopic" name="Off-Topic" stackId="a" fill="hsl(var(--warning))" />
+                <Bar dataKey="silences" name="Long Silences" stackId="a" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex gap-3 mt-2 justify-center flex-wrap">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-success" />On-Topic</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-warning" />Off-Topic</span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-muted-foreground" />Silences</span>
+            </div>
+            <div className="mt-3 p-2.5 rounded-xl bg-accent/8 flex items-start gap-2">
+              <Mic className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+              <span className="text-[11px] text-foreground">Wednesday: 28% off-topic speech detected — patient discussed unrelated childhood memories during medication prompt</span>
             </div>
           </div>
         </div>
@@ -461,6 +689,7 @@ export default function CaregiverDashboard() {
             {[
               { text: 'Falls: 1 incident', detail: 'Feb 10 — Resolved', Icon: AlertTriangle },
               { text: 'Missed Medications: 2', detail: 'Last 30 days', Icon: Pill },
+              { text: 'Confusion Episodes: 4', detail: 'Last 7 days — ↑ from 2', Icon: Brain },
               { text: 'Alerts Triggered: 5', detail: 'Last 30 days', Icon: Bell },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3 p-4">

@@ -199,16 +199,14 @@ export default function CareScreen() {
         )}
       </div>
 
-      {/* Caregiver Manage FAB — positioned above tab bar to avoid send button collision */}
-      <motion.button
-        whileTap={{ scale: 0.9 }}
+      {/* Caregiver Manage FAB */}
+      <button
         onClick={() => setManageOpen(true)}
-        className="absolute bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground flex items-center justify-center z-30 ios-card-elevated"
-        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+        className="absolute bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
         aria-label="Manage patient data"
       >
-        <Settings2 className="w-6 h-6" />
-      </motion.button>
+        <Settings2 className="w-6 h-6 text-white" />
+      </button>
 
       <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
     </div>
