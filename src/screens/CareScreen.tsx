@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check } from 'lucide-react';
+import patientAvatar from '@/assets/patient-avatar.jpg';
 
 const messages = [
   { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false },
@@ -39,14 +40,20 @@ export default function CareScreen() {
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Header */}
+      {/* Header - differentiated with a distinct accent banner */}
       <div className="px-5 pt-3 pb-3 bg-background border-b border-border/40">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-[22px] font-bold text-foreground">Care Circle</h1>
+        <div className="ios-card-elevated p-4 flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-secondary/15 flex items-center justify-center shrink-0 ring-2 ring-secondary/30">
+              <Users className="w-5 h-5 text-secondary" />
+            </div>
+            <h1 className="text-[22px] font-bold text-foreground">Care Circle</h1>
+          </div>
           <button
             onClick={toggleCaregiverView}
-            className="px-3.5 h-8 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold touch-target"
+            className="flex items-center gap-2 px-4 h-9 rounded-full bg-secondary text-secondary-foreground text-[14px] font-semibold touch-target"
           >
+            <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
             Dashboard →
           </button>
         </div>
@@ -57,13 +64,13 @@ export default function CareScreen() {
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
-                className={`flex items-center gap-1.5 px-3.5 h-8 rounded-full text-[13px] font-medium transition-all touch-target ${
+                className={`flex items-center gap-2 px-4 h-9 rounded-full text-[14px] font-medium transition-all touch-target ${
                   activeSection === s.id
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
+                    : 'ios-card-elevated text-foreground'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 {s.label}
               </button>
             );
@@ -85,11 +92,11 @@ export default function CareScreen() {
                   <div className={`max-w-[78%] rounded-2xl px-4 py-3 ${
                     msg.isMine
                       ? 'bg-primary text-primary-foreground rounded-br-lg'
-                      : 'bg-muted rounded-bl-lg'
+                      : 'ios-card-elevated rounded-bl-lg'
                   }`}>
-                    {!msg.isMine && <div className="text-[12px] font-semibold text-primary mb-0.5">{msg.sender}</div>}
-                    <p className={`text-[15px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
-                    <p className={`text-[11px] mt-1.5 ${msg.isMine ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>{msg.time}</p>
+                    {!msg.isMine && <div className="text-[13px] font-semibold text-primary mb-0.5">{msg.sender}</div>}
+                    <p className={`text-[16px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
+                    <p className={`text-[12px] mt-1.5 ${msg.isMine ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>{msg.time}</p>
                   </div>
                 </motion.div>
               ))}
@@ -101,10 +108,10 @@ export default function CareScreen() {
                   value={messageInput}
                   onChange={e => setMessageInput(e.target.value)}
                   placeholder="Message your family..."
-                  className="flex-1 h-11 px-4 rounded-full bg-muted text-[15px] text-foreground placeholder:text-muted-foreground/60 outline-none"
+                  className="flex-1 h-12 px-5 rounded-full bg-card text-[16px] text-foreground placeholder:text-muted-foreground/60 outline-none ios-card-elevated"
                 />
-                <button className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target">
-                  <Send className="w-4 h-4" />
+                <button className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target">
+                  <Send className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -112,30 +119,30 @@ export default function CareScreen() {
         )}
 
         {activeSection === 'tasks' && (
-          <div className="px-5 pt-4 pb-6 space-y-3">
+          <div className="px-5 pt-4 pb-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-ios-title3 text-foreground">Today's Tasks</h2>
-              <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center touch-target">
-                <Plus className="w-4 h-4" />
+              <h2 className="text-[18px] font-bold text-foreground">Today's Tasks</h2>
+              <button className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center touch-target">
+                <Plus className="w-5 h-5" />
               </button>
             </div>
-            <div className="ios-card-elevated divide-y divide-border/60">
+            <div className="space-y-3">
               {careTasks.map(task => (
                 <button
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
-                  className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/30 transition-colors touch-target"
+                  className="w-full ios-card-elevated flex items-center gap-3.5 p-4 text-left active:bg-muted/30 transition-colors touch-target rounded-2xl"
                 >
-                  <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${
+                  <div className={`w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all ${
                     tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border'
                   }`}>
                     {tasksDone.has(task.id) && <Check className="w-4 h-4 text-success-foreground" />}
                   </div>
                   <div className="flex-1">
-                    <div className={`text-[15px] font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                    <div className={`text-[16px] font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                       {task.title}
                     </div>
-                    <div className="text-[12px] text-muted-foreground">{task.assignee} · {task.time}</div>
+                    <div className="text-[13px] text-muted-foreground">{task.assignee} · {task.time}</div>
                   </div>
                 </button>
               ))}
@@ -145,19 +152,19 @@ export default function CareScreen() {
 
         {activeSection === 'calendar' && (
           <div className="px-5 pt-4 pb-6 space-y-3">
-            <h2 className="text-ios-title3 text-foreground">Upcoming</h2>
+            <h2 className="text-[18px] font-bold text-foreground">Upcoming</h2>
             {[
-              { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', emoji: '🏥', bg: 'bg-secondary/8' },
-              { title: 'Family Lunch', date: 'Saturday, 12:00 PM', emoji: '🍽️', bg: 'bg-accent/8' },
-              { title: 'Physical Therapy', date: 'Monday, 2:00 PM', emoji: '💪', bg: 'bg-sage/8' },
+              { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', emoji: '🏥' },
+              { title: 'Family Lunch', date: 'Saturday, 12:00 PM', emoji: '🍽️' },
+              { title: 'Physical Therapy', date: 'Monday, 2:00 PM', emoji: '💪' },
             ].map(apt => (
-              <div key={apt.title} className="ios-card-elevated p-4 flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl ${apt.bg} flex items-center justify-center shrink-0`}>
-                  <span className="text-[22px]">{apt.emoji}</span>
+              <div key={apt.title} className="ios-card-elevated p-5 flex items-center gap-4 rounded-2xl">
+                <div className="w-14 h-14 rounded-xl bg-muted/60 flex items-center justify-center shrink-0">
+                  <span className="text-[26px]">{apt.emoji}</span>
                 </div>
                 <div>
-                  <div className="text-[15px] font-semibold text-foreground">{apt.title}</div>
-                  <div className="text-[13px] text-muted-foreground mt-0.5">{apt.date}</div>
+                  <div className="text-[16px] font-semibold text-foreground">{apt.title}</div>
+                  <div className="text-[14px] text-muted-foreground mt-0.5">{apt.date}</div>
                 </div>
               </div>
             ))}
@@ -166,23 +173,23 @@ export default function CareScreen() {
 
         {activeSection === 'team' && (
           <div className="px-5 pt-4 pb-6 space-y-3">
-            <h2 className="text-ios-title3 text-foreground">Care Team</h2>
-            <div className="ios-card-elevated divide-y divide-border/60">
+            <h2 className="text-[18px] font-bold text-foreground">Care Team</h2>
+            <div className="space-y-3">
               {[
                 { name: 'Sarah Johnson', role: 'Primary Caregiver (Daughter)', emoji: '👩', status: 'Online', statusColor: 'text-success' },
                 { name: 'John Johnson', role: 'Son', emoji: '👨', status: 'Last seen 1h ago', statusColor: 'text-muted-foreground' },
                 { name: 'Dr. Smith', role: 'Primary Physician', emoji: '👨‍⚕️', status: 'Available', statusColor: 'text-primary' },
                 { name: 'Nurse Maria', role: 'Home Nurse', emoji: '👩‍⚕️', status: 'Next visit: Monday', statusColor: 'text-muted-foreground' },
               ].map(member => (
-                <div key={member.name} className="flex items-center gap-3.5 p-4">
-                  <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <span className="text-[22px]">{member.emoji}</span>
+                <div key={member.name} className="ios-card-elevated flex items-center gap-3.5 p-4 rounded-2xl">
+                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <span className="text-[24px]">{member.emoji}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-medium text-foreground">{member.name}</div>
-                    <div className="text-[12px] text-muted-foreground">{member.role}</div>
+                    <div className="text-[16px] font-medium text-foreground">{member.name}</div>
+                    <div className="text-[13px] text-muted-foreground">{member.role}</div>
                   </div>
-                  <span className={`text-[11px] font-medium ${member.statusColor}`}>{member.status}</span>
+                  <span className={`text-[12px] font-medium ${member.statusColor}`}>{member.status}</span>
                 </div>
               ))}
             </div>
