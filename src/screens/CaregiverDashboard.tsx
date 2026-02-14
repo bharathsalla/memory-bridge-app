@@ -331,9 +331,7 @@ export default function CaregiverDashboard() {
         <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
             <h1 className="text-[22px] font-bold text-foreground">Care Tasks</h1>
-            <button className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center touch-target">
-              <Plus className="w-5 h-5" />
-            </button>
+            <span className="text-[13px] text-muted-foreground font-medium">{tasksDone.size}/{tasks.length} done</span>
           </div>
           <div className="flex gap-2 mt-3">
             {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
