@@ -383,13 +383,13 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        {/* Caregiver Manage FAB */}
+        {/* FAB - Plus icon to open manage widget */}
         <button
           onClick={() => setManageOpen(true)}
-          className="absolute bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
-          aria-label="Manage patient data"
+          className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
+          aria-label="Add new item"
         >
-          <Settings2 className="w-6 h-6 text-white" />
+          <Plus className="w-5 h-5" />
         </button>
 
         <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
