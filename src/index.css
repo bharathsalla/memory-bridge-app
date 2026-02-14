@@ -4,54 +4,54 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 6% 10%;
+    --background: 30 25% 98%;
+    --foreground: 220 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 6% 10%;
+    --card: 30 20% 99%;
+    --card-foreground: 220 15% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 10%;
+    --popover: 30 20% 99%;
+    --popover-foreground: 220 15% 15%;
 
-    --primary: 173 40% 38%;
+    --primary: 173 35% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 12 70% 48%;
+    --secondary: 12 55% 52%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 9% 94%;
-    --muted-foreground: 220 6% 40%;
+    --muted: 30 15% 92%;
+    --muted-foreground: 220 8% 46%;
 
-    --accent: 36 60% 44%;
+    --accent: 36 50% 48%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 4 80% 46%;
+    --destructive: 4 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 60% 36%;
+    --success: 152 45% 38%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 35 80% 42%;
+    --warning: 35 70% 48%;
     --warning-foreground: 0 0% 100%;
 
-    --sage: 135 20% 38%;
+    --sage: 145 22% 42%;
     --sage-foreground: 0 0% 100%;
 
-    --lavender: 270 24% 48%;
+    --lavender: 270 22% 52%;
     --lavender-foreground: 0 0% 100%;
 
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 173 40% 38%;
+    --border: 30 12% 88%;
+    --input: 30 12% 88%;
+    --ring: 173 35% 40%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --surface: 220 14% 96%;
-    --ios-nav: 0 0% 97%;
+    --surface: 30 18% 96%;
+    --ios-nav: 30 15% 97%;
 
-    --shadow-light: 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-medium: 0 2px 8px rgba(0,0,0,0.08);
-    --shadow-heavy: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow-soft: 0 2px 12px rgba(0,0,0,0.04);
+    --shadow-card: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+    --shadow-elevated: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   }
 }
 
@@ -76,17 +76,26 @@
     height: 100dvh;
     overflow: hidden;
   }
+
+  /* Hide scrollbars for iOS native feel */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer utilities {
   .ios-card {
-    @apply bg-card rounded-xl;
-    box-shadow: var(--shadow-light);
+    @apply bg-card rounded-2xl;
+    box-shadow: var(--shadow-card);
   }
 
   .ios-card-elevated {
     @apply bg-card rounded-2xl;
-    box-shadow: var(--shadow-medium);
+    box-shadow: var(--shadow-elevated);
   }
 
   .ios-grouped-bg {
@@ -94,8 +103,8 @@
   }
 
   .ios-inset-grouped {
-    @apply bg-card rounded-xl mx-4;
-    box-shadow: var(--shadow-light);
+    @apply bg-card rounded-2xl mx-4;
+    box-shadow: var(--shadow-card);
   }
 
   .safe-top {
@@ -122,19 +131,19 @@
   }
 
   .text-ios-title {
-    @apply text-[34px] font-bold leading-tight tracking-tight;
+    @apply text-[32px] font-bold leading-tight tracking-tight;
   }
 
   .text-ios-title1 {
-    @apply text-[28px] font-bold leading-tight;
+    @apply text-[26px] font-bold leading-tight;
   }
 
   .text-ios-title2 {
-    @apply text-[22px] font-bold leading-snug;
+    @apply text-[21px] font-bold leading-snug;
   }
 
   .text-ios-title3 {
-    @apply text-[20px] font-semibold;
+    @apply text-[19px] font-semibold;
   }
 
   .text-ios-headline {
@@ -185,8 +194,8 @@
   }
 
   @keyframes sosPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4); }
-    50% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(185, 28, 28, 0); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.3); }
+    50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(185, 28, 28, 0); }
   }
 
   .fade-slide-up {
@@ -205,5 +214,10 @@
   @keyframes listeningPulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.15); opacity: 0.8; }
+  }
+
+  /* Warm gradient backgrounds */
+  .warm-gradient {
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--surface)) 100%);
   }
 }

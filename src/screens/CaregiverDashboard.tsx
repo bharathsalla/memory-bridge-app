@@ -5,7 +5,7 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  CheckSquare, Plus, Users, Settings, Eye, LogOut, BarChart3
+  Plus, Eye, LogOut, BarChart3, Check
 } from 'lucide-react';
 
 export default function CaregiverDashboard() {
@@ -20,37 +20,37 @@ export default function CaregiverDashboard() {
   // Dashboard Tab
   if (activeCaregiverTab === 'dashboard') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-4">
-        <div className="px-5 pt-3 pb-3 bg-background">
+      <div className="h-full overflow-y-auto warm-gradient pb-6">
+        <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-ios-title text-foreground">Care Dashboard</h1>
-            <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary">Patient View</button>
+            <h1 className="text-[22px] font-bold text-foreground">Care Dashboard</h1>
+            <button onClick={toggleCaregiverView} className="text-[14px] text-primary font-medium touch-target">Patient View</button>
           </div>
         </div>
 
-        {/* Patient Status Card */}
-        <div className="px-5 mt-3">
+        {/* Patient Status */}
+        <div className="px-5 mt-1">
           <div className="ios-card-elevated p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl">👩‍🦳</div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-success border-2 border-card" />
+            <div className="flex items-center gap-3.5">
+              <div className="relative shrink-0">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-[26px]">👩‍🦳</div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-success border-2 border-card" />
               </div>
-              <div className="flex-1">
-                <div className="text-ios-headline text-foreground">Margaret Smith</div>
-                <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[16px] font-bold text-foreground">Margaret Smith</div>
+                <div className="text-[12px] text-muted-foreground">Active 2 min ago</div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    mode === 'full' ? 'bg-primary text-primary-foreground' : mode === 'simplified' ? 'bg-warning text-warning-foreground' : 'bg-lavender text-lavender-foreground'
+                    mode === 'full' ? 'bg-primary/10 text-primary' : mode === 'simplified' ? 'bg-warning/10 text-warning' : 'bg-lavender/10 text-lavender'
                   }`}>
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
-                  <span className="text-ios-caption text-muted-foreground flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
                     <MapPin className="w-3 h-3" /> Home
                   </span>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5 text-success" />
               </div>
             </div>
@@ -61,48 +61,48 @@ export default function CaregiverDashboard() {
         <div className="px-5 mt-4">
           <div className="grid grid-cols-4 gap-2">
             {[
-              { icon: MapPin, label: 'Location', color: 'bg-primary/10 text-primary' },
-              { icon: MessageCircle, label: 'Message', color: 'bg-sage/15 text-sage' },
-              { icon: Bell, label: 'Reminder', color: 'bg-accent/10 text-accent' },
-              { icon: Phone, label: 'Call', color: 'bg-destructive/10 text-destructive' },
+              { icon: MapPin, label: 'Location', bg: 'bg-primary/8', color: 'text-primary' },
+              { icon: MessageCircle, label: 'Message', bg: 'bg-sage/8', color: 'text-sage' },
+              { icon: Bell, label: 'Reminder', bg: 'bg-accent/8', color: 'text-accent' },
+              { icon: Phone, label: 'Call', bg: 'bg-destructive/8', color: 'text-destructive' },
             ].map(action => {
               const Icon = action.icon;
               return (
                 <motion.button
                   key={action.label}
                   whileTap={{ scale: 0.92 }}
-                  className="ios-card-elevated p-3 flex flex-col items-center gap-2"
+                  className="ios-card p-3 flex flex-col items-center gap-2 touch-target"
                 >
-                  <div className={`w-11 h-11 rounded-xl ${action.color} flex items-center justify-center`}>
-                    <Icon className="w-5 h-5" />
+                  <div className={`w-10 h-10 rounded-xl ${action.bg} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 ${action.color}`} />
                   </div>
-                  <span className="text-ios-caption text-foreground">{action.label}</span>
+                  <span className="text-[11px] font-medium text-foreground">{action.label}</span>
                 </motion.button>
               );
             })}
           </div>
         </div>
 
-        {/* Today's Activity Timeline */}
+        {/* Activity Timeline */}
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Today's Activity</h2>
           <div className="ios-card-elevated p-4">
             {activities.map((item, i) => (
               <div key={item.id} className="flex items-start gap-3 pb-3 last:pb-0">
                 <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${item.completed ? 'bg-success/15' : 'bg-warning/15'}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${item.completed ? 'bg-success/10' : 'bg-warning/10'}`}>
                     {item.icon}
                   </div>
-                  {i < activities.length - 1 && <div className="w-px h-6 bg-border mt-1" />}
+                  {i < activities.length - 1 && <div className="w-px h-5 bg-border/60 mt-1" />}
                 </div>
                 <div className="flex-1 pt-0.5">
-                  <div className="text-ios-subheadline text-foreground">{item.description}</div>
-                  <div className="text-ios-caption text-muted-foreground">{item.time}</div>
+                  <div className="text-[14px] font-medium text-foreground">{item.description}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{item.time}</div>
                 </div>
                 {item.completed ? (
-                  <span className="text-success text-ios-caption font-medium">✓</span>
+                  <Check className="w-4 h-4 text-success mt-1 shrink-0" />
                 ) : (
-                  <span className="text-warning text-ios-caption font-medium">Pending</span>
+                  <span className="text-warning text-[11px] font-medium mt-1">Pending</span>
                 )}
               </div>
             ))}
@@ -112,22 +112,22 @@ export default function CaregiverDashboard() {
         {/* Health Metrics */}
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Health Snapshot</h2>
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="flex gap-2.5 overflow-x-auto pb-1">
             {[
-              { label: 'Sleep', value: `${sleepHours}h`, icon: Moon, trend: 'up', color: 'text-lavender', bg: 'bg-lavender/10' },
-              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, icon: Footprints, trend: 'down', color: 'text-sage', bg: 'bg-sage/10' },
-              { label: 'Mood', value: currentMood.emoji, icon: Heart, trend: 'stable', color: 'text-accent', bg: 'bg-accent/10' },
-              { label: 'Meds', value: `${medicationAdherence}%`, icon: Pill, trend: 'up', color: 'text-primary', bg: 'bg-primary/10' },
+              { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up', color: 'text-lavender', bg: 'bg-lavender/8' },
+              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down', color: 'text-sage', bg: 'bg-sage/8' },
+              { label: 'Mood', value: currentMood.emoji, Icon: Heart, trend: 'stable', color: 'text-accent', bg: 'bg-accent/8' },
+              { label: 'Meds', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up', color: 'text-primary', bg: 'bg-primary/8' },
             ].map(metric => {
-              const Icon = metric.icon;
+              const Icon = metric.Icon;
               return (
-                <div key={metric.label} className="ios-card-elevated min-w-[130px] p-3">
+                <div key={metric.label} className="ios-card-elevated min-w-[120px] p-3 shrink-0">
                   <div className={`w-8 h-8 rounded-lg ${metric.bg} flex items-center justify-center mb-2`}>
                     <Icon className={`w-4 h-4 ${metric.color}`} />
                   </div>
-                  <div className="text-ios-title2 text-foreground">{metric.value}</div>
+                  <div className="text-[20px] font-bold text-foreground">{metric.value}</div>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-ios-caption text-muted-foreground">{metric.label}</span>
+                    <span className="text-[11px] text-muted-foreground">{metric.label}</span>
                     {metric.trend === 'up' && <TrendingUp className="w-3 h-3 text-success" />}
                     {metric.trend === 'down' && <TrendingDown className="w-3 h-3 text-destructive" />}
                   </div>
@@ -138,23 +138,23 @@ export default function CaregiverDashboard() {
         </div>
 
         {/* Alerts */}
-        <div className="px-5 mt-5 mb-4">
+        <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Alerts</h2>
-          <div className="ios-card-elevated divide-y divide-border">
+          <div className="ios-card-elevated divide-y divide-border/60">
             {[
               { text: 'Medication taken late (15 min)', time: '2 hours ago', level: 'warn' },
               { text: 'Mode switch suggested', time: 'Yesterday', level: 'info' },
               { text: 'Fall detected, resolved', time: 'Feb 10', level: 'critical' },
             ].map((alert, i) => (
               <div key={i} className="flex items-center gap-3 p-4">
-                <div className={`w-2 h-2 rounded-full ${
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                   alert.level === 'critical' ? 'bg-destructive' : alert.level === 'warn' ? 'bg-warning' : 'bg-primary'
                 }`} />
-                <div className="flex-1">
-                  <div className="text-ios-subheadline text-foreground">{alert.text}</div>
-                  <div className="text-ios-caption text-muted-foreground">{alert.time}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[14px] font-medium text-foreground">{alert.text}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{alert.time}</div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
               </div>
             ))}
           </div>
@@ -166,64 +166,61 @@ export default function CaregiverDashboard() {
   // Health Tab
   if (activeCaregiverTab === 'health') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-4">
-        <div className="px-5 pt-3 pb-3 bg-background">
-          <h1 className="text-ios-title text-foreground">Patient Health</h1>
+      <div className="h-full overflow-y-auto warm-gradient pb-6">
+        <div className="px-5 pt-3 pb-3">
+          <h1 className="text-[22px] font-bold text-foreground">Patient Health</h1>
         </div>
 
         {/* Vitals */}
-        <div className="px-5 mt-3">
+        <div className="px-5 mt-1">
           <h2 className="text-ios-title3 text-foreground mb-3">Vital Signs</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {[
-              { label: 'Heart Rate', value: '72 bpm', icon: Heart, time: '1 hr ago', color: 'bg-destructive/10 text-destructive' },
-              { label: 'Blood Pressure', value: '120/80', icon: Activity, time: 'This morning', color: 'bg-primary/10 text-primary' },
-              { label: 'Weight', value: '150 lbs', icon: BarChart3, time: 'Yesterday', color: 'bg-sage/10 text-sage' },
-              { label: 'Temperature', value: '98.6°F', icon: Activity, time: '2 hrs ago', color: 'bg-accent/10 text-accent' },
-            ].map(vital => {
-              const Icon = vital.icon;
-              return (
-                <div key={vital.label} className="ios-card-elevated p-4">
-                  <div className={`w-10 h-10 rounded-xl ${vital.color} flex items-center justify-center mb-2`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="text-ios-title2 text-foreground">{vital.value}</div>
-                  <div className="text-ios-caption text-muted-foreground">{vital.label}</div>
-                  <div className="text-ios-caption text-muted-foreground mt-1">{vital.time}</div>
+              { label: 'Heart Rate', value: '72 bpm', Icon: Heart, time: '1 hr ago', bg: 'bg-destructive/8', color: 'text-destructive' },
+              { label: 'Blood Pressure', value: '120/80', Icon: Activity, time: 'This morning', bg: 'bg-primary/8', color: 'text-primary' },
+              { label: 'Weight', value: '150 lbs', Icon: BarChart3, time: 'Yesterday', bg: 'bg-sage/8', color: 'text-sage' },
+              { label: 'Temperature', value: '98.6°F', Icon: Activity, time: '2 hrs ago', bg: 'bg-accent/8', color: 'text-accent' },
+            ].map(vital => (
+              <div key={vital.label} className="ios-card-elevated p-3.5">
+                <div className={`w-9 h-9 rounded-xl ${vital.bg} flex items-center justify-center mb-2`}>
+                  <vital.Icon className={`w-[18px] h-[18px] ${vital.color}`} />
                 </div>
-              );
-            })}
+                <div className="text-[18px] font-bold text-foreground">{vital.value}</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">{vital.label}</div>
+                <div className="text-[11px] text-muted-foreground">{vital.time}</div>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Activity Monitoring */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Activity Monitoring</h2>
+          <h2 className="text-ios-title3 text-foreground mb-3">Activity</h2>
           <div className="ios-card-elevated p-4 space-y-4">
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-ios-body text-foreground font-medium">Movement</span>
-                <span className="text-ios-subheadline text-primary">{stepCount.toLocaleString()} steps</span>
+                <span className="text-[14px] text-foreground font-medium">Movement</span>
+                <span className="text-[13px] text-primary font-medium">{stepCount.toLocaleString()} steps</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${(stepCount / 3000) * 100}%` }} className="h-full rounded-full bg-primary" />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((stepCount / 3000) * 100, 100)}%` }} className="h-full rounded-full bg-primary" />
               </div>
-              <div className="text-ios-caption text-muted-foreground mt-1">7-day avg: 3,100 steps</div>
+              <div className="text-[11px] text-muted-foreground mt-1.5">7-day avg: 3,100 steps</div>
             </div>
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-ios-body text-foreground font-medium">Sleep</span>
-                <span className="text-ios-subheadline text-lavender">{sleepHours} hrs</span>
+                <span className="text-[14px] text-foreground font-medium">Sleep</span>
+                <span className="text-[13px] text-lavender font-medium">{sleepHours} hrs</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
                 <motion.div initial={{ width: 0 }} animate={{ width: `${(sleepHours / 9) * 100}%` }} className="h-full rounded-full bg-lavender" />
               </div>
-              <div className="text-ios-caption text-muted-foreground mt-1">Quality: Good · 2 interruptions</div>
+              <div className="text-[11px] text-muted-foreground mt-1.5">Quality: Good · 2 interruptions</div>
             </div>
-            <div className="pt-2 border-t border-border">
+            <div className="pt-2.5 border-t border-border/60">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-warning" />
-                <span className="text-ios-subheadline text-warning">Movement lower than usual today</span>
+                <span className="text-[13px] text-warning font-medium">Movement lower than usual today</span>
               </div>
             </div>
           </div>
@@ -239,62 +236,62 @@ export default function CaregiverDashboard() {
               { label: 'Voice Command Success', value: '78%', trend: 'stable', color: 'text-primary' },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between py-1">
-                <span className="text-ios-body text-foreground">{item.label}</span>
+                <span className="text-[14px] text-foreground">{item.label}</span>
                 <div className="text-right">
-                  <span className="text-ios-body font-semibold text-foreground">{item.value}</span>
-                  <span className={`block text-ios-caption ${item.color}`}>{item.trend}</span>
+                  <span className="text-[14px] font-bold text-foreground">{item.value}</span>
+                  <span className={`block text-[11px] ${item.color}`}>{item.trend}</span>
                 </div>
               </div>
             ))}
-            <div className="pt-2 border-t border-border">
+            <div className="pt-2.5 border-t border-border/60">
               <div className="flex items-center gap-2">
                 <Brain className="w-4 h-4 text-accent" />
-                <span className="text-ios-subheadline text-accent">Consider switching to Simplified Mode</span>
+                <span className="text-[13px] text-accent font-medium">Consider switching to Simplified Mode</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Medication Tracking */}
+        {/* Medications */}
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Medications</h2>
-          <div className="ios-card-elevated divide-y divide-border">
+          <div className="ios-card-elevated divide-y divide-border/60">
             {medications.map(med => (
               <div key={med.id} className="flex items-center gap-3 p-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${med.taken ? 'bg-success/15' : 'bg-warning/15'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${med.taken ? 'bg-success/10' : 'bg-warning/10'}`}>
                   <Pill className={`w-5 h-5 ${med.taken ? 'text-success' : 'text-warning'}`} />
                 </div>
                 <div className="flex-1">
-                  <div className="text-ios-body text-foreground">{med.name} {med.dosage}</div>
-                  <div className="text-ios-caption text-muted-foreground">{med.time}</div>
+                  <div className="text-[14px] font-medium text-foreground">{med.name} {med.dosage}</div>
+                  <div className="text-[12px] text-muted-foreground">{med.time}</div>
                 </div>
-                <span className={`text-ios-footnote font-medium ${med.taken ? 'text-success' : 'text-warning'}`}>
+                <span className={`text-[12px] font-semibold ${med.taken ? 'text-success' : 'text-warning'}`}>
                   {med.taken ? `Taken ${med.takenAt}` : 'Pending'}
                 </span>
               </div>
             ))}
           </div>
-          <div className="mt-2 text-ios-footnote text-muted-foreground text-center">
-            Adherence: {medicationAdherence}% (last 30 days) · 2 missed doses
+          <div className="mt-2 text-[12px] text-muted-foreground text-center">
+            Adherence: {medicationAdherence}% (last 30 days)
           </div>
         </div>
 
-        {/* Mood History */}
-        <div className="px-5 mt-5 mb-4">
+        {/* Mood */}
+        <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Mood Tracking</h2>
           <div className="ios-card-elevated p-4">
             <div className="flex items-center gap-3 mb-3">
-              <span className="text-3xl">{currentMood.emoji}</span>
+              <span className="text-[28px]">{currentMood.emoji}</span>
               <div>
-                <div className="text-ios-body font-medium text-foreground">Currently: {currentMood.label}</div>
-                <div className="text-ios-caption text-muted-foreground">Logged at {currentMood.time}</div>
+                <div className="text-[14px] font-semibold text-foreground">Currently: {currentMood.label}</div>
+                <div className="text-[12px] text-muted-foreground">Logged at {currentMood.time}</div>
               </div>
             </div>
-            <div className="flex justify-between pt-3 border-t border-border">
+            <div className="flex justify-between pt-3 border-t border-border/60">
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
                 <div key={day} className="flex flex-col items-center gap-1">
-                  <span className="text-lg">{['😊', '😊', '😐', '😊', '😔', '😊', '😊'][i]}</span>
-                  <span className="text-ios-caption text-muted-foreground">{day}</span>
+                  <span className="text-[18px]">{['😊', '😊', '😐', '😊', '😔', '😊', '😊'][i]}</span>
+                  <span className="text-[10px] text-muted-foreground">{day}</span>
                 </div>
               ))}
             </div>
@@ -317,58 +314,58 @@ export default function CaregiverDashboard() {
     ];
 
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-4">
-        <div className="px-5 pt-3 pb-3 bg-background">
+      <div className="h-full overflow-y-auto warm-gradient pb-6">
+        <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-ios-title text-foreground">Care Tasks</h1>
-            <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+            <h1 className="text-[22px] font-bold text-foreground">Care Tasks</h1>
+            <button className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center touch-target">
               <Plus className="w-5 h-5" />
             </button>
           </div>
           <div className="flex gap-2 mt-3">
             {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
-              <button key={f} className={`px-4 h-8 rounded-full text-ios-footnote font-medium ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button key={f} className={`px-4 h-8 rounded-full text-[12px] font-semibold touch-target ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 {f}
               </button>
             ))}
           </div>
         </div>
-        <div className="px-5 mt-4">
-          <h3 className="text-ios-headline text-foreground mb-2">Today</h3>
-          <div className="ios-card-elevated divide-y divide-border">
+        <div className="px-5 mt-3">
+          <h3 className="text-[16px] font-bold text-foreground mb-2">Today</h3>
+          <div className="ios-card-elevated divide-y divide-border/60">
             {tasks.filter(t => t.time !== 'Tomorrow 10 AM').map(task => (
               <button
                 key={task.id}
                 onClick={() => toggleTask(task.id)}
-                className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/50"
+                className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/30 touch-target"
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${
                   tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border'
                 }`}>
-                  {tasksDone.has(task.id) && <span className="text-[10px] text-success-foreground">✓</span>}
+                  {tasksDone.has(task.id) && <Check className="w-3.5 h-3.5 text-success-foreground" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-ios-body ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                  <div className={`text-[14px] font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                     {task.title}
                   </div>
-                  <div className="text-ios-caption text-muted-foreground">{task.assignee} · {task.time}</div>
+                  <div className="text-[11px] text-muted-foreground">{task.assignee} · {task.time}</div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                  task.type === 'med' ? 'bg-primary/10 text-primary' : task.type === 'appt' ? 'bg-accent/10 text-accent' : 'bg-sage/10 text-sage'
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold shrink-0 ${
+                  task.type === 'med' ? 'bg-primary/8 text-primary' : task.type === 'appt' ? 'bg-accent/8 text-accent' : 'bg-sage/8 text-sage'
                 }`}>
                   {task.type === 'med' ? 'Med' : task.type === 'appt' ? 'Appt' : 'Care'}
                 </span>
               </button>
             ))}
           </div>
-          <h3 className="text-ios-headline text-foreground mb-2 mt-5">Upcoming</h3>
+          <h3 className="text-[16px] font-bold text-foreground mb-2 mt-5">Upcoming</h3>
           <div className="ios-card-elevated p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-accent/8 flex items-center justify-center shrink-0">
               <span className="text-lg">🏥</span>
             </div>
             <div>
-              <div className="text-ios-body text-foreground">Doctor Visit</div>
-              <div className="text-ios-caption text-muted-foreground">Tomorrow, 10:00 AM · Sarah</div>
+              <div className="text-[14px] font-medium text-foreground">Doctor Visit</div>
+              <div className="text-[12px] text-muted-foreground">Tomorrow, 10:00 AM · Sarah</div>
             </div>
           </div>
         </div>
@@ -379,11 +376,11 @@ export default function CaregiverDashboard() {
   // Reports Tab
   if (activeCaregiverTab === 'reports') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-4">
-        <div className="px-5 pt-3 pb-3 bg-background">
+      <div className="h-full overflow-y-auto warm-gradient pb-6">
+        <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-ios-title text-foreground">Reports</h1>
-            <button className="flex items-center gap-1 text-ios-subheadline text-primary">
+            <h1 className="text-[22px] font-bold text-foreground">Reports</h1>
+            <button className="flex items-center gap-1 text-[14px] text-primary font-medium touch-target">
               <Share2 className="w-4 h-4" /> Export
             </button>
           </div>
@@ -392,7 +389,7 @@ export default function CaregiverDashboard() {
               <button
                 key={r}
                 onClick={() => setReportRange(r)}
-                className={`px-4 h-8 rounded-full text-ios-footnote font-medium ${reportRange === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                className={`px-4 h-8 rounded-full text-[12px] font-semibold touch-target ${reportRange === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
               >
                 {r} days
               </button>
@@ -400,8 +397,8 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        <div className="px-5 mt-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="px-5 mt-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {[
               { label: 'Active Days', value: '28/30', color: 'text-success' },
               { label: 'Med Adherence', value: `${medicationAdherence}%`, color: 'text-primary' },
@@ -409,8 +406,8 @@ export default function CaregiverDashboard() {
               { label: 'Health Score', value: '8.2/10', color: 'text-sage' },
             ].map(stat => (
               <div key={stat.label} className="ios-card-elevated p-4 text-center">
-                <div className={`text-ios-title1 font-bold ${stat.color}`}>{stat.value}</div>
-                <div className="text-ios-caption text-muted-foreground mt-1">{stat.label}</div>
+                <div className={`text-[22px] font-bold ${stat.color}`}>{stat.value}</div>
+                <div className="text-[12px] text-muted-foreground mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -420,16 +417,16 @@ export default function CaregiverDashboard() {
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Activity Trends</h2>
           <div className="ios-card-elevated p-4">
-            <div className="flex items-end gap-2 h-32">
+            <div className="flex items-end gap-2 h-28">
               {[65, 80, 45, 90, 70, 85, 78].map((val, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
                   <motion.div
                     initial={{ height: 0 }}
                     animate={{ height: `${val}%` }}
-                    transition={{ delay: i * 0.05, duration: 0.5 }}
-                    className="w-full rounded-t-md bg-primary/70"
+                    transition={{ delay: i * 0.06, duration: 0.5 }}
+                    className="w-full rounded-lg bg-primary/60"
                   />
-                  <span className="text-[9px] text-muted-foreground">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
+                  <span className="text-[9px] text-muted-foreground font-medium">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
                 </div>
               ))}
             </div>
@@ -439,49 +436,43 @@ export default function CaregiverDashboard() {
         {/* Incidents */}
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Incidents</h2>
-          <div className="ios-card-elevated divide-y divide-border">
+          <div className="ios-card-elevated divide-y divide-border/60">
             {[
-              { text: 'Falls: 1 incident', detail: 'Feb 10 — Resolved', icon: AlertTriangle },
-              { text: 'Missed Medications: 2', detail: 'Last 30 days', icon: Pill },
-              { text: 'Alerts Triggered: 5', detail: 'Last 30 days', icon: Bell },
-            ].map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <div key={i} className="flex items-center gap-3 p-4">
-                  <Icon className="w-5 h-5 text-warning" />
-                  <div className="flex-1">
-                    <div className="text-ios-body text-foreground">{item.text}</div>
-                    <div className="text-ios-caption text-muted-foreground">{item.detail}</div>
-                  </div>
+              { text: 'Falls: 1 incident', detail: 'Feb 10 — Resolved', Icon: AlertTriangle },
+              { text: 'Missed Medications: 2', detail: 'Last 30 days', Icon: Pill },
+              { text: 'Alerts Triggered: 5', detail: 'Last 30 days', Icon: Bell },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-4">
+                <item.Icon className="w-5 h-5 text-warning shrink-0" />
+                <div className="flex-1">
+                  <div className="text-[14px] font-medium text-foreground">{item.text}</div>
+                  <div className="text-[11px] text-muted-foreground">{item.detail}</div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Share options */}
-        <div className="px-5 mt-5 mb-4">
+        {/* Share */}
+        <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Share Report</h2>
-          <div className="ios-card-elevated divide-y divide-border">
+          <div className="ios-card-elevated divide-y divide-border/60">
             {[
-              { icon: Mail, label: 'Email to family', desc: 'Send summary to care team' },
-              { icon: Download, label: 'Download PDF', desc: 'Full report with charts' },
-              { icon: Share2, label: 'Share with doctor', desc: 'Secure, HIPAA-compliant link' },
-            ].map(opt => {
-              const Icon = opt.icon;
-              return (
-                <button key={opt.label} className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/50">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-ios-body text-foreground">{opt.label}</div>
-                    <div className="text-ios-caption text-muted-foreground">{opt.desc}</div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
-              );
-            })}
+              { Icon: Mail, label: 'Email to family', desc: 'Send summary to care team' },
+              { Icon: Download, label: 'Download PDF', desc: 'Full report with charts' },
+              { Icon: Share2, label: 'Share with doctor', desc: 'Secure, HIPAA-compliant link' },
+            ].map(opt => (
+              <button key={opt.label} className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/30 touch-target">
+                <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                  <opt.Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[14px] font-medium text-foreground">{opt.label}</div>
+                  <div className="text-[11px] text-muted-foreground">{opt.desc}</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -490,27 +481,27 @@ export default function CaregiverDashboard() {
 
   // Settings Tab
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-4">
-      <div className="px-5 pt-3 pb-3 bg-background">
-        <h1 className="text-ios-title text-foreground">Settings</h1>
+    <div className="h-full overflow-y-auto warm-gradient pb-6">
+      <div className="px-5 pt-3 pb-3">
+        <h1 className="text-[22px] font-bold text-foreground">Settings</h1>
       </div>
 
       {/* Profile */}
-      <div className="px-5 mt-3">
-        <div className="ios-card-elevated p-4 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl">👩</div>
-          <div className="flex-1">
-            <div className="text-ios-headline text-foreground">Sarah Johnson</div>
-            <div className="text-ios-caption text-muted-foreground">Primary Caregiver (Daughter)</div>
+      <div className="px-5 mt-1">
+        <div className="ios-card-elevated p-4 flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-[22px] shrink-0">👩</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[16px] font-bold text-foreground">Sarah Johnson</div>
+            <div className="text-[12px] text-muted-foreground">Primary Caregiver (Daughter)</div>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
         </div>
       </div>
 
       {/* Notifications */}
       <div className="px-5 mt-5">
         <h2 className="text-ios-title3 text-foreground mb-3">Notifications</h2>
-        <div className="ios-card-elevated divide-y divide-border">
+        <div className="ios-card-elevated divide-y divide-border/60">
           {[
             { label: 'Critical Alerts', desc: 'Falls, emergencies', on: true, locked: true },
             { label: 'Medication reminders', desc: '', on: true, locked: false },
@@ -519,11 +510,11 @@ export default function CaregiverDashboard() {
             { label: 'Weekly reports', desc: '', on: true, locked: false },
           ].map(item => (
             <div key={item.label} className="flex items-center justify-between p-4">
-              <div>
-                <div className="text-ios-body text-foreground">{item.label}</div>
-                {item.desc && <div className="text-ios-caption text-muted-foreground">{item.desc}</div>}
+              <div className="flex-1">
+                <div className="text-[14px] font-medium text-foreground">{item.label}</div>
+                {item.desc && <div className="text-[11px] text-muted-foreground">{item.desc}</div>}
               </div>
-              <div className={`w-12 h-7 rounded-full flex items-center px-0.5 transition-colors ${item.on ? 'bg-success justify-end' : 'bg-muted justify-start'} ${item.locked ? 'opacity-60' : ''}`}>
+              <div className={`w-[46px] h-[28px] rounded-full flex items-center px-0.5 transition-colors ${item.on ? 'bg-success justify-end' : 'bg-muted justify-start'} ${item.locked ? 'opacity-50' : ''}`}>
                 <div className="w-6 h-6 rounded-full bg-card shadow-sm" />
               </div>
             </div>
@@ -534,47 +525,53 @@ export default function CaregiverDashboard() {
       {/* Care Team */}
       <div className="px-5 mt-5">
         <h2 className="text-ios-title3 text-foreground mb-3">Care Team</h2>
-        <div className="ios-card-elevated divide-y divide-border">
+        <div className="ios-card-elevated divide-y divide-border/60">
           {[
             { name: 'Sarah Johnson', role: 'Primary', access: 'Full access', emoji: '👩' },
             { name: 'John Johnson', role: 'Son', access: 'View only', emoji: '👨' },
             { name: 'Dr. Smith', role: 'Doctor', access: 'Health data', emoji: '👨‍⚕️' },
           ].map(member => (
             <div key={member.name} className="flex items-center gap-3 p-4">
-              <span className="text-2xl">{member.emoji}</span>
-              <div className="flex-1">
-                <div className="text-ios-body text-foreground">{member.name}</div>
-                <div className="text-ios-caption text-muted-foreground">{member.role} · {member.access}</div>
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <span className="text-[18px]">{member.emoji}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-medium text-foreground">{member.name}</div>
+                <div className="text-[11px] text-muted-foreground">{member.role} · {member.access}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
             </div>
           ))}
-          <button className="w-full p-4 text-primary text-ios-body font-medium text-center">
+          <button className="w-full p-4 text-primary text-[14px] font-semibold text-center touch-target">
             + Add Member
           </button>
         </div>
       </div>
 
-      {/* Patient Interface Control */}
+      {/* Patient Interface */}
       <div className="px-5 mt-5">
         <h2 className="text-ios-title3 text-foreground mb-3">Patient Interface</h2>
-        <div className="ios-card-elevated divide-y divide-border">
+        <div className="ios-card-elevated divide-y divide-border/60">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <Eye className="w-5 h-5 text-primary" />
+              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Eye className="w-[18px] h-[18px] text-primary" />
+              </div>
               <div>
-                <div className="text-ios-body text-foreground">Current Mode</div>
-                <div className="text-ios-caption text-muted-foreground">{mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simplified' : 'Essential'}</div>
+                <div className="text-[14px] font-medium text-foreground">Current Mode</div>
+                <div className="text-[12px] text-muted-foreground">{mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simplified' : 'Essential'}</div>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-primary" />
+              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Shield className="w-[18px] h-[18px] text-primary" />
+              </div>
               <div>
-                <div className="text-ios-body text-foreground">Emergency SOS</div>
-                <div className="text-ios-caption text-muted-foreground">Primary: Sarah · Auto-call: 30s</div>
+                <div className="text-[14px] font-medium text-foreground">Emergency SOS</div>
+                <div className="text-[12px] text-muted-foreground">Primary: Sarah · Auto-call: 30s</div>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -582,19 +579,21 @@ export default function CaregiverDashboard() {
         </div>
       </div>
 
-      <div className="px-5 mt-5 mb-8">
-        <div className="ios-card-elevated divide-y divide-border">
-          <button className="w-full p-4 text-left flex items-center gap-3 active:bg-muted/50">
-            <FileText className="w-5 h-5 text-primary" />
-            <span className="text-ios-body text-foreground">Help & Support</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+      <div className="px-5 mt-5 mb-6">
+        <div className="ios-card-elevated">
+          <button className="w-full p-4 text-left flex items-center gap-3 active:bg-muted/30 touch-target">
+            <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
+              <FileText className="w-[18px] h-[18px] text-primary" />
+            </div>
+            <span className="text-[14px] font-medium text-foreground flex-1">Help & Support</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
-        <button className="w-full ios-card mt-3 p-4 flex items-center gap-3 text-destructive">
+        <button className="w-full ios-card mt-3 p-4 flex items-center gap-3 text-destructive touch-target">
           <LogOut className="w-5 h-5" />
-          <span className="text-ios-body font-medium">Sign Out</span>
+          <span className="text-[14px] font-medium">Sign Out</span>
         </button>
-        <div className="text-center mt-4 text-ios-caption text-muted-foreground">MemoCare v1.0.0</div>
+        <div className="text-center mt-4 text-[11px] text-muted-foreground">MemoCare v1.0.0</div>
       </div>
     </div>
   );
