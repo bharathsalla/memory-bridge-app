@@ -38,8 +38,9 @@ export default function OnboardingScreen() {
 
   const handleVoiceChoice = useCallback(() => {
     setVoiceSelected(true);
-    startVoiceOver();
+    // Navigate first, THEN start voice over after UI renders
     next();
+    setTimeout(() => startVoiceOver(), 400);
   }, [startVoiceOver]);
 
   const finish = (withVoice: boolean = false) => {
