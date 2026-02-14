@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
 const photos = [
-  { id: '1', url: '', caption: 'Family picnic in the park', date: 'June 2023', gradient: 'from-primary/30 to-sage/30' },
-  { id: '2', url: '', caption: 'Birthday celebration', date: 'March 2023', gradient: 'from-secondary/30 to-accent/30' },
-  { id: '3', url: '', caption: 'Garden flowers', date: 'August 2023', gradient: 'from-sage/30 to-lavender/30' },
-  { id: '4', url: '', caption: 'Holiday dinner with family', date: 'December 2022', gradient: 'from-accent/30 to-primary/30' },
-  { id: '5', url: '', caption: 'Grandchildren at the beach', date: 'July 2023', gradient: 'from-lavender/30 to-secondary/30' },
-  { id: '6', url: '', caption: 'Morning walk in the neighborhood', date: 'September 2023', gradient: 'from-primary/20 to-accent/20' },
+  { id: '1', caption: 'Family picnic in the park', date: 'June 2023', emoji: '🌳', gradient: 'from-sage/20 to-primary/10' },
+  { id: '2', caption: 'Birthday celebration', date: 'March 2023', emoji: '🎂', gradient: 'from-secondary/15 to-accent/10' },
+  { id: '3', caption: 'Garden flowers', date: 'August 2023', emoji: '🌺', gradient: 'from-accent/15 to-sage/10' },
+  { id: '4', caption: 'Holiday dinner with family', date: 'December 2022', emoji: '🎄', gradient: 'from-destructive/10 to-accent/10' },
+  { id: '5', caption: 'Grandchildren at the beach', date: 'July 2023', emoji: '🏖️', gradient: 'from-primary/15 to-lavender/10' },
+  { id: '6', caption: 'Morning walk', date: 'September 2023', emoji: '🌅', gradient: 'from-accent/15 to-primary/10' },
 ];
 
 export default function MemoriesScreen() {
@@ -37,7 +37,7 @@ export default function MemoriesScreen() {
   // Essential: passive display
   if (mode === 'essential') {
     return (
-      <div className="h-full bg-foreground relative flex items-center justify-center">
+      <div className="h-full relative flex items-center justify-center bg-background">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPhoto}
@@ -47,10 +47,10 @@ export default function MemoriesScreen() {
             transition={{ duration: 1.5 }}
             className={`absolute inset-0 bg-gradient-to-br ${photos[currentPhoto].gradient} flex items-center justify-center`}
           >
-            <div className="text-center px-8">
-              <span className="text-8xl mb-6 block">🖼️</span>
-              <p className="text-[28px] font-semibold text-foreground">{photos[currentPhoto].caption}</p>
-              <p className="text-[20px] text-muted-foreground mt-2">{photos[currentPhoto].date}</p>
+            <div className="text-center px-10">
+              <span className="text-[80px] mb-6 block">{photos[currentPhoto].emoji}</span>
+              <p className="text-[26px] font-semibold text-foreground leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[18px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -70,38 +70,42 @@ export default function MemoriesScreen() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.5 }}
-              className={`absolute inset-4 rounded-3xl bg-gradient-to-br ${photos[currentPhoto].gradient} flex flex-col items-center justify-center p-8`}
+              className={`absolute inset-5 rounded-3xl bg-gradient-to-br ${photos[currentPhoto].gradient} flex flex-col items-center justify-center p-8`}
             >
-              <span className="text-8xl mb-6">🖼️</span>
-              <p className="text-[24px] font-semibold text-foreground text-center">{photos[currentPhoto].caption}</p>
-              <p className="text-[18px] text-muted-foreground mt-2">{photos[currentPhoto].date}</p>
+              <span className="text-[72px] mb-6">{photos[currentPhoto].emoji}</span>
+              <p className="text-[22px] font-semibold text-foreground text-center leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[17px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
             </motion.div>
           </AnimatePresence>
         </div>
-        <div className="flex items-center justify-between px-8 pb-4 pt-4">
+        <div className="flex items-center justify-center gap-4 px-6 pb-5 pt-3">
           <button
             onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)}
-            className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
+            className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl"
+            aria-label="Previous photo"
           >
-            <ChevronLeft className="w-8 h-8 text-foreground" />
+            <ChevronLeft className="w-7 h-7 text-foreground" />
           </button>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform"
+            className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform touch-target-xl"
+            aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
           >
-            {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+            {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
           </button>
           <button
             onClick={() => toggleFav(photos[currentPhoto].id)}
-            className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
+            className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl"
+            aria-label="Toggle favorite"
           >
-            <Heart className={`w-8 h-8 ${favorites.has(photos[currentPhoto].id) ? 'text-destructive fill-destructive' : 'text-foreground'}`} />
+            <Heart className={`w-7 h-7 ${favorites.has(photos[currentPhoto].id) ? 'text-destructive fill-destructive' : 'text-foreground'}`} />
           </button>
           <button
             onClick={() => setCurrentPhoto(p => (p + 1) % photos.length)}
-            className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
+            className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl"
+            aria-label="Next photo"
           >
-            <ChevronRight className="w-8 h-8 text-foreground" />
+            <ChevronRight className="w-7 h-7 text-foreground" />
           </button>
         </div>
       </div>
@@ -110,17 +114,17 @@ export default function MemoriesScreen() {
 
   // Full mode: grid view
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-4">
-      <div className="px-5 pt-3 pb-3 bg-background">
-        <h1 className="text-ios-title text-foreground">Memories</h1>
+    <div className="h-full overflow-y-auto warm-gradient pb-6">
+      <div className="px-5 pt-4 pb-3">
+        <h1 className="text-[28px] font-bold text-foreground">Memories</h1>
       </div>
       {/* Albums */}
-      <div className="px-5 mt-3">
-        <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1">
+      <div className="px-5 mt-1">
+        <div className="flex gap-2 overflow-x-auto pb-3">
           {['All', 'Favorites', 'Family', 'Holidays'].map((album, i) => (
             <button
               key={album}
-              className={`px-5 h-9 rounded-full shrink-0 text-ios-subheadline font-medium transition-colors ${
+              className={`px-5 h-9 rounded-full shrink-0 text-[14px] font-medium transition-colors touch-target ${
                 i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
               }`}
             >
@@ -137,12 +141,12 @@ export default function MemoriesScreen() {
               key={photo.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.06 }}
               onClick={() => { setCurrentPhoto(i); setIsPlaying(true); }}
               className={`relative aspect-square rounded-2xl bg-gradient-to-br ${photo.gradient} flex flex-col items-center justify-center p-4 active:scale-[0.97] transition-transform`}
             >
-              <span className="text-5xl mb-2">🖼️</span>
-              <p className="text-ios-footnote font-medium text-foreground text-center line-clamp-2">{photo.caption}</p>
+              <span className="text-[44px] mb-2">{photo.emoji}</span>
+              <p className="text-[12px] font-medium text-foreground text-center line-clamp-2 leading-snug">{photo.caption}</p>
               {favorites.has(photo.id) && (
                 <Heart className="absolute top-3 right-3 w-5 h-5 text-destructive fill-destructive" />
               )}
