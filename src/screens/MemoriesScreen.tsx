@@ -78,7 +78,7 @@ export default function MemoriesScreen() {
             </motion.div>
           </AnimatePresence>
         </div>
-        <div className="flex items-center justify-between px-8 pb-28 pt-4">
+        <div className="flex items-center justify-between px-8 pb-4 pt-4">
           <button
             onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)}
             className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
@@ -110,7 +110,7 @@ export default function MemoriesScreen() {
 
   // Full mode: grid view
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-24">
+    <div className="h-full overflow-y-auto bg-surface pb-4">
       <div className="px-5 pt-3 pb-3 bg-background">
         <h1 className="text-ios-title text-foreground">Memories</h1>
       </div>

@@ -15,7 +15,7 @@ export default function NavBar({ title, showBack, onBack, rightAction }: NavBarP
   if (mode === 'essential') return null;
 
   return (
-    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border safe-top">
+    <div className="z-30 bg-background/90 backdrop-blur-xl border-b border-border shrink-0">
       <div className="flex items-center justify-between px-4 h-11">
         <div className="w-20 flex items-start">
           {showBack && (

@@ -1,5 +1,6 @@
 import { useApp } from '@/contexts/AppContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import IPhoneFrame from '@/components/layout/iPhoneFrame';
 import NavBar from '@/components/layout/NavBar';
 import TabBar from '@/components/layout/TabBar';
 import OnboardingScreen from '@/screens/OnboardingScreen';
@@ -29,64 +30,61 @@ const cgNavTitles: Record<string, string> = {
 const Index = () => {
   const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView } = useApp();
 
-  if (!onboarded) {
+  const appContent = () => {
+    if (!onboarded) {
+      return <OnboardingScreen />;
+    }
+
+    const isEssential = mode === 'essential' && !isCaregiverView;
+
     return (
-      <div className="h-full max-w-[430px] mx-auto bg-background relative overflow-hidden shadow-2xl">
-        <OnboardingScreen />
+      <div className={`h-full flex flex-col bg-background relative overflow-hidden ${mode}`}>
+        {!isEssential && (
+          <NavBar
+            title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
+            showBack={isCaregiverView}
+            onBack={toggleCaregiverView}
+            rightAction={
+              isCaregiverView ? (
+                <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary">
+                  Patient
+                </button>
+              ) : undefined
+            }
+          />
+        )}
+
+        <div className="flex-1 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isCaregiverView ? `cg-${activeCaregiverTab}` : `pt-${activePatientTab}-${mode}`}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              {isCaregiverView ? (
+                <CaregiverDashboard />
+              ) : (
+                <>
+                  {activePatientTab === 'today' && <TodayScreen />}
+                  {activePatientTab === 'memories' && <MemoriesScreen />}
+                  {activePatientTab === 'safety' && <SafetyScreen />}
+                  {activePatientTab === 'care' && <CareScreen />}
+                  {activePatientTab === 'wellbeing' && <WellbeingScreen />}
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <TabBar />
       </div>
     );
-  }
+  };
 
-  const isEssential = mode === 'essential' && !isCaregiverView;
-
-  return (
-    <div className={`h-full max-w-[430px] mx-auto bg-background relative overflow-hidden shadow-2xl ${mode}`}>
-      {/* Nav Bar */}
-      {!isEssential && (
-        <NavBar
-          title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
-          showBack={isCaregiverView}
-          onBack={toggleCaregiverView}
-          rightAction={
-            isCaregiverView ? (
-              <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary">
-                Patient
-              </button>
-            ) : undefined
-          }
-        />
-      )}
-
-      {/* Main Content */}
-      <div className={`h-full ${!isEssential ? 'pt-0' : ''}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={isCaregiverView ? `cg-${activeCaregiverTab}` : `pt-${activePatientTab}-${mode}`}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
-            className="h-full"
-          >
-            {isCaregiverView ? (
-              <CaregiverDashboard />
-            ) : (
-              <>
-                {activePatientTab === 'today' && <TodayScreen />}
-                {activePatientTab === 'memories' && <MemoriesScreen />}
-                {activePatientTab === 'safety' && <SafetyScreen />}
-                {activePatientTab === 'care' && <CareScreen />}
-                {activePatientTab === 'wellbeing' && <WellbeingScreen />}
-              </>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Tab Bar */}
-      <TabBar />
-    </div>
-  );
+  return <IPhoneFrame>{appContent()}</IPhoneFrame>;
 };
 
 export default Index;
