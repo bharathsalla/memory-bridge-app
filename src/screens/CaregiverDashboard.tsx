@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import { motion } from 'framer-motion';
 import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check
+  Plus, Eye, LogOut, BarChart3, Check, Settings2
 } from 'lucide-react';
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
@@ -18,6 +19,7 @@ export default function CaregiverDashboard() {
   const sleepHours = Number(vitals.find(v => v.type === 'sleep')?.value || 0);
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1', '2']));
   const [reportRange, setReportRange] = useState<'7' | '30' | '90'>('7');
+  const [manageOpen, setManageOpen] = useState(false);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -320,7 +322,7 @@ export default function CaregiverDashboard() {
     ];
 
     return (
-      <div className="h-full overflow-y-auto warm-gradient pb-6">
+      <div className="h-full overflow-y-auto warm-gradient pb-6 relative">
         <div className="px-5 pt-3 pb-3">
           <div className="flex items-center justify-between">
             <h1 className="text-[22px] font-bold text-foreground">Care Tasks</h1>
@@ -375,6 +377,19 @@ export default function CaregiverDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Caregiver Manage FAB */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setManageOpen(true)}
+          className="fixed bottom-20 right-4 w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground flex items-center justify-center z-30 ios-card-elevated"
+          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+          aria-label="Manage patient data"
+        >
+          <Settings2 className="w-6 h-6" />
+        </motion.button>
+
+        <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
       </div>
     );
   }
