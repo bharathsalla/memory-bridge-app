@@ -5,7 +5,7 @@ import { Mic, MicOff, Volume2, X, Pause, Keyboard } from 'lucide-react';
 export default function VoiceOverIndicator() {
   const { isVoiceOverActive, isListening, isSpeaking, isOnHold, isWaitingForInput, lastUserSpeech, stopVoiceOver, startVoiceOver } = useVoiceOver();
 
-  // Floating activation button when voice over is OFF
+  // Floating activation button when voice over is OFF — placed at bottom
   if (!isVoiceOverActive) {
     return (
       <motion.button
@@ -13,7 +13,7 @@ export default function VoiceOverIndicator() {
         animate={{ scale: 1, opacity: 1 }}
         whileTap={{ scale: 0.9 }}
         onClick={startVoiceOver}
-        className="absolute top-2 right-2 z-50 w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center"
+        className="absolute bottom-16 left-4 z-50 w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center"
         style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
         aria-label="Activate voice over"
       >
@@ -25,10 +25,10 @@ export default function VoiceOverIndicator() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: -60, opacity: 0 }}
+        initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -60, opacity: 0 }}
-        className="absolute top-0 left-0 right-0 z-50 px-3 pt-1 pb-2"
+        exit={{ y: 60, opacity: 0 }}
+        className="absolute bottom-14 left-0 right-0 z-50 px-3 pb-1"
         style={{ pointerEvents: 'none' }}
       >
         <div
