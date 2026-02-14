@@ -1,9 +1,9 @@
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, X, Pause } from 'lucide-react';
+import { Mic, MicOff, Volume2, X, Pause, Keyboard } from 'lucide-react';
 
 export default function VoiceOverIndicator() {
-  const { isVoiceOverActive, isListening, isSpeaking, isOnHold, lastUserSpeech, stopVoiceOver, startVoiceOver } = useVoiceOver();
+  const { isVoiceOverActive, isListening, isSpeaking, isOnHold, isWaitingForInput, lastUserSpeech, stopVoiceOver, startVoiceOver } = useVoiceOver();
 
   // Floating activation button when voice over is OFF
   if (!isVoiceOverActive) {
@@ -22,7 +22,6 @@ export default function VoiceOverIndicator() {
     );
   }
 
-  // Active voice over indicator
   return (
     <AnimatePresence>
       <motion.div
@@ -30,16 +29,27 @@ export default function VoiceOverIndicator() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -60, opacity: 0 }}
         className="absolute top-0 left-0 right-0 z-50 px-3 pt-1 pb-2"
+        style={{ pointerEvents: 'none' }}
       >
-        <div className={`ios-card-elevated rounded-2xl p-3 flex items-center gap-3 ${isOnHold ? 'ring-2 ring-amber-400' : ''}`} style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
+        <div
+          className={`ios-card-elevated rounded-2xl p-3 flex items-center gap-3 ${
+            isOnHold ? 'ring-2 ring-orange-400' : isWaitingForInput ? 'ring-2 ring-secondary' : ''
+          }`}
+          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.12)', pointerEvents: 'auto' }}
+        >
           {/* Status indicator */}
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-            isOnHold ? 'bg-amber-500/15' : isSpeaking ? 'bg-secondary/15' : isListening ? 'bg-success/15' : 'bg-muted'
+            isOnHold ? 'bg-orange-500/15' :
+            isWaitingForInput ? 'bg-secondary/15' :
+            isSpeaking ? 'bg-primary/15' :
+            isListening ? 'bg-success/15' : 'bg-muted'
           }`}>
             {isOnHold ? (
-              <Pause className="w-5 h-5 text-amber-500" />
+              <Pause className="w-5 h-5 text-orange-500" />
+            ) : isWaitingForInput ? (
+              <Keyboard className="w-5 h-5 text-secondary animate-pulse" />
             ) : isSpeaking ? (
-              <Volume2 className="w-5 h-5 text-secondary animate-pulse" />
+              <Volume2 className="w-5 h-5 text-primary animate-pulse" />
             ) : isListening ? (
               <Mic className="w-5 h-5 text-success listening-pulse" />
             ) : (
@@ -50,16 +60,24 @@ export default function VoiceOverIndicator() {
           {/* Status text */}
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-semibold text-foreground">
-              {isOnHold ? 'On Hold — say "continue"' : isSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Voice Over Active'}
+              {isOnHold ? 'On Hold — say "continue"' :
+               isWaitingForInput ? '🎤 Speak now...' :
+               isSpeaking ? 'Speaking...' :
+               isListening ? 'Listening...' : 'Voice Over Active'}
             </div>
-            {lastUserSpeech && !isSpeaking && !isOnHold && (
-              <div className="text-[11px] text-muted-foreground truncate mt-0.5">
-                You said: "{lastUserSpeech}"
+            {isWaitingForInput && (
+              <div className="text-[11px] text-secondary mt-0.5">
+                I am waiting for your answer
               </div>
             )}
             {isOnHold && (
-              <div className="text-[11px] text-amber-600 mt-0.5">
-                Say "continue" or "go on" to resume
+              <div className="text-[11px] text-orange-600 mt-0.5">
+                Say "continue" to resume
+              </div>
+            )}
+            {lastUserSpeech && !isSpeaking && !isOnHold && !isWaitingForInput && (
+              <div className="text-[11px] text-muted-foreground truncate mt-0.5">
+                You said: "{lastUserSpeech}"
               </div>
             )}
             {isSpeaking && !isOnHold && (
@@ -67,9 +85,9 @@ export default function VoiceOverIndicator() {
                 {[0, 1, 2, 3, 4].map(i => (
                   <motion.div
                     key={i}
-                    animate={{ height: [3, 12, 3] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1 }}
-                    className="w-1 rounded-full bg-secondary"
+                    animate={{ height: [3, 10, 3] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.12 }}
+                    className="w-1 rounded-full bg-primary"
                   />
                 ))}
               </div>
