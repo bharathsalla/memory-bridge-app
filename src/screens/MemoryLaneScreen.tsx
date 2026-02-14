@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Camera, Mic, Heart, Calendar, Clock, Sparkles, MessageCircle, ChevronRight, X, Send, BookOpen } from 'lucide-react';
+import { Plus, Camera, Mic, Heart, Calendar, Clock, Sparkles, MessageCircle, ChevronRight, X, Send, BookOpen, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface MemoryEntry {
   id: string;
@@ -15,17 +17,8 @@ export interface MemoryEntry {
   cognitivePrompt?: string;
   cognitiveAnswer?: string;
   voiceTranscript?: string;
-  engagementScore?: number; // 0-100 based on interaction depth
+  engagementScore?: number;
 }
-
-const sampleMemories: MemoryEntry[] = [
-  { id: '1', type: 'photo', title: 'Morning garden walk', description: 'Beautiful roses blooming in the backyard. Sarah helped water the plants.', emoji: '🌹', time: '9:15 AM', date: 'Today', mood: '😊', isFavorite: true, cognitivePrompt: 'Who helped you water the plants?', cognitiveAnswer: 'Sarah', engagementScore: 92 },
-  { id: '2', type: 'voice', title: 'Called John', description: 'Had a lovely chat with John about his new job. He sounds happy.', emoji: '📞', time: '11:00 AM', date: 'Today', mood: '😊', isFavorite: false, voiceTranscript: 'John called me today, he got a promotion at his company...', cognitivePrompt: 'What good news did John share?', engagementScore: 78 },
-  { id: '3', type: 'note', title: 'Lunch with Sarah', description: 'Sarah made my favorite soup. We looked at old family photos together.', emoji: '🍲', time: '1:00 PM', date: 'Yesterday', mood: '😊', isFavorite: true, cognitivePrompt: 'What did Sarah cook for you?', cognitiveAnswer: 'My favorite soup', engagementScore: 85 },
-  { id: '4', type: 'photo', title: 'Grandchildren visited', description: 'Emma and Liam came after school. We played cards and had cookies.', emoji: '🃏', time: '4:30 PM', date: 'Yesterday', mood: '😊', isFavorite: true, cognitivePrompt: 'What are the names of your grandchildren?', cognitiveAnswer: 'Emma and Liam', engagementScore: 95 },
-  { id: '5', type: 'voice', title: 'Listened to music', description: 'Played old Frank Sinatra records. Remembered dancing with Harold.', emoji: '🎵', time: '7:00 PM', date: '2 days ago', mood: '😌', isFavorite: false, voiceTranscript: 'I was listening to Fly Me to the Moon, it reminded me of Harold...', cognitivePrompt: 'Who did you dance with?', engagementScore: 70 },
-  { id: '6', type: 'photo', title: 'Doctor appointment went well', description: 'Dr. Smith said blood pressure is good. Feeling relieved and positive.', emoji: '🏥', time: '10:00 AM', date: '3 days ago', mood: '😊', isFavorite: false, cognitivePrompt: 'What did the doctor say about your health?', cognitiveAnswer: 'Blood pressure is good', engagementScore: 65 },
-];
 
 const moodOptions = [
   { emoji: '😊', label: 'Happy' },
@@ -35,48 +28,136 @@ const moodOptions = [
   { emoji: '😰', label: 'Anxious' },
 ];
 
+const cognitivePrompts: Record<string, string[]> = {
+  photo: ['Who was with you in this moment?', 'Where was this taken?', 'What made this moment special?'],
+  voice: ['What were you talking about?', 'Who were you speaking with?', 'How did this conversation make you feel?'],
+  note: ['What inspired you to write this?', 'Who does this remind you of?', 'What made this moment special?'],
+};
+
+function formatRelativeDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 export default function MemoryLaneScreen() {
-  const [memories, setMemories] = useState(sampleMemories);
+  const [memories, setMemories] = useState<MemoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMemory, setSelectedMemory] = useState<MemoryEntry | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [showCognitivePrompt, setShowCognitivePrompt] = useState(false);
   const [cognitiveInput, setCognitiveInput] = useState('');
   const [addStep, setAddStep] = useState<'type' | 'content' | 'mood'>('type');
   const [newMemory, setNewMemory] = useState({ type: '' as string, title: '', description: '', mood: '' });
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
-  const toggleFavorite = useCallback((id: string) => {
-    setMemories(prev => prev.map(m => m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
+  // Load memories from database
+  const loadMemories = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('memories')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const mapped: MemoryEntry[] = (data || []).map((m: any) => ({
+        id: m.id,
+        type: m.type as 'photo' | 'voice' | 'note',
+        title: m.title,
+        description: m.description || '',
+        emoji: m.emoji || '📝',
+        time: new Date(m.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        date: formatRelativeDate(m.created_at),
+        mood: m.mood,
+        isFavorite: m.is_favorite || false,
+        cognitivePrompt: m.cognitive_prompt,
+        cognitiveAnswer: m.cognitive_answer,
+        voiceTranscript: m.voice_transcript,
+        engagementScore: m.engagement_score || 50,
+      }));
+      setMemories(mapped);
+    } catch (e) {
+      console.error('Failed to load memories:', e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const answerCognitivePrompt = useCallback(() => {
+  useEffect(() => {
+    loadMemories();
+
+    // Realtime subscription
+    const channel = supabase
+      .channel('memories-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, () => {
+        loadMemories();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [loadMemories]);
+
+  const toggleFavorite = useCallback(async (id: string) => {
+    const mem = memories.find(m => m.id === id);
+    if (!mem) return;
+    const newVal = !mem.isFavorite;
+    setMemories(prev => prev.map(m => m.id === id ? { ...m, isFavorite: newVal } : m));
+    await supabase.from('memories').update({ is_favorite: newVal }).eq('id', id);
+  }, [memories]);
+
+  const answerCognitivePrompt = useCallback(async () => {
     if (!selectedMemory || !cognitiveInput.trim()) return;
+    const newScore = Math.min((selectedMemory.engagementScore || 60) + 15, 100);
+    
+    await supabase.from('memories').update({
+      cognitive_answer: cognitiveInput,
+      engagement_score: newScore,
+    }).eq('id', selectedMemory.id);
+
     setMemories(prev => prev.map(m =>
-      m.id === selectedMemory.id ? { ...m, cognitiveAnswer: cognitiveInput, engagementScore: Math.min((m.engagementScore || 60) + 15, 100) } : m
+      m.id === selectedMemory.id ? { ...m, cognitiveAnswer: cognitiveInput, engagementScore: newScore } : m
     ));
-    setSelectedMemory(prev => prev ? { ...prev, cognitiveAnswer: cognitiveInput } : null);
+    setSelectedMemory(prev => prev ? { ...prev, cognitiveAnswer: cognitiveInput, engagementScore: newScore } : null);
     setCognitiveInput('');
     setShowCognitivePrompt(false);
-  }, [selectedMemory, cognitiveInput]);
+    toast({ title: '🎉 Great recall!', description: 'Your memory exercise has been recorded.' });
+  }, [selectedMemory, cognitiveInput, toast]);
 
-  const addNewMemory = useCallback(() => {
-    const entry: MemoryEntry = {
-      id: Date.now().toString(),
-      type: (newMemory.type || 'note') as 'photo' | 'voice' | 'note',
-      title: newMemory.title || 'New memory',
-      description: newMemory.description || '',
-      emoji: newMemory.type === 'photo' ? '📸' : newMemory.type === 'voice' ? '🎙️' : '📝',
-      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-      date: 'Today',
-      mood: newMemory.mood || '😊',
-      isFavorite: false,
-      engagementScore: 50,
-      cognitivePrompt: 'What made this moment special?',
-    };
-    setMemories(prev => [entry, ...prev]);
-    setShowAdd(false);
-    setAddStep('type');
-    setNewMemory({ type: '', title: '', description: '', mood: '' });
-  }, [newMemory]);
+  const addNewMemory = useCallback(async () => {
+    setSaving(true);
+    const type = (newMemory.type || 'note') as 'photo' | 'voice' | 'note';
+    const prompts = cognitivePrompts[type];
+    const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+
+    try {
+      const { error } = await supabase.from('memories').insert({
+        type,
+        title: newMemory.title || 'New memory',
+        description: newMemory.description || '',
+        emoji: type === 'photo' ? '📸' : type === 'voice' ? '🎙️' : '📝',
+        mood: newMemory.mood || '😊',
+        cognitive_prompt: prompt,
+        engagement_score: 50,
+      });
+      if (error) throw error;
+      toast({ title: '✨ Memory saved!', description: 'Your moment has been captured.' });
+    } catch (e) {
+      console.error('Failed to save memory:', e);
+      toast({ title: 'Error', description: 'Failed to save memory', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+      setShowAdd(false);
+      setAddStep('type');
+      setNewMemory({ type: '', title: '', description: '', mood: '' });
+    }
+  }, [newMemory, toast]);
 
   const groupedByDate = memories.reduce<Record<string, MemoryEntry[]>>((acc, m) => {
     if (!acc[m.date]) acc[m.date] = [];
@@ -86,7 +167,18 @@ export default function MemoryLaneScreen() {
 
   const todayCount = memories.filter(m => m.date === 'Today').length;
   const favCount = memories.filter(m => m.isFavorite).length;
-  const avgEngagement = Math.round(memories.reduce((s, m) => s + (m.engagementScore || 0), 0) / memories.length);
+  const avgEngagement = memories.length ? Math.round(memories.reduce((s, m) => s + (m.engagementScore || 0), 0) / memories.length) : 0;
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <span className="text-[13px] text-muted-foreground">Loading your memories...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-background relative">
@@ -102,7 +194,6 @@ export default function MemoryLaneScreen() {
             <span className="text-[11px] font-semibold text-accent">{avgEngagement}% engaged</span>
           </div>
         </div>
-        {/* Quick stats */}
         <div className="flex gap-2">
           {[
             { label: 'Today', value: todayCount, icon: '📅' },
@@ -119,6 +210,19 @@ export default function MemoryLaneScreen() {
           ))}
         </div>
       </div>
+
+      {/* Empty state */}
+      {memories.length === 0 && (
+        <div className="flex-1 flex flex-col items-center justify-center px-8">
+          <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">
+            <BookOpen className="w-10 h-10 text-primary" />
+          </div>
+          <h2 className="text-[18px] font-bold text-foreground mb-2">Start Your Memory Lane</h2>
+          <p className="text-[13px] text-muted-foreground text-center leading-relaxed">
+            Capture moments, answer recall prompts, and build your cognitive timeline. Tap + to add your first memory.
+          </p>
+        </div>
+      )}
 
       {/* Timeline */}
       <div className="flex-1 overflow-y-auto px-5 pb-24">
@@ -140,14 +244,12 @@ export default function MemoryLaneScreen() {
                   onClick={() => setSelectedMemory(memory)}
                   className="w-full flex gap-3 text-left group"
                 >
-                  {/* Timeline dot */}
                   <div className="flex flex-col items-center pt-1">
                     <div className={`w-3 h-3 rounded-full shrink-0 ring-2 ring-background ${
                       memory.type === 'photo' ? 'bg-primary' : memory.type === 'voice' ? 'bg-secondary' : 'bg-accent'
                     }`} />
                     {i < entries.length - 1 && <div className="w-0.5 flex-1 bg-border/40 mt-1" />}
                   </div>
-                  {/* Card */}
                   <div className="flex-1 ios-card-elevated p-3.5 mb-0 active:scale-[0.98] transition-transform">
                     <div className="flex items-start gap-3">
                       <div className="w-11 h-11 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
@@ -195,24 +297,11 @@ export default function MemoryLaneScreen() {
         <Plus className="w-5 h-5" />
       </motion.button>
 
-      {/* Add Memory Sheet - Multi-step */}
+      {/* Add Memory Sheet */}
       <AnimatePresence>
         {showAdd && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/40"
-            onClick={() => setShowAdd(false)}
-          >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-5 pb-8"
-              onClick={e => e.stopPropagation()}
-            >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 bg-black/40" onClick={() => setShowAdd(false)}>
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 350 }} className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-5 pb-8" onClick={e => e.stopPropagation()}>
               <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
 
               {addStep === 'type' && (
@@ -227,14 +316,8 @@ export default function MemoryLaneScreen() {
                     ].map(opt => {
                       const Icon = opt.icon;
                       return (
-                        <button
-                          key={opt.label}
-                          onClick={() => { setNewMemory(prev => ({ ...prev, type: opt.type })); setAddStep('content'); }}
-                          className="w-full ios-card-elevated p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
-                        >
-                          <div className={`w-12 h-12 rounded-2xl ${opt.bg} flex items-center justify-center shrink-0`}>
-                            <Icon className={`w-6 h-6 ${opt.color}`} />
-                          </div>
+                        <button key={opt.label} onClick={() => { setNewMemory(prev => ({ ...prev, type: opt.type })); setAddStep('content'); }} className="w-full ios-card-elevated p-4 flex items-center gap-4 active:scale-[0.98] transition-transform">
+                          <div className={`w-12 h-12 rounded-2xl ${opt.bg} flex items-center justify-center shrink-0`}><Icon className={`w-6 h-6 ${opt.color}`} /></div>
                           <div className="flex-1 text-left">
                             <div className="text-[15px] font-bold text-foreground">{opt.label}</div>
                             <div className="text-[12px] text-muted-foreground mt-0.5">{opt.desc}</div>
@@ -250,27 +333,11 @@ export default function MemoryLaneScreen() {
               {addStep === 'content' && (
                 <>
                   <h3 className="text-[18px] font-bold text-foreground mb-4 text-center">What happened?</h3>
-                  <input
-                    type="text"
-                    placeholder="Give it a title (e.g., Walk in the park)"
-                    value={newMemory.title}
-                    onChange={e => setNewMemory(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full h-12 rounded-2xl bg-muted/50 px-4 text-[14px] text-foreground placeholder:text-muted-foreground mb-3 outline-none focus:ring-2 focus:ring-primary/30"
-                  />
-                  <textarea
-                    placeholder="Describe this memory... Who was there? What did you feel?"
-                    value={newMemory.description}
-                    onChange={e => setNewMemory(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3}
-                    className="w-full rounded-2xl bg-muted/50 p-4 text-[14px] text-foreground placeholder:text-muted-foreground mb-4 outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                  />
+                  <input type="text" placeholder="Give it a title (e.g., Walk in the park)" value={newMemory.title} onChange={e => setNewMemory(prev => ({ ...prev, title: e.target.value }))} className="w-full h-12 rounded-2xl bg-muted/50 px-4 text-[14px] text-foreground placeholder:text-muted-foreground mb-3 outline-none focus:ring-2 focus:ring-primary/30" />
+                  <textarea placeholder="Describe this memory... Who was there? What did you feel?" value={newMemory.description} onChange={e => setNewMemory(prev => ({ ...prev, description: e.target.value }))} rows={3} className="w-full rounded-2xl bg-muted/50 p-4 text-[14px] text-foreground placeholder:text-muted-foreground mb-4 outline-none focus:ring-2 focus:ring-primary/30 resize-none" />
                   <div className="flex gap-2.5">
                     <button onClick={() => setAddStep('type')} className="flex-1 h-11 rounded-2xl bg-muted/50 text-muted-foreground text-[14px] font-bold">Back</button>
-                    <button
-                      onClick={() => setAddStep('mood')}
-                      disabled={!newMemory.title.trim()}
-                      className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-[14px] font-bold disabled:opacity-40"
-                    >Next</button>
+                    <button onClick={() => setAddStep('mood')} disabled={!newMemory.title.trim()} className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-[14px] font-bold disabled:opacity-40">Next</button>
                   </div>
                 </>
               )}
@@ -281,13 +348,7 @@ export default function MemoryLaneScreen() {
                   <p className="text-[12px] text-muted-foreground text-center mb-5">This helps us understand your emotional journey</p>
                   <div className="flex justify-center gap-3 mb-6">
                     {moodOptions.map(m => (
-                      <button
-                        key={m.emoji}
-                        onClick={() => setNewMemory(prev => ({ ...prev, mood: m.emoji }))}
-                        className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all ${
-                          newMemory.mood === m.emoji ? 'bg-primary/10 ring-2 ring-primary scale-110' : 'bg-muted/30'
-                        }`}
-                      >
+                      <button key={m.emoji} onClick={() => setNewMemory(prev => ({ ...prev, mood: m.emoji }))} className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all ${newMemory.mood === m.emoji ? 'bg-primary/10 ring-2 ring-primary scale-110' : 'bg-muted/30'}`}>
                         <span className="text-[28px]">{m.emoji}</span>
                         <span className="text-[10px] font-medium text-muted-foreground">{m.label}</span>
                       </button>
@@ -295,7 +356,8 @@ export default function MemoryLaneScreen() {
                   </div>
                   <div className="flex gap-2.5">
                     <button onClick={() => setAddStep('content')} className="flex-1 h-11 rounded-2xl bg-muted/50 text-muted-foreground text-[14px] font-bold">Back</button>
-                    <button onClick={addNewMemory} className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-[14px] font-bold">
+                    <button onClick={addNewMemory} disabled={saving} className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-[14px] font-bold disabled:opacity-40 flex items-center justify-center gap-2">
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                       Save Memory ✨
                     </button>
                   </div>
@@ -309,22 +371,8 @@ export default function MemoryLaneScreen() {
       {/* Memory Detail with Cognitive Prompt */}
       <AnimatePresence>
         {selectedMemory && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/40 flex items-end justify-center"
-            onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }}
-          >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-              className="bg-card rounded-t-3xl w-full overflow-hidden shadow-2xl border-t border-border/20"
-              onClick={e => e.stopPropagation()}
-            >
-              {/* Close */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }}>
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 350 }} className="bg-card rounded-t-3xl w-full overflow-hidden shadow-2xl border-t border-border/20" onClick={e => e.stopPropagation()}>
               <div className="flex justify-end p-3 pb-0">
                 <button onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }} className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center">
                   <X className="w-4 h-4 text-muted-foreground" />
@@ -342,7 +390,6 @@ export default function MemoryLaneScreen() {
                 </div>
                 <p className="text-[14px] text-muted-foreground mt-3 leading-relaxed">{selectedMemory.description}</p>
 
-                {/* Voice transcript */}
                 {selectedMemory.voiceTranscript && (
                   <div className="mt-3 p-3 rounded-2xl bg-secondary/8 text-left">
                     <div className="flex items-center gap-1.5 mb-1.5">
@@ -353,7 +400,6 @@ export default function MemoryLaneScreen() {
                   </div>
                 )}
 
-                {/* Cognitive Recall Section */}
                 {selectedMemory.cognitivePrompt && (
                   <div className="mt-3 p-3 rounded-2xl bg-accent/8">
                     <div className="flex items-center gap-1.5 mb-2">
@@ -368,26 +414,11 @@ export default function MemoryLaneScreen() {
                     ) : (
                       <>
                         {!showCognitivePrompt ? (
-                          <button
-                            onClick={() => setShowCognitivePrompt(true)}
-                            className="mt-2 text-[12px] font-semibold text-accent underline underline-offset-2"
-                          >
-                            Try to recall →
-                          </button>
+                          <button onClick={() => setShowCognitivePrompt(true)} className="mt-2 text-[12px] font-semibold text-accent underline underline-offset-2">Try to recall →</button>
                         ) : (
                           <div className="mt-2 flex gap-2">
-                            <input
-                              type="text"
-                              value={cognitiveInput}
-                              onChange={e => setCognitiveInput(e.target.value)}
-                              onKeyDown={e => e.key === 'Enter' && answerCognitivePrompt()}
-                              placeholder="Your answer..."
-                              className="flex-1 h-9 rounded-xl bg-card px-3 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/30"
-                              autoFocus
-                            />
-                            <button onClick={answerCognitivePrompt} className="w-9 h-9 rounded-xl bg-accent text-accent-foreground flex items-center justify-center">
-                              <Send className="w-4 h-4" />
-                            </button>
+                            <input type="text" value={cognitiveInput} onChange={e => setCognitiveInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && answerCognitivePrompt()} placeholder="Your answer..." className="flex-1 h-9 rounded-xl bg-card px-3 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-accent/30" autoFocus />
+                            <button onClick={answerCognitivePrompt} className="w-9 h-9 rounded-xl bg-accent text-accent-foreground flex items-center justify-center"><Send className="w-4 h-4" /></button>
                           </div>
                         )}
                       </>
@@ -395,17 +426,10 @@ export default function MemoryLaneScreen() {
                   </div>
                 )}
 
-                {/* Engagement indicator */}
                 {selectedMemory.engagementScore !== undefined && (
                   <div className="mt-3 flex items-center gap-2">
                     <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${selectedMemory.engagementScore}%` }}
-                        className={`h-full rounded-full ${
-                          selectedMemory.engagementScore >= 80 ? 'bg-success' : selectedMemory.engagementScore >= 50 ? 'bg-accent' : 'bg-warning'
-                        }`}
-                      />
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${selectedMemory.engagementScore}%` }} className={`h-full rounded-full ${selectedMemory.engagementScore >= 80 ? 'bg-success' : selectedMemory.engagementScore >= 50 ? 'bg-accent' : 'bg-warning'}`} />
                     </div>
                     <span className="text-[10px] text-muted-foreground">{selectedMemory.engagementScore}% engaged</span>
                   </div>
@@ -413,19 +437,11 @@ export default function MemoryLaneScreen() {
               </div>
 
               <div className="px-5 pb-6 pt-3 flex gap-2.5">
-                <button
-                  onClick={() => { toggleFavorite(selectedMemory.id); setSelectedMemory(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null); }}
-                  className="flex-1 h-11 rounded-2xl bg-destructive/10 text-destructive text-[14px] font-bold flex items-center justify-center gap-2"
-                >
+                <button onClick={() => { toggleFavorite(selectedMemory.id); setSelectedMemory(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null); }} className="flex-1 h-11 rounded-2xl bg-destructive/10 text-destructive text-[14px] font-bold flex items-center justify-center gap-2">
                   <Heart className={`w-4 h-4 ${selectedMemory.isFavorite ? 'fill-destructive' : ''}`} />
                   {selectedMemory.isFavorite ? 'Saved' : 'Save'}
                 </button>
-                <button
-                  onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }}
-                  className="flex-1 h-11 rounded-2xl bg-muted/50 text-muted-foreground text-[14px] font-bold"
-                >
-                  Close
-                </button>
+                <button onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }} className="flex-1 h-11 rounded-2xl bg-muted/50 text-muted-foreground text-[14px] font-bold">Close</button>
               </div>
             </motion.div>
           </motion.div>

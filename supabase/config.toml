@@ -2,3 +2,6 @@ project_id = "kswmiuiqwlbavlmzasnz"
 
 [functions.voice-nlp]
 verify_jwt = false
+
+[functions.cognitive-analysis]
+verify_jwt = false
