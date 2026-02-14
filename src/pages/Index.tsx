@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
 import NavBar from '@/components/layout/NavBar';
 import TabBar from '@/components/layout/TabBar';
+import VoiceOverIndicator from '@/components/VoiceOverIndicator';
 import OnboardingScreen from '@/screens/OnboardingScreen';
 import TodayScreen from '@/screens/TodayScreen';
 import MemoriesScreen from '@/screens/MemoriesScreen';
@@ -39,6 +40,7 @@ const Index = () => {
 
     return (
       <div className={`h-full flex flex-col bg-background relative overflow-hidden ${mode}`}>
+        <VoiceOverIndicator />
         {!isEssential && (
           <NavBar
             title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}

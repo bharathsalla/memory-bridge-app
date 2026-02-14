@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
+import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Smartphone, Hand, Users } from 'lucide-react';
+import { Heart, Smartphone, Hand, Users, Mic, Monitor } from 'lucide-react';
 
-const steps = ['welcome', 'assess', 'personalize', 'complete'] as const;
+const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
 
 export default function OnboardingScreen() {
   const { completeOnboarding } = useApp();
+  const { startVoiceOver } = useVoiceOver();
   const [step, setStep] = useState<typeof steps[number]>('welcome');
   const [name, setName] = useState('');
   const [selectedMode, setSelectedMode] = useState<AppMode>('full');
@@ -16,8 +18,11 @@ export default function OnboardingScreen() {
     if (i < steps.length - 1) setStep(steps[i + 1]);
   };
 
-  const finish = () => {
+  const finish = (withVoice: boolean = false) => {
     completeOnboarding(name || 'Friend', selectedMode);
+    if (withVoice) {
+      setTimeout(() => startVoiceOver(), 800);
+    }
   };
 
   const modeOptions: { mode: AppMode; title: string; desc: string; icon: typeof Smartphone }[] = [
@@ -80,6 +85,53 @@ export default function OnboardingScreen() {
             </div>
           )}
 
+          {step === 'voiceChoice' && (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', bounce: 0.4 }}
+                className="w-28 h-28 rounded-[28px] bg-gradient-to-br from-secondary/15 to-secondary/5 flex items-center justify-center mb-8"
+              >
+                <Mic className="w-14 h-14 text-secondary" />
+              </motion.div>
+              <h1 className="text-ios-title1 text-foreground mb-3">How would you like to use MemoCare?</h1>
+              <p className="text-ios-body text-muted-foreground max-w-[280px] leading-relaxed mb-10">
+                Choose your preferred way to interact with the app.
+              </p>
+
+              <div className="w-full space-y-3">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={next}
+                  className="w-full ios-card-elevated p-5 flex items-center gap-4 text-left touch-target-xl rounded-2xl ring-2 ring-secondary/30"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Mic className="w-7 h-7 text-secondary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[18px] font-bold text-foreground">Use Voice Over</div>
+                    <div className="text-[14px] text-muted-foreground mt-1">I'll guide you with voice. Just speak to navigate, take medicine, and more.</div>
+                  </div>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={next}
+                  className="w-full ios-card-elevated p-5 flex items-center gap-4 text-left touch-target-xl rounded-2xl"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Monitor className="w-7 h-7 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[18px] font-bold text-foreground">Browse Mode</div>
+                    <div className="text-[14px] text-muted-foreground mt-1">Use the app by tapping and swiping. You can enable voice later.</div>
+                  </div>
+                </motion.button>
+              </div>
+            </div>
+          )}
+
           {step === 'assess' && (
             <div className="flex-1 flex flex-col">
               <h1 className="text-ios-title1 text-foreground mb-2">How comfortable are you with technology?</h1>
@@ -90,7 +142,7 @@ export default function OnboardingScreen() {
                   return (
                     <button
                       key={opt.mode}
-                      onClick={() => { setSelectedMode(opt.mode); next(); }}
+                      onClick={() => { setSelectedMode(opt.mode); setStep('personalize'); }}
                       className={`ios-card-elevated p-5 text-left flex items-center gap-4 active:scale-[0.98] transition-all touch-target ${
                         selectedMode === opt.mode ? 'ring-2 ring-primary bg-primary/[0.03]' : ''
                       }`}
@@ -125,7 +177,7 @@ export default function OnboardingScreen() {
               </div>
               <div className="mt-auto mb-8">
                 <button
-                  onClick={next}
+                  onClick={() => setStep('complete')}
                   className="w-full h-14 rounded-2xl bg-primary text-primary-foreground text-[17px] font-semibold active:scale-[0.98] transition-transform shadow-sm"
                 >
                   Continue
@@ -155,12 +207,19 @@ export default function OnboardingScreen() {
               <p className="text-ios-body text-muted-foreground max-w-[280px]">
                 MemoCare is ready to help you every day.
               </p>
-              <div className="mt-auto mb-8 w-full">
+              <div className="mt-auto mb-8 w-full space-y-3">
                 <button
-                  onClick={finish}
+                  onClick={() => finish(true)}
+                  className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-[17px] font-semibold active:scale-[0.98] transition-transform shadow-sm flex items-center justify-center gap-3"
+                >
+                  <Mic className="w-5 h-5" />
+                  Start with Voice Over
+                </button>
+                <button
+                  onClick={() => finish(false)}
                   className="w-full h-14 rounded-2xl bg-primary text-primary-foreground text-[17px] font-semibold active:scale-[0.98] transition-transform shadow-sm"
                 >
-                  Start Using MemoCare
+                  Start Browsing
                 </button>
               </div>
             </div>
