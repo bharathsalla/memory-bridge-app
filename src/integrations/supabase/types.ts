@@ -44,6 +44,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cognitive_insights: {
+        Row: {
+          alerts: Json | null
+          analysis_date: string
+          avg_engagement: number | null
+          created_at: string
+          daily_breakdown: Json | null
+          id: string
+          mood_distribution: Json | null
+          recall_rate: number | null
+          recalled_count: number | null
+          recommendations: Json | null
+          total_entries: number | null
+        }
+        Insert: {
+          alerts?: Json | null
+          analysis_date?: string
+          avg_engagement?: number | null
+          created_at?: string
+          daily_breakdown?: Json | null
+          id?: string
+          mood_distribution?: Json | null
+          recall_rate?: number | null
+          recalled_count?: number | null
+          recommendations?: Json | null
+          total_entries?: number | null
+        }
+        Update: {
+          alerts?: Json | null
+          analysis_date?: string
+          avg_engagement?: number | null
+          created_at?: string
+          daily_breakdown?: Json | null
+          id?: string
+          mood_distribution?: Json | null
+          recall_rate?: number | null
+          recalled_count?: number | null
+          recommendations?: Json | null
+          total_entries?: number | null
+        }
+        Relationships: []
+      }
       medications: {
         Row: {
           created_at: string | null
@@ -77,6 +119,54 @@ export type Database = {
           taken_at?: string | null
           time?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      memories: {
+        Row: {
+          cognitive_answer: string | null
+          cognitive_prompt: string | null
+          created_at: string
+          description: string | null
+          emoji: string | null
+          engagement_score: number | null
+          id: string
+          is_favorite: boolean | null
+          mood: string | null
+          title: string
+          type: string
+          updated_at: string
+          voice_transcript: string | null
+        }
+        Insert: {
+          cognitive_answer?: string | null
+          cognitive_prompt?: string | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          engagement_score?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          mood?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          voice_transcript?: string | null
+        }
+        Update: {
+          cognitive_answer?: string | null
+          cognitive_prompt?: string | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          engagement_score?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          mood?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          voice_transcript?: string | null
         }
         Relationships: []
       }
