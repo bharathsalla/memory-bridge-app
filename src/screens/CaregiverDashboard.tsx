@@ -7,9 +7,15 @@ import {
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
   Plus, Eye, LogOut, BarChart3, Check
 } from 'lucide-react';
+import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function CaregiverDashboard() {
-  const { activeCaregiverTab, toggleCaregiverView, medications, activities, currentMood, stepCount, sleepHours, medicationAdherence, taskCompletionRate, mode } = useApp();
+  const { activeCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode } = useApp();
+  const { data: medications = [] } = useMedications();
+  const { data: activities = [] } = useActivities();
+  const { data: vitals = [] } = useVitals();
+  const stepCount = Number(vitals.find(v => v.type === 'steps')?.value || 0);
+  const sleepHours = Number(vitals.find(v => v.type === 'sleep')?.value || 0);
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1', '2']));
   const [reportRange, setReportRange] = useState<'7' | '30' | '90'>('7');
 
@@ -266,7 +272,7 @@ export default function CaregiverDashboard() {
                   <div className="text-[12px] text-muted-foreground">{med.time}</div>
                 </div>
                 <span className={`text-[12px] font-semibold ${med.taken ? 'text-success' : 'text-warning'}`}>
-                  {med.taken ? `Taken ${med.takenAt}` : 'Pending'}
+                  {med.taken ? `Taken ${med.taken_at}` : 'Pending'}
                 </span>
               </div>
             ))}

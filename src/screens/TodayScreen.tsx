@@ -3,9 +3,18 @@ import ModeBadge from '@/components/layout/ModeBadge';
 import { motion } from 'framer-motion';
 import { Pill, Mic, Check, Clock, Footprints, Moon } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
+import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function TodayScreen() {
-  const { mode, patientName, medications, activities, currentMood, stepCount, sleepHours, markMedicationTaken, toggleCaregiverView } = useApp();
+  const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
+  const { data: medications = [] } = useMedications();
+  const { data: activities = [] } = useActivities();
+  const { data: vitals = [] } = useVitals();
+  const markTaken = useMarkMedicationTaken();
+
+  // Derive stats from vitals
+  const stepCount = Number(vitals.find(v => v.type === 'steps')?.value || 0);
+  const sleepHours = Number(vitals.find(v => v.type === 'sleep')?.value || 0);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -13,6 +22,8 @@ export default function TodayScreen() {
     if (h < 17) return 'Good Afternoon';
     return 'Good Evening';
   };
+
+  const markMedicationTaken = (id: string) => markTaken.mutate(id);
 
   const pendingMeds = medications.filter(m => !m.taken);
   const takenMeds = medications.filter(m => m.taken);
@@ -91,7 +102,7 @@ export default function TodayScreen() {
               </div>
               <div className="flex-1">
                 <div className="text-[22px] font-bold text-foreground">{med.name}</div>
-                <div className="text-[17px] text-muted-foreground">Taken at {med.takenAt}</div>
+                <div className="text-[17px] text-muted-foreground">Taken at {med.taken_at}</div>
               </div>
             </div>
           ))}
@@ -191,7 +202,7 @@ export default function TodayScreen() {
                   <div className="text-[16px] font-semibold text-foreground">{med.name} {med.dosage}</div>
                   <div className="text-[13px] text-muted-foreground mt-0.5 flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
-                    {med.taken ? `Taken at ${med.takenAt}` : med.time}
+                    {med.taken ? `Taken at ${med.taken_at}` : med.time}
                   </div>
                 </div>
                 {!med.taken && (
