@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          time: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          description: string
+          icon?: string | null
+          id?: string
+          time: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          time?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      medications: {
+        Row: {
+          created_at: string | null
+          dosage: string
+          id: string
+          instructions: string | null
+          name: string
+          taken: boolean | null
+          taken_at: string | null
+          time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dosage: string
+          id?: string
+          instructions?: string | null
+          name: string
+          taken?: boolean | null
+          taken_at?: string | null
+          time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dosage?: string
+          id?: string
+          instructions?: string | null
+          name?: string
+          taken?: boolean | null
+          taken_at?: string | null
+          time?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      vitals: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          recorded_at: string | null
+          type: string
+          unit: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          recorded_at?: string | null
+          type: string
+          unit?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          recorded_at?: string | null
+          type?: string
+          unit?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
