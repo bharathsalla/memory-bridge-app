@@ -20,7 +20,7 @@ export default function CaregiverDashboard() {
   // Dashboard Tab
   if (activeCaregiverTab === 'dashboard') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-24">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-3 pb-3 bg-background">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-title text-foreground">Care Dashboard</h1>
@@ -41,7 +41,7 @@ export default function CaregiverDashboard() {
                 <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    mode === 'full' ? 'bg-blue-500 text-white' : mode === 'simplified' ? 'bg-warning text-white' : 'bg-lavender text-white'
+                    mode === 'full' ? 'bg-primary text-primary-foreground' : mode === 'simplified' ? 'bg-warning text-warning-foreground' : 'bg-lavender text-lavender-foreground'
                   }`}>
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
@@ -166,7 +166,7 @@ export default function CaregiverDashboard() {
   // Health Tab
   if (activeCaregiverTab === 'health') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-24">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-3 pb-3 bg-background">
           <h1 className="text-ios-title text-foreground">Patient Health</h1>
         </div>
@@ -317,7 +317,7 @@ export default function CaregiverDashboard() {
     ];
 
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-24">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-3 pb-3 bg-background">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-title text-foreground">Care Tasks</h1>
@@ -379,7 +379,7 @@ export default function CaregiverDashboard() {
   // Reports Tab
   if (activeCaregiverTab === 'reports') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-24">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-3 pb-3 bg-background">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-title text-foreground">Reports</h1>
@@ -490,7 +490,7 @@ export default function CaregiverDashboard() {
 
   // Settings Tab
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-24">
+    <div className="h-full overflow-y-auto bg-surface pb-4">
       <div className="px-5 pt-3 pb-3 bg-background">
         <h1 className="text-ios-title text-foreground">Settings</h1>
       </div>

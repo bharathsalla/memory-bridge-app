@@ -68,7 +68,7 @@ export default function CareScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-4">
         {activeSection === 'chat' && (
           <div className="flex flex-col h-full">
             <div className="flex-1 px-5 pt-4 space-y-3">
@@ -89,7 +89,7 @@ export default function CareScreen() {
                 </motion.div>
               ))}
             </div>
-            <div className="sticky bottom-20 px-4 pb-4 pt-2 bg-background/80 backdrop-blur-xl border-t border-border">
+            <div className="sticky bottom-0 px-4 pb-3 pt-2 bg-background/80 backdrop-blur-xl border-t border-border">
               <div className="flex gap-2">
                 <input
                   type="text"

@@ -17,13 +17,13 @@ export default function WellbeingScreen() {
   const [showModeSwitch, setShowModeSwitch] = useState(false);
 
   const modes: { id: AppMode; label: string; desc: string; color: string }[] = [
-    { id: 'full', label: 'Full Mode', desc: 'All features, standard interface', color: 'bg-blue-500' },
+    { id: 'full', label: 'Full Mode', desc: 'All features, standard interface', color: 'bg-primary' },
     { id: 'simplified', label: 'Simplified Mode', desc: 'Larger buttons, fewer options', color: 'bg-warning' },
     { id: 'essential', label: 'Essential Mode', desc: 'Minimal interface, caregiver-managed', color: 'bg-lavender' },
   ];
 
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-24">
+    <div className="h-full overflow-y-auto bg-surface pb-4">
       <div className="px-5 pt-3 pb-4 bg-background">
         <h1 className="text-ios-title text-foreground">My Wellbeing</h1>
       </div>

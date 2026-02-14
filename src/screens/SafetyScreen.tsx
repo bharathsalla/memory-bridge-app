@@ -46,7 +46,7 @@ export default function SafetyScreen() {
   // Simplified mode
   if (mode === 'simplified') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-32">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-4 bg-background pb-4">
           <h1 className="text-[40px] font-bold text-foreground">Safety</h1>
         </div>
@@ -84,7 +84,7 @@ export default function SafetyScreen() {
 
   // Full mode
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-24">
+    <div className="h-full overflow-y-auto bg-surface pb-4">
       <div className="px-5 pt-3 pb-3 bg-background">
         <h1 className="text-ios-title text-foreground">Safety</h1>
       </div>

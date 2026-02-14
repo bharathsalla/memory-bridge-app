@@ -49,7 +49,7 @@ export default function TodayScreen() {
   // Simplified mode
   if (mode === 'simplified') {
     return (
-      <div className="h-full overflow-y-auto bg-surface pb-32">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
         <div className="px-5 pt-4 pb-4 bg-background">
           <h1 className="text-[40px] font-bold text-foreground leading-tight">{greeting()}</h1>
           <p className="text-[20px] text-muted-foreground mt-1">{patientName || 'Friend'}</p>
@@ -99,7 +99,8 @@ export default function TodayScreen() {
 
   // Full mode
   return (
-    <div className="h-full overflow-y-auto bg-surface pb-24">
+    <div className="h-full relative">
+      <div className="h-full overflow-y-auto bg-surface pb-4">
       {/* Header */}
       <div className="px-5 pt-3 pb-4 bg-background">
         <div className="flex items-center justify-between mb-1">
@@ -187,9 +188,10 @@ export default function TodayScreen() {
           ))}
         </div>
       </div>
+      </div>
 
       {/* Voice Input FAB */}
-      <button className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-90 transition-transform z-30">
+      <button className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-90 transition-transform z-30">
         <Mic className="w-6 h-6" />
       </button>
     </div>

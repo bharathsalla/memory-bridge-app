@@ -5,53 +5,53 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 3% 11%;
+    --foreground: 240 6% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 3% 11%;
+    --card-foreground: 240 6% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 3% 11%;
+    --popover-foreground: 240 6% 10%;
 
-    --primary: 173 36% 45%;
+    --primary: 173 40% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 12 78% 60%;
+    --secondary: 12 70% 48%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 240 2% 57%;
+    --muted: 220 9% 94%;
+    --muted-foreground: 220 6% 40%;
 
-    --accent: 36 67% 53%;
+    --accent: 36 60% 44%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 4 100% 60%;
+    --destructive: 4 80% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 69% 49%;
+    --success: 142 60% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 35 100% 50%;
+    --warning: 35 80% 42%;
     --warning-foreground: 0 0% 100%;
 
-    --sage: 135 15% 49%;
+    --sage: 135 20% 38%;
     --sage-foreground: 0 0% 100%;
 
-    --lavender: 270 24% 62%;
+    --lavender: 270 24% 48%;
     --lavender-foreground: 0 0% 100%;
 
-    --border: 240 10% 91%;
-    --input: 240 10% 91%;
-    --ring: 173 36% 45%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 173 40% 38%;
 
     --radius: 0.75rem;
 
-    --surface: 0 0% 96%;
+    --surface: 220 14% 96%;
     --ios-nav: 0 0% 97%;
 
-    --shadow-light: 0 1px 3px rgba(0,0,0,0.08);
-    --shadow-medium: 0 2px 8px rgba(0,0,0,0.1);
-    --shadow-heavy: 0 4px 16px rgba(0,0,0,0.15);
+    --shadow-light: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-medium: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-heavy: 0 4px 16px rgba(0,0,0,0.12);
   }
 }
 
@@ -61,7 +61,7 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-[#1a1a2e] text-foreground antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -85,7 +85,7 @@
   }
 
   .ios-card-elevated {
-    @apply bg-card rounded-xl;
+    @apply bg-card rounded-2xl;
     box-shadow: var(--shadow-medium);
   }
 
@@ -99,7 +99,7 @@
   }
 
   .safe-top {
-    padding-top: env(safe-area-inset-top, 20px);
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   .safe-bottom {
@@ -185,8 +185,8 @@
   }
 
   @keyframes sosPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); }
-    50% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(255, 59, 48, 0); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4); }
+    50% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(185, 28, 28, 0); }
   }
 
   .fade-slide-up {

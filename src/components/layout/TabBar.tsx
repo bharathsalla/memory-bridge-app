@@ -31,7 +31,7 @@ export default function TabBar() {
 
   if (isCaregiverView) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-xl border-t border-border safe-bottom">
+      <div className="bg-background/95 backdrop-blur-xl border-t border-border shrink-0">
         <div className="flex items-center justify-around px-2 pt-1 pb-1">
           {caregiverTabs.map(tab => {
             const active = activeCaregiverTab === tab.id;
@@ -65,7 +65,7 @@ export default function TabBar() {
   const isSimplified = mode === 'simplified';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-xl border-t border-border safe-bottom">
+    <div className="bg-background/95 backdrop-blur-xl border-t border-border shrink-0">
       <div className="flex items-center justify-around px-2 pt-1 pb-1">
         {tabs.map(tab => {
           const active = activePatientTab === tab.id;
