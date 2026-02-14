@@ -45,12 +45,12 @@ export default function MemoriesScreen() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5 }}
-            className={`absolute inset-0 ${photos[currentPhoto].bg} flex items-center justify-center`}
+            className="absolute inset-4 ios-card-elevated rounded-3xl flex items-center justify-center"
           >
             <div className="text-center px-10">
               <span className="text-[80px] mb-6 block">{photos[currentPhoto].emoji}</span>
-              <p className="text-[26px] font-semibold text-foreground leading-snug">{photos[currentPhoto].caption}</p>
-              <p className="text-[18px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
+              <p className="text-[28px] font-semibold text-foreground leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[20px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -70,25 +70,25 @@ export default function MemoriesScreen() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.5 }}
-              className={`absolute inset-5 rounded-3xl ${photos[currentPhoto].bg} flex flex-col items-center justify-center p-8`}
+              className="absolute inset-5 rounded-3xl ios-card-elevated flex flex-col items-center justify-center p-8"
             >
               <span className="text-[72px] mb-6">{photos[currentPhoto].emoji}</span>
-              <p className="text-[22px] font-semibold text-foreground text-center leading-snug">{photos[currentPhoto].caption}</p>
-              <p className="text-[17px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
+              <p className="text-[24px] font-semibold text-foreground text-center leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[18px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
             </motion.div>
           </AnimatePresence>
         </div>
         <div className="flex items-center justify-center gap-4 px-6 pb-5 pt-3">
-          <button onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)} className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Previous photo">
+          <button onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Previous photo">
             <ChevronLeft className="w-7 h-7 text-foreground" />
           </button>
           <button onClick={() => setIsPlaying(!isPlaying)} className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label={isPlaying ? 'Pause' : 'Play'}>
             {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
           </button>
-          <button onClick={() => toggleFav(photos[currentPhoto].id)} className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Favorite">
+          <button onClick={() => toggleFav(photos[currentPhoto].id)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Favorite">
             <Heart className={`w-7 h-7 ${favorites.has(photos[currentPhoto].id) ? 'text-destructive fill-destructive' : 'text-foreground'}`} />
           </button>
-          <button onClick={() => setCurrentPhoto(p => (p + 1) % photos.length)} className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Next photo">
+          <button onClick={() => setCurrentPhoto(p => (p + 1) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Next photo">
             <ChevronRight className="w-7 h-7 text-foreground" />
           </button>
         </div>
@@ -108,8 +108,8 @@ export default function MemoriesScreen() {
           {['All', 'Favorites', 'Family', 'Holidays'].map((album, i) => (
             <button
               key={album}
-              className={`px-5 h-9 rounded-full shrink-0 text-[13px] font-semibold transition-colors touch-target ${
-                i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted/70 text-foreground'
+              className={`px-5 h-10 rounded-full shrink-0 text-[14px] font-semibold transition-colors touch-target ${
+                i === 0 ? 'bg-primary text-primary-foreground' : 'ios-card-elevated text-foreground'
               }`}
             >
               {album}
@@ -127,12 +127,13 @@ export default function MemoriesScreen() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               onClick={() => { setCurrentPhoto(i); setIsPlaying(true); }}
-              className={`relative aspect-square rounded-2xl ${photo.bg} flex flex-col items-center justify-center p-4 active:scale-[0.97] transition-transform`}
+              className="relative aspect-square rounded-2xl ios-card-elevated flex flex-col items-center justify-center p-4 active:scale-[0.97] transition-transform"
             >
-              <span className="text-[44px] mb-2">{photo.emoji}</span>
-              <p className="text-[12px] font-semibold text-foreground text-center line-clamp-2 leading-snug">{photo.caption}</p>
+              <span className="text-[48px] mb-2">{photo.emoji}</span>
+              <p className="text-[13px] font-semibold text-foreground text-center line-clamp-2 leading-snug">{photo.caption}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">{photo.date}</p>
               {favorites.has(photo.id) && (
-                <Heart className="absolute top-3 right-3 w-4 h-4 text-destructive fill-destructive" />
+                <Heart className="absolute top-3 right-3 w-5 h-5 text-destructive fill-destructive" />
               )}
             </motion.button>
           ))}
