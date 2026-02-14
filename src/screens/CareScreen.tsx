@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 
@@ -58,34 +58,39 @@ export default function CareScreen() {
     { id: 'team' as const, label: 'Team', icon: Users },
   ];
 
+  const showFab = activeSection === 'tasks' || activeSection === 'calendar' || activeSection === 'team';
+
   return (
     <div className="h-full flex flex-col bg-background relative">
-      {/* Compact header */}
-      <div className="px-4 pt-2 pb-2 bg-background">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-primary" />
+      {/* Header */}
+      <div className="px-4 pt-3 pb-2.5 bg-background">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-primary" />
             </div>
-            <h1 className="text-[20px] font-bold text-foreground">Care Circle</h1>
+            <div>
+              <h1 className="text-[18px] font-bold text-foreground leading-tight">Care Circle</h1>
+              <p className="text-[11px] text-muted-foreground">3 members online</p>
+            </div>
           </div>
           <button
             onClick={handleDashboardClick}
-            className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold touch-target"
+            className="flex items-center gap-2 px-3.5 h-9 rounded-2xl bg-primary text-primary-foreground text-[13px] font-semibold shadow-sm active:scale-95 transition-transform"
           >
-            <img src={patientAvatar} alt="" className="w-4 h-4 rounded-full object-cover" />
+            <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover border border-primary-foreground/20" />
             Dashboard
           </button>
         </div>
         {/* Segment tabs */}
-        <div className="flex bg-muted/60 rounded-xl p-0.5">
+        <div className="flex bg-muted/50 rounded-2xl p-1">
           {sections.map(s => {
             const Icon = s.icon;
             return (
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-[12px] font-semibold transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-[12px] font-semibold transition-all ${
                   activeSection === s.id
                     ? 'bg-card text-foreground shadow-sm'
                     : 'text-muted-foreground'
@@ -99,44 +104,47 @@ export default function CareScreen() {
         </div>
       </div>
 
+      {/* Content */}
       <div className="flex-1 overflow-y-auto">
+        {/* Chat - NO FAB here */}
         {activeSection === 'chat' && (
           <div className="flex flex-col h-full">
-            <div className="flex-1 px-4 pt-3 space-y-2.5">
-              {messages.map(msg => (
+            <div className="flex-1 px-4 pt-3 space-y-3 pb-2">
+              {messages.map((msg, i) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 4 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex gap-2 ${msg.isMine ? 'flex-row-reverse' : ''}`}
+                  transition={{ delay: i * 0.05 }}
+                  className={`flex gap-2.5 ${msg.isMine ? 'flex-row-reverse' : ''}`}
                 >
                   {!msg.isMine && (
-                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0 mt-1 text-[14px]">
+                    <div className="w-8 h-8 rounded-full bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-[16px] shadow-sm">
                       {msg.avatar}
                     </div>
                   )}
-                  <div className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 ${
+                  <div className={`max-w-[72%] rounded-2xl px-3.5 py-2.5 ${
                     msg.isMine
-                      ? 'bg-primary text-primary-foreground rounded-br-md'
-                      : 'bg-card border border-border/40 rounded-bl-md'
+                      ? 'bg-primary text-primary-foreground rounded-br-lg'
+                      : 'bg-card border border-border/30 rounded-bl-lg shadow-sm'
                   }`}>
-                    {!msg.isMine && <div className="text-[11px] font-semibold text-primary mb-0.5">{msg.sender}</div>}
-                    <p className={`text-[15px] leading-snug ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
-                    <p className={`text-[11px] mt-1 ${msg.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground'}`}>{msg.time}</p>
+                    {!msg.isMine && <div className="text-[11px] font-bold text-primary mb-0.5">{msg.sender}</div>}
+                    <p className={`text-[14px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
+                    <p className={`text-[10px] mt-1.5 ${msg.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground'}`}>{msg.time}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
-            <div className="px-3 pb-2 pt-1.5 bg-background border-t border-border/30">
-              <div className="flex gap-2">
+            <div className="px-3 pb-3 pt-2 bg-background border-t border-border/20">
+              <div className="flex gap-2 items-center">
                 <input
                   type="text"
                   value={messageInput}
                   onChange={e => setMessageInput(e.target.value)}
                   placeholder="Message your family..."
-                  className="flex-1 h-10 px-4 rounded-full bg-muted/60 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/30"
+                  className="flex-1 h-10 px-4 rounded-full bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 transition-colors"
                 />
-                <button className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target">
+                <button className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-sm">
                   <Send className="w-4 h-4" />
                 </button>
               </div>
@@ -144,94 +152,137 @@ export default function CareScreen() {
           </div>
         )}
 
+        {/* Tasks */}
         {activeSection === 'tasks' && (
-          <div className="px-4 pt-3 pb-6 space-y-2.5">
-            <div className="flex items-center justify-between mb-1">
+          <div className="px-4 pt-3 pb-20">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-[16px] font-bold text-foreground">Today's Tasks</h2>
-              <span className="text-[12px] text-muted-foreground">{tasksDone.size}/{careTasks.length} done</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10">
+                <Check className="w-3 h-3 text-primary" />
+                <span className="text-[12px] font-semibold text-primary">{tasksDone.size}/{careTasks.length}</span>
+              </div>
             </div>
-            {careTasks.map(task => (
-              <button
-                key={task.id}
-                onClick={() => toggleTask(task.id)}
-                className="w-full bg-card border border-border/30 flex items-center gap-3 p-3.5 text-left active:bg-muted/30 transition-colors touch-target rounded-xl"
-              >
-                <span className="text-[18px]">{task.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <div className={`text-[15px] font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                    {task.title}
+            <div className="space-y-2">
+              {careTasks.map((task, i) => (
+                <motion.button
+                  key={task.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  onClick={() => toggleTask(task.id)}
+                  className="w-full ios-card-elevated flex items-center gap-3 p-3.5 text-left active:scale-[0.98] transition-transform"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
+                    <span className="text-[20px]">{task.emoji}</span>
                   </div>
-                  <div className="text-[12px] text-muted-foreground">{task.assignee} · {task.time}</div>
-                </div>
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border'
-                }`}>
-                  {tasksDone.has(task.id) && <Check className="w-3 h-3 text-success-foreground" />}
-                </div>
-              </button>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-[14px] font-semibold leading-tight ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                      {task.title}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <UserCheck className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[11px] text-muted-foreground">{task.assignee}</span>
+                      <span className="text-muted-foreground/30">·</span>
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[11px] text-muted-foreground">{task.time}</span>
+                    </div>
+                  </div>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+                    tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border/60'
+                  }`}>
+                    {tasksDone.has(task.id) && <Check className="w-3 h-3 text-success-foreground" />}
+                  </div>
+                </motion.button>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* Calendar */}
         {activeSection === 'calendar' && (
-          <div className="px-4 pt-3 pb-6 space-y-2.5">
-            <h2 className="text-[16px] font-bold text-foreground mb-1">Upcoming</h2>
-            {[
-              { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', emoji: '🏥' },
-              { title: 'Family Lunch', date: 'Saturday, 12:00 PM', emoji: '🍽️' },
-              { title: 'Physical Therapy', date: 'Monday, 2:00 PM', emoji: '💪' },
-            ].map(apt => (
-              <div key={apt.title} className="bg-card border border-border/30 p-4 flex items-center gap-3.5 rounded-xl">
-                <div className="w-11 h-11 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
-                  <span className="text-[22px]">{apt.emoji}</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-[15px] font-semibold text-foreground">{apt.title}</div>
-                  <div className="text-[13px] text-muted-foreground mt-0.5">{apt.date}</div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </div>
-            ))}
+          <div className="px-4 pt-3 pb-20">
+            <h2 className="text-[16px] font-bold text-foreground mb-3">Upcoming</h2>
+            <div className="space-y-2.5">
+              {[
+                { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', emoji: '🏥', type: 'Medical' },
+                { title: 'Family Lunch', date: 'Saturday, 12:00 PM', emoji: '🍽️', type: 'Social' },
+                { title: 'Physical Therapy', date: 'Monday, 2:00 PM', emoji: '💪', type: 'Health' },
+              ].map((apt, i) => (
+                <motion.div
+                  key={apt.title}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="ios-card-elevated p-4 flex items-center gap-3.5"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
+                    <span className="text-[24px]">{apt.emoji}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[14px] font-semibold text-foreground">{apt.title}</div>
+                    <div className="text-[12px] text-muted-foreground mt-0.5">{apt.date}</div>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-primary/8 text-primary">{apt.type}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* Team */}
         {activeSection === 'team' && (
-          <div className="px-4 pt-3 pb-6 space-y-2.5">
-            <h2 className="text-[16px] font-bold text-foreground mb-1">Care Team</h2>
-            {[
-              { name: 'Sarah Johnson', role: 'Primary Caregiver (Daughter)', emoji: '👩', status: 'Online', online: true },
-              { name: 'John Johnson', role: 'Son', emoji: '👨', status: 'Last seen 1h ago', online: false },
-              { name: 'Dr. Smith', role: 'Primary Physician', emoji: '👨‍⚕️', status: 'Available', online: true },
-              { name: 'Nurse Maria', role: 'Home Nurse', emoji: '👩‍⚕️', status: 'Next visit: Monday', online: false },
-            ].map(member => (
-              <div key={member.name} className="bg-card border border-border/30 flex items-center gap-3 p-3.5 rounded-xl">
-                <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-[20px]">{member.emoji}</span>
+          <div className="px-4 pt-3 pb-20">
+            <h2 className="text-[16px] font-bold text-foreground mb-3">Care Team</h2>
+            <div className="space-y-2">
+              {[
+                { name: 'Sarah Johnson', role: 'Primary Caregiver', emoji: '👩', status: 'Online', online: true },
+                { name: 'John Johnson', role: 'Son', emoji: '👨', status: 'Last seen 1h ago', online: false },
+                { name: 'Dr. Smith', role: 'Primary Physician', emoji: '👨‍⚕️', status: 'Available', online: true },
+                { name: 'Nurse Maria', role: 'Home Nurse', emoji: '👩‍⚕️', status: 'Next visit: Mon', online: false },
+              ].map((member, i) => (
+                <motion.div
+                  key={member.name}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="ios-card-elevated flex items-center gap-3.5 p-3.5"
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-11 h-11 rounded-2xl bg-muted/60 flex items-center justify-center">
+                      <span className="text-[22px]">{member.emoji}</span>
+                    </div>
+                    {member.online && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-[2.5px] border-card" />
+                    )}
                   </div>
-                  {member.online && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-card" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[15px] font-medium text-foreground">{member.name}</div>
-                  <div className="text-[12px] text-muted-foreground">{member.role}</div>
-                </div>
-                <span className={`text-[11px] font-medium ${member.online ? 'text-success' : 'text-muted-foreground'}`}>{member.status}</span>
-              </div>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[14px] font-semibold text-foreground">{member.name}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">{member.role}</div>
+                  </div>
+                  <span className={`text-[11px] font-medium px-2 py-1 rounded-lg ${
+                    member.online ? 'text-success bg-success/8' : 'text-muted-foreground bg-muted/40'
+                  }`}>{member.status}</span>
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      {/* FAB - Plus icon to open manage widget */}
-      <button
-        onClick={() => setManageOpen(true)}
-        className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
-        aria-label="Add new item"
-      >
-        <Plus className="w-5 h-5" />
-      </button>
+      {/* Single FAB — only on tasks/calendar/team, NOT on chat */}
+      {showFab && (
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          onClick={() => setManageOpen(true)}
+          className="absolute bottom-5 right-4 w-13 h-13 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
+          style={{ width: 52, height: 52 }}
+          aria-label="Add new item"
+        >
+          <Plus className="w-5 h-5" />
+        </motion.button>
+      )}
 
       <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
 
@@ -242,42 +293,46 @@ export default function CareScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/50 flex items-center justify-center px-6"
+            className="absolute inset-0 z-50 bg-black/40 flex items-center justify-center px-5"
             onClick={() => setViewModalOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl border border-border/30"
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="bg-card rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-border/20"
               onClick={e => e.stopPropagation()}
             >
-              <div className="p-4 border-b border-border/30">
-                <h3 className="text-[17px] font-bold text-foreground text-center">Choose Dashboard View</h3>
-                <p className="text-[12px] text-muted-foreground text-center mt-1">Select who is viewing the dashboard</p>
+              <div className="p-5 pb-3 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Heart className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-[17px] font-bold text-foreground">Choose Dashboard View</h3>
+                <p className="text-[12px] text-muted-foreground mt-1">Select who is viewing</p>
               </div>
-              <div className="p-3 space-y-1.5">
+              <div className="px-3 pb-2 space-y-1">
                 {careViewOptions.map(opt => (
                   <button
                     key={opt.id}
                     onClick={() => selectView(opt.id)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl active:bg-muted/50 transition-colors touch-target hover:bg-muted/30"
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl active:bg-muted/50 transition-colors hover:bg-muted/30"
                   >
-                    <div className="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center shrink-0">
-                      <span className="text-[20px]">{opt.emoji}</span>
+                    <div className="w-11 h-11 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
+                      <span className="text-[22px]">{opt.emoji}</span>
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-[15px] font-semibold text-foreground">{opt.label}</div>
-                      <div className="text-[12px] text-muted-foreground">{opt.role}</div>
+                      <div className="text-[14px] font-semibold text-foreground">{opt.label}</div>
+                      <div className="text-[11px] text-muted-foreground">{opt.role}</div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
                   </button>
                 ))}
               </div>
-              <div className="p-3 border-t border-border/30">
+              <div className="p-3 border-t border-border/20">
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="w-full h-10 rounded-xl bg-muted text-muted-foreground text-[14px] font-semibold"
+                  className="w-full h-11 rounded-2xl bg-muted/50 text-muted-foreground text-[14px] font-semibold active:bg-muted transition-colors"
                 >
                   Cancel
                 </button>
