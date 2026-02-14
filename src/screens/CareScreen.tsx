@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Settings2 } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
+import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 
 const messages = [
   { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false },
@@ -22,6 +23,7 @@ export default function CareScreen() {
   const [activeSection, setActiveSection] = useState<'chat' | 'tasks' | 'calendar' | 'team'>('chat');
   const [messageInput, setMessageInput] = useState('');
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1']));
+  const [manageOpen, setManageOpen] = useState(false);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => {
@@ -39,7 +41,7 @@ export default function CareScreen() {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background relative">
       {/* Header - differentiated with a distinct accent banner */}
       <div className="px-5 pt-3 pb-3 bg-background border-b border-border/40">
         <div className="ios-card-elevated p-4 flex items-center justify-between mb-3">
@@ -196,6 +198,19 @@ export default function CareScreen() {
           </div>
         )}
       </div>
+
+      {/* Caregiver Manage FAB */}
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setManageOpen(true)}
+        className="absolute bottom-5 right-5 w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground flex items-center justify-center z-30 ios-card-elevated"
+        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+        aria-label="Manage patient data"
+      >
+        <Settings2 className="w-6 h-6" />
+      </motion.button>
+
+      <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
     </div>
   );
 }
