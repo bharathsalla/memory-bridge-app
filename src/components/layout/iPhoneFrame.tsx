@@ -10,9 +10,9 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   return (
-    <div className="h-full w-full flex items-center justify-center bg-[#1a1a2e]">
+    <div className="h-full w-full flex items-center justify-center bg-black">
       {/* iPhone outer shell */}
-      <div className="relative w-[393px] h-[852px] max-h-[100dvh] bg-[#1c1c1e] rounded-[55px] shadow-[0_0_0_3px_#2a2a2e,0_0_0_6px_#0a0a0a,0_25px_80px_rgba(0,0,0,0.55)] overflow-hidden flex flex-col">
+      <div className="relative w-[393px] h-[852px] max-h-[100dvh] bg-[#111111] rounded-[55px] shadow-[0_0_0_3px_#222,0_0_0_6px_#000,0_25px_80px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col">
         {/* Side buttons visual hints */}
         <div className="absolute left-[-3px] top-[160px] w-[3px] h-[35px] bg-[#2a2a2e] rounded-l-sm" />
         <div className="absolute left-[-3px] top-[210px] w-[3px] h-[60px] bg-[#2a2a2e] rounded-l-sm" />

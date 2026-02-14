@@ -61,7 +61,7 @@
   }
 
   body {
-    @apply bg-[#1a1a2e] text-foreground antialiased;
+    @apply bg-black text-foreground antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
