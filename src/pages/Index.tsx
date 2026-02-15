@@ -39,19 +39,17 @@ const cgNavTitles: Record<string, string> = {
 
 const Index = () => {
   const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab } = useApp();
-  const [showReminders, setShowReminders] = React.useState(false);
+  const [showReminders, setShowReminders] = React.useState(true);
 
   const appContent = () => {
     if (!onboarded) {
       return <OnboardingScreen />;
     }
 
-    const isEssential = mode === 'essential' && !isCaregiverView;
-
     return (
       <div className={`h-full flex flex-col bg-background relative overflow-hidden ${mode}`}>
         <VoiceOverIndicator />
-        {!isEssential && (
+        {!(mode === 'essential' && !isCaregiverView) && (
           <NavBar
             title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
             showBack={isCaregiverView}
@@ -78,7 +76,12 @@ const Index = () => {
           >
             <div className="p-3 flex items-center justify-between border-b border-border/30">
               <h2 className="text-ios-headline font-bold text-foreground">Reminders</h2>
-              <button onClick={() => setShowReminders(false)} className="text-primary text-ios-body font-semibold">Done</button>
+              <button
+                onClick={() => setShowReminders(false)}
+                className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-[15px] active:scale-95 transition-transform"
+              >
+                Close
+              </button>
             </div>
             <RemindersScreen />
           </motion.div>
