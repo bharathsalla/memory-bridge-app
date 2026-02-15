@@ -23,6 +23,7 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
   { id: 'reports', label: 'Reports', icon: BarChart3 },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function TabBar() {
