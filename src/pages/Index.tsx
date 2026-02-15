@@ -59,15 +59,6 @@ const Index = () => {
             showReminderBell={!isCaregiverView}
             onReminderClick={() => setShowReminders(prev => !prev)}
             showCaregiverExtras={isCaregiverView}
-            onReportsClick={() => setActiveCaregiverTab('reports')}
-            onSettingsClick={() => setActiveCaregiverTab('settings')}
-            rightAction={
-              isCaregiverView ? (
-                <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary font-semibold">
-                  Patient
-                </button>
-              ) : undefined
-            }
           />
         )}
 

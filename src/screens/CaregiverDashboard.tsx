@@ -35,10 +35,12 @@ export default function CaregiverDashboard() {
   if (activeCaregiverTab === 'dashboard') {
     return (
       <div className="h-full overflow-y-auto warm-gradient pb-6">
-        <div className="px-5 pt-3 pb-3">
+        <div className="px-5 pt-3 pb-2">
           <div className="flex items-center justify-between">
             <h1 className="text-[22px] font-bold text-foreground">Care Dashboard</h1>
-            <button onClick={toggleCaregiverView} className="text-[14px] text-primary font-medium touch-target">Patient View</button>
+            <button onClick={toggleCaregiverView} className="text-[13px] text-primary font-medium touch-target flex items-center gap-1">
+              <Eye className="w-4 h-4" /> Patient View
+            </button>
           </div>
         </div>
 
@@ -66,8 +68,20 @@ export default function CaregiverDashboard() {
               </div>
               <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5 text-success" />
-              </div>
+          </div>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => {/* navigate to settings */ }}
+            className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-muted/40 border border-border/30 hover:bg-muted/60 transition-colors"
+          >
+            <div className="flex items-center gap-2.5">
+              <Settings2 className="w-5 h-5 text-muted-foreground" />
+              <span className="text-[14px] font-medium text-foreground">Settings</span>
             </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
           </div>
         </div>
 
