@@ -30,10 +30,12 @@ export default function OnboardingScreen() {
     return () => setInputCallback(null);
   }, [step, setInputCallback]);
 
-  const next = () => {
-    const i = steps.indexOf(step);
-    if (i < steps.length - 1) setStep(steps[i + 1]);
-  };
+  const next = useCallback(() => {
+    setStep(prev => {
+      const i = steps.indexOf(prev);
+      return i < steps.length - 1 ? steps[i + 1] : prev;
+    });
+  }, []);
 
   const handleVoiceChoice = useCallback(() => {
     setVoiceSelected(true);
