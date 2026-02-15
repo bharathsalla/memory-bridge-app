@@ -72,7 +72,7 @@ const Index = () => {
       <div className={`h-full flex flex-col bg-background relative overflow-hidden ${mode}`}>
         {/* Mobile SOS Notification Banner */}
         <AnimatePresence>
-          {sosNotification && (
+          {sosNotification && isCaregiverView && (
             <motion.div
               initial={{ opacity: 0, y: -60 }}
               animate={{ opacity: 1, y: 0 }}
