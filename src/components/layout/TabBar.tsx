@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
-  { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'memories', label: 'Memories', icon: Image },
+  { id: 'memorylane', label: 'Timeline', icon: BookHeart },
   { id: 'safety', label: 'Safety', icon: Shield },
   { id: 'care', label: 'Care', icon: Users },
 ];
 
 const simplifiedTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
-  { id: 'reminders', label: 'Reminders', icon: Bell },
+  { id: 'memories', label: 'Memories', icon: Image },
   { id: 'safety', label: 'Safety', icon: Shield },
 ];
 
@@ -22,8 +22,6 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'memories', label: 'Memories', icon: Brain },
   { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
-  { id: 'reports', label: 'Reports', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function TabBar() {

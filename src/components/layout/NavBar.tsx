@@ -1,5 +1,5 @@
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Bell, BarChart3, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NavBarProps {
@@ -7,9 +7,16 @@ interface NavBarProps {
   showBack?: boolean;
   onBack?: () => void;
   rightAction?: React.ReactNode;
+  /** Show reminder bell icon for patient view */
+  showReminderBell?: boolean;
+  onReminderClick?: () => void;
+  /** Show caregiver extra nav icons */
+  showCaregiverExtras?: boolean;
+  onReportsClick?: () => void;
+  onSettingsClick?: () => void;
 }
 
-export default function NavBar({ title, showBack, onBack, rightAction }: NavBarProps) {
+export default function NavBar({ title, showBack, onBack, rightAction, showReminderBell, onReminderClick, showCaregiverExtras, onReportsClick, onSettingsClick }: NavBarProps) {
   const { mode } = useApp();
 
   if (mode === 'essential') return null;
@@ -33,7 +40,25 @@ export default function NavBar({ title, showBack, onBack, rightAction }: NavBarP
         >
           {title}
         </motion.h1>
-        <div className="w-20 flex justify-end">{rightAction}</div>
+        <div className="w-20 flex justify-end gap-2">
+          {showReminderBell && (
+            <button onClick={onReminderClick} className="touch-target relative p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Reminders">
+              <Bell className="w-5 h-5 text-primary" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
+            </button>
+          )}
+          {showCaregiverExtras && (
+            <>
+              <button onClick={onReportsClick} className="touch-target p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Reports">
+                <BarChart3 className="w-5 h-5 text-muted-foreground" />
+              </button>
+              <button onClick={onSettingsClick} className="touch-target p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Settings">
+                <Settings className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </>
+          )}
+          {rightAction}
+        </div>
       </div>
     </div>
   );

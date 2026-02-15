@@ -1,3 +1,4 @@
+import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
@@ -37,7 +38,8 @@ const cgNavTitles: Record<string, string> = {
 };
 
 const Index = () => {
-  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView } = useApp();
+  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab } = useApp();
+  const [showReminders, setShowReminders] = React.useState(false);
 
   const appContent = () => {
     if (!onboarded) {
@@ -54,6 +56,11 @@ const Index = () => {
             title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
             showBack={isCaregiverView}
             onBack={toggleCaregiverView}
+            showReminderBell={!isCaregiverView}
+            onReminderClick={() => setShowReminders(prev => !prev)}
+            showCaregiverExtras={isCaregiverView}
+            onReportsClick={() => setActiveCaregiverTab('reports')}
+            onSettingsClick={() => setActiveCaregiverTab('settings')}
             rightAction={
               isCaregiverView ? (
                 <button onClick={toggleCaregiverView} className="text-ios-subheadline text-primary font-semibold">
@@ -62,6 +69,22 @@ const Index = () => {
               ) : undefined
             }
           />
+        )}
+
+        {/* Reminders slide-down panel */}
+        {!isCaregiverView && showReminders && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-0 left-0 right-0 z-40 bg-background border-b border-border shadow-lg rounded-b-2xl max-h-[70%] overflow-y-auto"
+          >
+            <div className="p-3 flex items-center justify-between border-b border-border/30">
+              <h2 className="text-ios-headline font-bold text-foreground">Reminders</h2>
+              <button onClick={() => setShowReminders(false)} className="text-primary text-ios-body font-semibold">Done</button>
+            </div>
+            <RemindersScreen />
+          </motion.div>
         )}
 
         <div className="flex-1 overflow-hidden">
@@ -81,7 +104,6 @@ const Index = () => {
               ) : (
                 <>
                   {activePatientTab === 'today' && <TodayScreen />}
-                  {activePatientTab === 'reminders' && <RemindersScreen />}
                   {activePatientTab === 'memories' && <MemoriesScreen />}
                   {activePatientTab === 'memorylane' && <MemoryLaneScreen />}
                   {activePatientTab === 'safety' && <SafetyScreen />}
