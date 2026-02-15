@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 
-const screenMeta: Record<string, { emoji: string; label: string }> = {
+const screenMeta: Record<string, {emoji: string;label: string;}> = {
   today: { emoji: '🏠', label: 'Home' },
   memories: { emoji: '🧠', label: 'Memories' },
   memorylane: { emoji: '📖', label: 'Memory Lane' },
   safety: { emoji: '🛡️', label: 'Safety' },
   care: { emoji: '💬', label: 'Care Circle' },
   wellbeing: { emoji: '💚', label: 'Wellbeing' },
-  reminders: { emoji: '🔔', label: 'Reminders' },
+  reminders: { emoji: '🔔', label: 'Reminders' }
 };
 
 export default function ContextBanner() {
@@ -31,8 +31,8 @@ export default function ContextBanner() {
       key={activePatientTab}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="shrink-0 px-4 py-2.5 flex items-center justify-center gap-2.5 bg-primary/8 border-t border-primary/10"
-    >
+      className="shrink-0 px-4 py-2.5 border-t border-primary/10 bg-[#f5f5c7] flex-row gap-[14px] flex items-center justify-center mx-[4px]">
+
       <span className="text-[15px] font-bold text-primary flex items-center gap-1.5">
         ⏰ {timeStr}
       </span>
@@ -40,6 +40,6 @@ export default function ContextBanner() {
       <span className="text-[15px] font-bold text-primary flex items-center gap-1.5">
         {meta.emoji} {meta.label}
       </span>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
