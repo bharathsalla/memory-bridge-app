@@ -35,11 +35,11 @@ export default function CaregiverDashboard() {
   // Dashboard Tab
   if (activeCaregiverTab === 'dashboard') {
     return (
-      <div className="h-full overflow-y-auto warm-gradient pb-6">
-        <div className="px-5 pt-3 pb-2">
+      <div className="h-full overflow-y-auto bg-background pb-6">
+        <div className="px-5 pt-4 pb-2">
           <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-bold text-foreground">Care Dashboard</h1>
-            <button onClick={toggleCaregiverView} className="text-[13px] text-primary font-medium touch-target flex items-center gap-1">
+            <h1 className="text-[22px] font-extrabold text-foreground">🩺 Care Dashboard</h1>
+            <button onClick={toggleCaregiverView} className="px-3.5 h-9 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold touch-target flex items-center gap-1.5">
               <Eye className="w-4 h-4" /> Patient View
             </button>
           </div>
@@ -47,22 +47,22 @@ export default function CaregiverDashboard() {
 
         {/* Patient Status */}
         <div className="px-5 mt-1">
-          <div className="ios-card-elevated p-4">
+          <div className="ios-card-elevated p-4 rounded-2xl">
             <div className="flex items-center gap-3.5">
               <div className="relative shrink-0">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-[26px]">👩‍🦳</div>
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-[26px]">👩‍🦳</div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-success border-2 border-card" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[16px] font-bold text-foreground">Margaret Smith</div>
-                <div className="text-[12px] text-muted-foreground">Active 2 min ago</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                <div className="text-[16px] font-extrabold text-foreground">Margaret Smith</div>
+                <div className="text-[12px] text-muted-foreground font-medium">Active 2 min ago</div>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                     mode === 'full' ? 'bg-primary/10 text-primary' : mode === 'simplified' ? 'bg-warning/10 text-warning' : 'bg-lavender/10 text-lavender'
                   }`}>
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5">
                     <MapPin className="w-3 h-3" /> Home
                   </span>
                 </div>
@@ -73,26 +73,19 @@ export default function CaregiverDashboard() {
             </div>
           </div>
 
-          {/* Settings Button — below the card */}
-          <button
-            onClick={() => setActiveCaregiverTab('settings')}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-sm hover:bg-primary/90 transition-colors"
-          >
+          <button onClick={() => setActiveCaregiverTab('settings')}
+            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-[15px] transition-colors">
             <Settings2 className="w-5 h-5" />
             <span>Settings</span>
           </button>
 
-          {/* Enable Safety Tracking Button — below settings */}
-          <button
-            onClick={() => setActiveCaregiverTab('safety')}
-            className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-success text-success-foreground font-semibold text-[15px] shadow-sm hover:bg-success/90 transition-colors"
-          >
+          <button onClick={() => setActiveCaregiverTab('safety')}
+            className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-success text-success-foreground font-bold text-[15px] transition-colors">
             <Shield className="w-5 h-5" />
             <span>Enable Safety Tracking</span>
           </button>
 
-          {/* Caregiver Wellness Hub */}
-          <div className="mt-4 ios-card-elevated p-4">
+          <div className="mt-4 ios-card-elevated p-4 rounded-2xl">
             <CaregiverSupportEcosystem />
           </div>
         </div>
@@ -162,7 +155,7 @@ export default function CaregiverDashboard() {
 
         {/* Activity Timeline */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Today's Activity</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3">📋 Today's Activity</h2>
           <div className="ios-card-elevated p-4">
             {activities.map((item, i) => (
               <div key={item.id} className="flex items-start gap-3 pb-3 last:pb-0">
@@ -188,7 +181,7 @@ export default function CaregiverDashboard() {
 
         {/* Health Metrics */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Health Snapshot</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3">📊 Health Snapshot</h2>
           <div className="flex gap-2.5 overflow-x-auto pb-1">
             {[
               { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up', color: 'text-lavender', bg: 'bg-lavender/8' },
@@ -216,7 +209,7 @@ export default function CaregiverDashboard() {
 
         {/* Alerts */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Alerts</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3">⚠️ Alerts</h2>
           <div className="ios-card-elevated divide-y divide-border/60">
             {/* Dynamic SOS history alerts */}
             {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (

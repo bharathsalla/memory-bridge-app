@@ -27,30 +27,19 @@ export default function MemoriesScreen() {
   }, [isPlaying, mode]);
 
   const toggleFav = (id: string) => {
-    setFavorites(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setFavorites(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
 
-  // Essential
   if (mode === 'essential') {
     return (
       <div className="h-full relative flex items-center justify-center bg-background">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPhoto}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-4 ios-card-elevated rounded-3xl flex items-center justify-center"
-          >
+          <motion.div key={currentPhoto} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
+            className="absolute inset-4 ios-card-elevated rounded-3xl flex items-center justify-center">
             <div className="text-center px-10">
               <span className="text-[80px] mb-6 block">{photos[currentPhoto].emoji}</span>
-              <p className="text-[28px] font-semibold text-foreground leading-snug">{photos[currentPhoto].caption}</p>
-              <p className="text-[20px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
+              <p className="text-[28px] font-bold text-foreground leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[20px] text-muted-foreground mt-3 font-medium">{photos[currentPhoto].date}</p>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -58,28 +47,21 @@ export default function MemoriesScreen() {
     );
   }
 
-  // Simplified
   if (mode === 'simplified') {
     return (
       <div className="h-full bg-background flex flex-col">
         <div className="flex-1 relative flex items-center justify-center overflow-hidden">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPhoto}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-5 rounded-3xl ios-card-elevated flex flex-col items-center justify-center p-8"
-            >
+            <motion.div key={currentPhoto} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.5 }}
+              className="absolute inset-5 rounded-3xl ios-card-elevated flex flex-col items-center justify-center p-8">
               <span className="text-[72px] mb-6">{photos[currentPhoto].emoji}</span>
-              <p className="text-[24px] font-semibold text-foreground text-center leading-snug">{photos[currentPhoto].caption}</p>
-              <p className="text-[18px] text-muted-foreground mt-3">{photos[currentPhoto].date}</p>
+              <p className="text-[24px] font-bold text-foreground text-center leading-snug">{photos[currentPhoto].caption}</p>
+              <p className="text-[18px] text-muted-foreground mt-3 font-medium">{photos[currentPhoto].date}</p>
             </motion.div>
           </AnimatePresence>
         </div>
-        <div className="flex items-center justify-center gap-4 px-6 pb-5 pt-3">
-          <button onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Previous photo">
+        <div className="flex items-center justify-center gap-3 px-6 pb-5 pt-3">
+          <button onClick={() => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Previous">
             <ChevronLeft className="w-7 h-7 text-foreground" />
           </button>
           <button onClick={() => setIsPlaying(!isPlaying)} className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label={isPlaying ? 'Pause' : 'Play'}>
@@ -88,7 +70,7 @@ export default function MemoriesScreen() {
           <button onClick={() => toggleFav(photos[currentPhoto].id)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Favorite">
             <Heart className={`w-7 h-7 ${favorites.has(photos[currentPhoto].id) ? 'text-destructive fill-destructive' : 'text-foreground'}`} />
           </button>
-          <button onClick={() => setCurrentPhoto(p => (p + 1) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Next photo">
+          <button onClick={() => setCurrentPhoto(p => (p + 1) % photos.length)} className="w-14 h-14 rounded-2xl ios-card-elevated flex items-center justify-center active:scale-95 transition-transform touch-target-xl" aria-label="Next">
             <ChevronRight className="w-7 h-7 text-foreground" />
           </button>
         </div>
@@ -96,45 +78,30 @@ export default function MemoriesScreen() {
     );
   }
 
-  // Full mode
   return (
     <div className="h-full overflow-y-auto bg-background pb-6">
       <div className="px-5 pt-5 pb-3">
-        <h1 className="text-[24px] font-bold text-foreground">Memories</h1>
+        <h1 className="text-[24px] font-extrabold text-foreground">🧠 Memories</h1>
       </div>
-      {/* Albums */}
       <div className="px-5 mt-1">
         <div className="flex gap-2 overflow-x-auto pb-4">
           {['All', 'Favorites', 'Family', 'Holidays'].map((album, i) => (
-            <button
-              key={album}
-              className={`px-5 h-10 rounded-full shrink-0 text-[14px] font-semibold transition-colors touch-target ${
-                i === 0 ? 'bg-primary text-primary-foreground' : 'ios-card-elevated text-foreground'
-              }`}
-            >
-              {album}
-            </button>
+            <button key={album} className={`px-5 h-10 rounded-full shrink-0 text-[14px] font-bold transition-colors touch-target ${
+              i === 0 ? 'bg-primary text-primary-foreground' : 'ios-card-elevated text-foreground'
+            }`}>{album}</button>
           ))}
         </div>
       </div>
-      {/* Photo Grid */}
       <div className="px-5">
         <div className="grid grid-cols-2 gap-3">
           {photos.map((photo, i) => (
-            <motion.button
-              key={photo.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
+            <motion.button key={photo.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
               onClick={() => { setCurrentPhoto(i); setIsPlaying(true); }}
-              className="relative aspect-square rounded-2xl ios-card-elevated flex flex-col items-center justify-center p-4 active:scale-[0.97] transition-transform"
-            >
+              className="relative aspect-square rounded-2xl ios-card-elevated flex flex-col items-center justify-center p-4 active:scale-[0.97] transition-transform">
               <span className="text-[48px] mb-2">{photo.emoji}</span>
-              <p className="text-[13px] font-semibold text-foreground text-center line-clamp-2 leading-snug">{photo.caption}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">{photo.date}</p>
-              {favorites.has(photo.id) && (
-                <Heart className="absolute top-3 right-3 w-5 h-5 text-destructive fill-destructive" />
-              )}
+              <p className="text-[13px] font-bold text-foreground text-center line-clamp-2 leading-snug">{photo.caption}</p>
+              <p className="text-[11px] text-muted-foreground mt-1 font-medium">{photo.date}</p>
+              {favorites.has(photo.id) && <Heart className="absolute top-3 right-3 w-5 h-5 text-destructive fill-destructive" />}
             </motion.button>
           ))}
         </div>
