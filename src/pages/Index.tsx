@@ -57,7 +57,13 @@ const Index = () => {
             showBack={isCaregiverView}
             onBack={toggleCaregiverView}
             showReminderBell={!isCaregiverView}
-            onReminderClick={() => setShowReminders(prev => !prev)}
+            onReminderClick={() => {
+              if (isCaregiverView) {
+                setActiveCaregiverTab('reminders');
+              } else {
+                setShowReminders(prev => !prev);
+              }
+            }}
             showCaregiverExtras={isCaregiverView}
           />
         )}

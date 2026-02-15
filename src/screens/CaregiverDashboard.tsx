@@ -17,7 +17,7 @@ import {
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function CaregiverDashboard() {
-  const { activeCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode } = useApp();
+  const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
@@ -74,7 +74,7 @@ export default function CaregiverDashboard() {
 
           {/* Settings Button — below the card */}
           <button
-            onClick={() => {/* navigate to settings */}}
+            onClick={() => setActiveCaregiverTab('settings')}
             className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-sm hover:bg-primary/90 transition-colors"
           >
             <Settings2 className="w-5 h-5" />
