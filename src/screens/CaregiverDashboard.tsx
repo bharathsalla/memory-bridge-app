@@ -68,21 +68,18 @@ export default function CaregiverDashboard() {
               </div>
               <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5 text-success" />
+              </div>
+            </div>
           </div>
 
-          {/* Settings Button */}
+          {/* Settings Button — below the card */}
           <button
-            onClick={() => {/* navigate to settings */ }}
-            className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-muted/40 border border-border/30 hover:bg-muted/60 transition-colors"
+            onClick={() => {/* navigate to settings */}}
+            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-sm hover:bg-primary/90 transition-colors"
           >
-            <div className="flex items-center gap-2.5">
-              <Settings2 className="w-5 h-5 text-muted-foreground" />
-              <span className="text-[14px] font-medium text-foreground">Settings</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Settings2 className="w-5 h-5" />
+            <span>Settings</span>
           </button>
-        </div>
-          </div>
         </div>
 
         {/* Quick Actions */}
