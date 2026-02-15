@@ -20,8 +20,8 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'health', label: 'Health', icon: Heart },
   { id: 'memories', label: 'Memories', icon: Brain },
-  { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
+  { id: 'reports', label: 'Reports', icon: BarChart3 },
 ];
 
 export default function TabBar() {

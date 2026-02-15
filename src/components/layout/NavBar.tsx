@@ -32,30 +32,28 @@ export default function NavBar({ title, showBack, onBack, rightAction, showRemin
             </button>
           )}
         </div>
-        <motion.h1
-          key={title}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-ios-headline text-foreground truncate"
-        >
-          {title}
-        </motion.h1>
+        <div className="flex items-center gap-2 min-w-0">
+          <motion.h1
+            key={title}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-ios-headline text-foreground truncate"
+          >
+            {title}
+          </motion.h1>
+          {showCaregiverExtras && (
+            <button onClick={onReminderClick} className="touch-target relative p-1 rounded-full hover:bg-muted/50 transition-colors shrink-0" aria-label="Reminders">
+              <Bell className="w-4.5 h-4.5 text-primary" />
+              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-destructive" />
+            </button>
+          )}
+        </div>
         <div className="w-20 flex justify-end gap-2">
           {showReminderBell && (
             <button onClick={onReminderClick} className="touch-target relative p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Reminders">
               <Bell className="w-5 h-5 text-primary" />
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
             </button>
-          )}
-          {showCaregiverExtras && (
-            <>
-              <button onClick={onReportsClick} className="touch-target p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Reports">
-                <BarChart3 className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <button onClick={onSettingsClick} className="touch-target p-1.5 rounded-full hover:bg-muted/50 transition-colors" aria-label="Settings">
-                <Settings className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </>
           )}
           {rightAction}
         </div>
