@@ -86,6 +86,42 @@ export type Database = {
         }
         Relationships: []
       }
+      learned_patterns: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          day_of_week: number | null
+          hour: number | null
+          id: string
+          last_calculated_at: string | null
+          pattern_type: string | null
+          recommended_actions: string[] | null
+          success_rate: number | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          day_of_week?: number | null
+          hour?: number | null
+          id?: string
+          last_calculated_at?: string | null
+          pattern_type?: string | null
+          recommended_actions?: string[] | null
+          success_rate?: number | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          day_of_week?: number | null
+          hour?: number | null
+          id?: string
+          last_calculated_at?: string | null
+          pattern_type?: string | null
+          recommended_actions?: string[] | null
+          success_rate?: number | null
+        }
+        Relationships: []
+      }
       medications: {
         Row: {
           created_at: string | null
@@ -167,6 +203,219 @@ export type Database = {
           type?: string
           updated_at?: string
           voice_transcript?: string | null
+        }
+        Relationships: []
+      }
+      reminder_completions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          method: string | null
+          reminder_id: string | null
+          response_time_seconds: number | null
+          triggered_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          method?: string | null
+          reminder_id?: string | null
+          response_time_seconds?: number | null
+          triggered_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          method?: string | null
+          reminder_id?: string | null
+          response_time_seconds?: number | null
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_completions_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminder_logs: {
+        Row: {
+          event_type: string | null
+          id: string
+          metadata: Json | null
+          reminder_id: string | null
+          timestamp: string | null
+          triggered_by_name: string | null
+        }
+        Insert: {
+          event_type?: string | null
+          id?: string
+          metadata?: Json | null
+          reminder_id?: string | null
+          timestamp?: string | null
+          triggered_by_name?: string | null
+        }
+        Update: {
+          event_type?: string | null
+          id?: string
+          metadata?: Json | null
+          reminder_id?: string | null
+          timestamp?: string | null
+          triggered_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_logs_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminders: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          message: string
+          persistent: boolean | null
+          photo_url: string | null
+          priority: string | null
+          schedule: Json
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          message: string
+          persistent?: boolean | null
+          photo_url?: string | null
+          priority?: string | null
+          schedule?: Json
+          title: string
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          message?: string
+          persistent?: boolean | null
+          photo_url?: string | null
+          priority?: string | null
+          schedule?: Json
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      scheduled_reminders: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          last_sent_at: string | null
+          next_due_time: string
+          reminder_id: string | null
+          send_count: number | null
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_sent_at?: string | null
+          next_due_time: string
+          reminder_id?: string | null
+          send_count?: number | null
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_sent_at?: string | null
+          next_due_time?: string
+          reminder_id?: string | null
+          send_count?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_reminders_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_activities: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          day_of_week: number | null
+          hour_of_day: number | null
+          id: string
+          metadata: Json | null
+          timestamp: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          day_of_week?: number | null
+          hour_of_day?: number | null
+          id?: string
+          metadata?: Json | null
+          timestamp?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          day_of_week?: number | null
+          hour_of_day?: number | null
+          id?: string
+          metadata?: Json | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      user_caregivers: {
+        Row: {
+          can_trigger_reminders: boolean | null
+          caregiver_name: string
+          created_at: string | null
+          id: string
+          patient_name: string
+          relationship: string | null
+        }
+        Insert: {
+          can_trigger_reminders?: boolean | null
+          caregiver_name?: string
+          created_at?: string | null
+          id?: string
+          patient_name?: string
+          relationship?: string | null
+        }
+        Update: {
+          can_trigger_reminders?: boolean | null
+          caregiver_name?: string
+          created_at?: string | null
+          id?: string
+          patient_name?: string
+          relationship?: string | null
         }
         Relationships: []
       }
