@@ -89,7 +89,7 @@ export default function OnboardingScreen() {
               transition={{ delay: 0.2, type: 'spring', bounce: 0.4 }}
               className="w-32 h-32 rounded-[36px] overflow-hidden mb-8 shadow-lg">
 
-                <img src={memoCarelogo} alt="MemoCare" className="w-full h-full object-cover rounded-xl" />
+                <img alt="MemoCare" className="w-full h-full object-cover rounded-none" src="/lovable-uploads/e870b19c-fc1d-486f-815f-86f58cef95ed.png" />
               </motion.div>
               <h1 className="text-ios-title text-foreground mb-3">Welcome to<br />MemoCare</h1>
               <p className="text-ios-body text-muted-foreground max-w-[280px] leading-relaxed">
