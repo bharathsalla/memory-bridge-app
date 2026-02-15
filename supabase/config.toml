@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.alexa-skill]
 verify_jwt = false
+
+[functions.caregiver-support]
+verify_jwt = false
