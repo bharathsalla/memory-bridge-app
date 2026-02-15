@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { motion } from 'framer-motion';
 
 const screenMeta: Record<string, { emoji: string; label: string }> = {
-  today: { emoji: '🏠', label: 'Home — Today' },
+  today: { emoji: '🏠', label: 'Home' },
   memories: { emoji: '🧠', label: 'Memories' },
   memorylane: { emoji: '📖', label: 'Memory Lane' },
   safety: { emoji: '🛡️', label: 'Safety' },
   care: { emoji: '💬', label: 'Care Circle' },
-  wellbeing: { emoji: '💚', label: 'My Wellbeing' },
+  wellbeing: { emoji: '💚', label: 'Wellbeing' },
   reminders: { emoji: '🔔', label: 'Reminders' },
 };
 
@@ -20,26 +21,25 @@ export default function ContextBanner() {
     return () => clearInterval(id);
   }, []);
 
-  // Only show for patient view
-  if (isCaregiverView) return null;
-  // Hide in essential mode (no tab bar shown)
-  if (mode === 'essential') return null;
+  if (isCaregiverView || mode === 'essential') return null;
 
   const meta = screenMeta[activePatientTab] || { emoji: '📱', label: activePatientTab };
   const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   return (
-    <div
-      className="shrink-0 px-4 py-2 flex items-center justify-center gap-3 border-t border-warning/20"
-      style={{ backgroundColor: 'hsl(48, 96%, 89%)' }}
+    <motion.div
+      key={activePatientTab}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="shrink-0 px-4 py-2.5 flex items-center justify-center gap-2.5 bg-primary/8 border-t border-primary/10"
     >
-      <span className="text-[18px] font-bold tracking-tight" style={{ color: 'hsl(30, 50%, 20%)' }}>
+      <span className="text-[15px] font-bold text-primary flex items-center gap-1.5">
         ⏰ {timeStr}
       </span>
-      <span style={{ color: 'hsl(30, 30%, 40%)' }} className="text-[16px]">|</span>
-      <span className="text-[18px] font-bold" style={{ color: 'hsl(30, 50%, 20%)' }}>
-        {meta.emoji} You are: {meta.label}
+      <span className="w-1 h-1 rounded-full bg-primary/30" />
+      <span className="text-[15px] font-bold text-primary flex items-center gap-1.5">
+        {meta.emoji} {meta.label}
       </span>
-    </div>
+    </motion.div>
   );
 }
