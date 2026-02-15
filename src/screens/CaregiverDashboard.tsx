@@ -80,6 +80,15 @@ export default function CaregiverDashboard() {
             <Settings2 className="w-5 h-5" />
             <span>Settings</span>
           </button>
+
+          {/* Enable Safety Tracking Button — below settings */}
+          <button
+            onClick={() => setActiveCaregiverTab('safety')}
+            className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-success text-success-foreground font-semibold text-[15px] shadow-sm hover:bg-success/90 transition-colors"
+          >
+            <Shield className="w-5 h-5" />
+            <span>Enable Safety Tracking</span>
+          </button>
         </div>
 
         {/* Quick Actions */}

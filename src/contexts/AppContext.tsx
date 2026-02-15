@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 
 export type AppMode = 'full' | 'simplified' | 'essential';
 export type PatientTab = 'today' | 'memories' | 'memorylane' | 'safety' | 'care' | 'wellbeing' | 'reminders';
-export type CaregiverTab = 'dashboard' | 'health' | 'tasks' | 'reports' | 'memories' | 'settings' | 'reminders';
+export type CaregiverTab = 'dashboard' | 'health' | 'tasks' | 'reports' | 'memories' | 'settings' | 'reminders' | 'safety';
 
 interface Medication {
   id: string;
@@ -43,7 +43,11 @@ interface AppState {
   medicationAdherence: number;
   taskCompletionRate: number;
   isSOSActive: boolean;
+  sosTriggeredLocation: string | null;
   detailScreen: string | null;
+  patientSafe: boolean;
+  patientLocation: string;
+  safeZoneRadius: number;
 }
 
 interface AppContextType extends AppState {
@@ -57,6 +61,9 @@ interface AppContextType extends AppState {
   triggerSOS: () => void;
   cancelSOS: () => void;
   navigateToDetail: (screen: string | null) => void;
+  setPatientSafe: (safe: boolean) => void;
+  setPatientLocation: (loc: string) => void;
+  setSafeZoneRadius: (r: number) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -91,7 +98,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     medicationAdherence: 95,
     taskCompletionRate: 85,
     isSOSActive: false,
+    sosTriggeredLocation: null,
     detailScreen: null,
+    patientSafe: true,
+    patientLocation: 'Lakshmi Nagar, Hyderabad',
+    safeZoneRadius: 200,
   });
 
   const setMode = useCallback((mode: AppMode) => {
@@ -128,11 +139,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const triggerSOS = useCallback(() => {
-    setState(prev => ({ ...prev, isSOSActive: true }));
+    setState(prev => ({ ...prev, isSOSActive: true, sosTriggeredLocation: prev.patientLocation }));
+  }, []);
+
+  const setPatientSafe = useCallback((safe: boolean) => {
+    setState(prev => ({ ...prev, patientSafe: safe }));
+  }, []);
+
+  const setPatientLocation = useCallback((loc: string) => {
+    setState(prev => ({ ...prev, patientLocation: loc }));
+  }, []);
+
+  const setSafeZoneRadius = useCallback((r: number) => {
+    setState(prev => ({ ...prev, safeZoneRadius: r }));
   }, []);
 
   const cancelSOS = useCallback(() => {
-    setState(prev => ({ ...prev, isSOSActive: false }));
+    setState(prev => ({ ...prev, isSOSActive: false, sosTriggeredLocation: null }));
   }, []);
 
   const navigateToDetail = useCallback((screen: string | null) => {
@@ -152,6 +175,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       triggerSOS,
       cancelSOS,
       navigateToDetail,
+      setPatientSafe,
+      setPatientLocation,
+      setSafeZoneRadius,
     }}>
       {children}
     </AppContext.Provider>

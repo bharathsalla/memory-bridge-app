@@ -16,6 +16,7 @@ import CaregiverDashboard from '@/screens/CaregiverDashboard';
 import CaregiverMemoryInsights from '@/screens/CaregiverMemoryInsights';
 import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
+import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -35,6 +36,7 @@ const cgNavTitles: Record<string, string> = {
   memories: 'Memory Insights',
   settings: 'Settings',
   reminders: 'Reminders',
+  safety: 'Safety Tracking',
 };
 
 const Index = () => {
@@ -100,6 +102,7 @@ const Index = () => {
               {isCaregiverView ? (
                 activeCaregiverTab === 'memories' ? <CaregiverMemoryInsights /> :
                 activeCaregiverTab === 'reminders' ? <CaregiverRemindersPanel /> :
+                activeCaregiverTab === 'safety' ? <CaregiverSafetyScreen /> :
                 <CaregiverDashboard />
               ) : (
                 <>
