@@ -17,7 +17,7 @@ import {
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function CaregiverDashboard() {
-  const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode } = useApp();
+  const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode, isSOSActive, sosTriggeredLocation, patientLocation, sosHistory, cancelSOS } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
@@ -90,6 +90,43 @@ export default function CaregiverDashboard() {
             <span>Enable Safety Tracking</span>
           </button>
         </div>
+
+        {/* SOS Active Alert Banner */}
+        {isSOSActive && (
+          <div className="px-5 mt-3">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="ios-card-elevated bg-destructive/10 border-2 border-destructive p-4"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-destructive flex items-center justify-center animate-pulse shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-destructive-foreground" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[16px] font-bold text-destructive">🚨 SOS Triggered!</div>
+                  <div className="text-[12px] text-foreground flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3" /> {sosTriggeredLocation || patientLocation}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveCaregiverTab('safety')}
+                  className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-bold text-[13px] text-center"
+                >
+                  View Details
+                </button>
+                <button
+                  onClick={cancelSOS}
+                  className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground font-semibold text-[13px] text-center"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="px-5 mt-4">
@@ -175,6 +212,19 @@ export default function CaregiverDashboard() {
         <div className="px-5 mt-5">
           <h2 className="text-ios-title3 text-foreground mb-3">Alerts</h2>
           <div className="ios-card-elevated divide-y divide-border/60">
+            {/* Dynamic SOS history alerts */}
+            {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (
+              <div key={sos.id} className="flex items-center gap-3 p-4">
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${sos.resolved ? 'bg-warning' : 'bg-destructive animate-pulse'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[14px] font-medium text-foreground">
+                    {sos.resolved ? `🆘 SOS resolved — ${sos.location}` : `🚨 SOS Active — ${sos.location}`}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{sos.timestamp}</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </div>
+            ))}
             {[
               { text: 'Medication taken late (15 min)', time: '2 hours ago', level: 'warn' },
               { text: 'Mode switch suggested', time: 'Yesterday', level: 'info' },

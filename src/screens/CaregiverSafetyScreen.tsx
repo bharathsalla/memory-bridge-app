@@ -38,7 +38,7 @@ const locationHistory = [
 ];
 
 export default function CaregiverSafetyScreen() {
-  const { isSOSActive, cancelSOS, patientSafe, patientLocation, safeZoneRadius, setSafeZoneRadius, setPatientSafe, sosTriggeredLocation } = useApp();
+  const { isSOSActive, cancelSOS, patientSafe, patientLocation, safeZoneRadius, setSafeZoneRadius, setPatientSafe, sosTriggeredLocation, sosHistory } = useApp();
   const [subPage, setSubPage] = useState<SubPage>('main');
   const [connectedWatch, setConnectedWatch] = useState<string | null>(null);
   const [connectedGPS, setConnectedGPS] = useState<string | null>(null);
@@ -355,29 +355,31 @@ export default function CaregiverSafetyScreen() {
           )}
         </AnimatePresence>
 
-        {/* SOS History */}
+        {/* SOS History from state */}
         <div className="px-5">
           <h2 className="text-[16px] font-bold text-foreground mb-3">SOS History</h2>
-          <div className="ios-card-elevated divide-y divide-border/30">
-            {[
-              { date: 'Feb 12, 3:45 PM', location: 'Near Park', resolved: true },
-              { date: 'Feb 8, 11:20 AM', location: 'Home', resolved: true },
-              { date: 'Jan 28, 2:10 PM', location: 'Market Area', resolved: true },
-            ].map((sos, i) => (
-              <div key={i} className="flex items-center gap-3 p-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${sos.resolved ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                  <AlertTriangle className={`w-5 h-5 ${sos.resolved ? 'text-success' : 'text-destructive'}`} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[14px] font-medium text-foreground">{sos.date}</div>
-                  <div className="text-[12px] text-muted-foreground flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> {sos.location}
+          {sosHistory.length === 0 ? (
+            <div className="ios-card-elevated p-6 text-center text-muted-foreground text-[14px]">No SOS alerts recorded</div>
+          ) : (
+            <div className="ios-card-elevated divide-y divide-border/30">
+              {sosHistory.map((sos) => (
+                <div key={sos.id} className="flex items-center gap-3 p-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${sos.resolved ? 'bg-success/10' : 'bg-destructive/10 animate-pulse'}`}>
+                    <AlertTriangle className={`w-5 h-5 ${sos.resolved ? 'text-success' : 'text-destructive'}`} />
                   </div>
+                  <div className="flex-1">
+                    <div className="text-[14px] font-medium text-foreground">{sos.timestamp}</div>
+                    <div className="text-[12px] text-muted-foreground flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {sos.location}
+                    </div>
+                  </div>
+                  <span className={`text-[11px] font-semibold ${sos.resolved ? 'text-success' : 'text-destructive'}`}>
+                    {sos.resolved ? 'Resolved' : '⚠ Active'}
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-success">Resolved</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* How it works */}

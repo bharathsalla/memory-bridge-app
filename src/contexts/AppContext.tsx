@@ -28,6 +28,14 @@ interface MoodEntry {
   time: string;
 }
 
+interface SOSHistoryEntry {
+  id: string;
+  timestamp: string;
+  location: string;
+  resolved: boolean;
+  resolvedAt?: string;
+}
+
 interface AppState {
   mode: AppMode;
   onboarded: boolean;
@@ -48,6 +56,7 @@ interface AppState {
   patientSafe: boolean;
   patientLocation: string;
   safeZoneRadius: number;
+  sosHistory: SOSHistoryEntry[];
 }
 
 interface AppContextType extends AppState {
@@ -64,6 +73,7 @@ interface AppContextType extends AppState {
   setPatientSafe: (safe: boolean) => void;
   setPatientLocation: (loc: string) => void;
   setSafeZoneRadius: (r: number) => void;
+  sosHistory: SOSHistoryEntry[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -103,6 +113,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     patientSafe: true,
     patientLocation: 'Lakshmi Nagar, Hyderabad',
     safeZoneRadius: 200,
+    sosHistory: [
+      { id: 'hist-1', timestamp: 'Feb 12, 3:45 PM', location: 'Near Park', resolved: true, resolvedAt: 'Feb 12, 3:52 PM' },
+      { id: 'hist-2', timestamp: 'Feb 8, 11:20 AM', location: 'Home', resolved: true, resolvedAt: 'Feb 8, 11:25 AM' },
+      { id: 'hist-3', timestamp: 'Jan 28, 2:10 PM', location: 'Market Area', resolved: true, resolvedAt: 'Jan 28, 2:30 PM' },
+    ],
   });
 
   const setMode = useCallback((mode: AppMode) => {
@@ -139,7 +154,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const triggerSOS = useCallback(() => {
-    setState(prev => ({ ...prev, isSOSActive: true, sosTriggeredLocation: prev.patientLocation }));
+    setState(prev => ({
+      ...prev,
+      isSOSActive: true,
+      sosTriggeredLocation: prev.patientLocation,
+      sosHistory: [
+        {
+          id: `sos-${Date.now()}`,
+          timestamp: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+          location: prev.patientLocation,
+          resolved: false,
+        },
+        ...prev.sosHistory,
+      ],
+    }));
   }, []);
 
   const setPatientSafe = useCallback((safe: boolean) => {
@@ -155,7 +183,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const cancelSOS = useCallback(() => {
-    setState(prev => ({ ...prev, isSOSActive: false, sosTriggeredLocation: null }));
+    setState(prev => ({
+      ...prev,
+      isSOSActive: false,
+      sosTriggeredLocation: null,
+      sosHistory: prev.sosHistory.map((s, i) =>
+        i === 0 && !s.resolved
+          ? { ...s, resolved: true, resolvedAt: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) }
+          : s
+      ),
+    }));
   }, []);
 
   const navigateToDetail = useCallback((screen: string | null) => {

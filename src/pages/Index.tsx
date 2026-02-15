@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
@@ -40,8 +40,28 @@ const cgNavTitles: Record<string, string> = {
 };
 
 const Index = () => {
-  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab } = useApp();
+  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation } = useApp();
   const [showReminders, setShowReminders] = React.useState(true);
+  const [sosNotification, setSOSNotification] = React.useState(false);
+  const prevSOSRef = useRef(false);
+
+  // Show mobile notification when SOS is triggered (for caregiver view)
+  useEffect(() => {
+    if (isSOSActive && !prevSOSRef.current) {
+      setSOSNotification(true);
+      // Auto-dismiss after 8 seconds
+      const timer = setTimeout(() => setSOSNotification(false), 8000);
+      return () => clearTimeout(timer);
+    }
+    prevSOSRef.current = isSOSActive;
+  }, [isSOSActive]);
+
+  // Don't show reminders when switching to caregiver view
+  useEffect(() => {
+    if (isCaregiverView) {
+      setShowReminders(false);
+    }
+  }, [isCaregiverView]);
 
   const appContent = () => {
     if (!onboarded) {
@@ -50,6 +70,40 @@ const Index = () => {
 
     return (
       <div className={`h-full flex flex-col bg-background relative overflow-hidden ${mode}`}>
+        {/* Mobile SOS Notification Banner */}
+        <AnimatePresence>
+          {sosNotification && (
+            <motion.div
+              initial={{ opacity: 0, y: -60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -60 }}
+              transition={{ type: 'spring', damping: 20 }}
+              className="absolute top-0 left-0 right-0 z-[60] bg-destructive text-destructive-foreground p-3 shadow-2xl"
+              onClick={() => {
+                setSOSNotification(false);
+                if (!isCaregiverView) toggleCaregiverView();
+                setActiveCaregiverTab('safety');
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
+                  <span className="text-[20px]">🚨</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[14px] font-bold">Emergency SOS Alert!</div>
+                  <div className="text-[12px] opacity-90">📍 {sosTriggeredLocation || patientLocation} — Tap to respond</div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSOSNotification(false); }}
+                  className="text-[12px] font-semibold opacity-80 px-2 py-1"
+                >
+                  ✕
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <VoiceOverIndicator />
         {!(mode === 'essential' && !isCaregiverView) && (
           <NavBar
