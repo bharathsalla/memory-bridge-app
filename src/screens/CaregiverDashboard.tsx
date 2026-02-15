@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSimulator, PersistentNotificationSimulator } from '@/components/NativeFeatureSimulators';
 import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
+import CaregiverSupportEcosystem from '@/components/CaregiverSupportEcosystem';
 import { motion } from 'framer-motion';
 import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
@@ -89,6 +90,11 @@ export default function CaregiverDashboard() {
             <Shield className="w-5 h-5" />
             <span>Enable Safety Tracking</span>
           </button>
+
+          {/* Caregiver Wellness Hub */}
+          <div className="mt-4 ios-card-elevated p-4">
+            <CaregiverSupportEcosystem />
+          </div>
         </div>
 
         {/* SOS Active Alert Banner */}
