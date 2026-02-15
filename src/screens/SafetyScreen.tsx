@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Shield, MapPin, Phone, AlertTriangle, Activity, Check } from 'lucide-react';
 
 export default function SafetyScreen() {
-  const { mode, isSOSActive, triggerSOS, cancelSOS } = useApp();
+  const { mode, isSOSActive, triggerSOS, cancelSOS, patientLocation } = useApp();
   const [sosCountdown, setSosCountdown] = useState<number | null>(null);
 
   const handleSOS = () => {
