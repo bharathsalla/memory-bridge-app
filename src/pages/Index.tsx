@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
 import NavBar from '@/components/layout/NavBar';
 import TabBar from '@/components/layout/TabBar';
+import ContextBanner from '@/components/layout/ContextBanner';
 import VoiceOverIndicator from '@/components/VoiceOverIndicator';
 import OnboardingScreen from '@/screens/OnboardingScreen';
 import TodayScreen from '@/screens/TodayScreen';
@@ -172,6 +173,7 @@ const Index = () => {
           </AnimatePresence>
         </div>
 
+        <ContextBanner />
         <TabBar />
       </div>
     );
