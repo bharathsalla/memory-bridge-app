@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
+  { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'memories', label: 'Memories', icon: Image },
-  { id: 'memorylane', label: 'Timeline', icon: BookHeart },
   { id: 'safety', label: 'Safety', icon: Shield },
   { id: 'care', label: 'Care', icon: Users },
 ];
 
 const simplifiedTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
-  { id: 'memories', label: 'Memories', icon: Image },
+  { id: 'reminders', label: 'Reminders', icon: Bell },
   { id: 'safety', label: 'Safety', icon: Shield },
 ];
 

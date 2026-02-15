@@ -18,6 +18,7 @@ import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
+  reminders: 'Reminders',
   memories: 'Memories',
   memorylane: 'Memory Lane',
   safety: 'Safety',
@@ -80,6 +81,7 @@ const Index = () => {
               ) : (
                 <>
                   {activePatientTab === 'today' && <TodayScreen />}
+                  {activePatientTab === 'reminders' && <RemindersScreen />}
                   {activePatientTab === 'memories' && <MemoriesScreen />}
                   {activePatientTab === 'memorylane' && <MemoryLaneScreen />}
                   {activePatientTab === 'safety' && <SafetyScreen />}

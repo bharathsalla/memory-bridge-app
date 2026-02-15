@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, Bell } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
-import RemindersScreen from '@/screens/RemindersScreen';
 
 const messages = [
   { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false, avatar: '👩' },
@@ -29,7 +28,7 @@ const careViewOptions = [
 
 export default function CareScreen() {
   const { toggleCaregiverView } = useApp();
-  const [activeSection, setActiveSection] = useState<'chat' | 'tasks' | 'calendar' | 'team' | 'reminders'>('chat');
+  const [activeSection, setActiveSection] = useState<'chat' | 'tasks' | 'calendar' | 'team'>('chat');
   const [messageInput, setMessageInput] = useState('');
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1']));
   const [manageOpen, setManageOpen] = useState(false);
@@ -54,7 +53,6 @@ export default function CareScreen() {
 
   const sections = [
     { id: 'chat' as const, label: 'Chat', icon: MessageCircle },
-    { id: 'reminders' as const, label: 'Reminders', icon: Bell },
     { id: 'tasks' as const, label: 'Tasks', icon: CheckSquare },
     { id: 'calendar' as const, label: 'Calendar', icon: CalendarDays },
     { id: 'team' as const, label: 'Team', icon: Users },
@@ -153,9 +151,6 @@ export default function CareScreen() {
             </div>
           </div>
         )}
-
-        {/* Reminders */}
-        {activeSection === 'reminders' && <RemindersScreen />}
 
         {/* Tasks */}
         {activeSection === 'tasks' && (
