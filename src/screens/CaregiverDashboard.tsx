@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSimulator, PersistentNotificationSimulator } from '@/components/NativeFeatureSimulators';
 import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import { motion } from 'framer-motion';
@@ -794,6 +795,27 @@ export default function CaregiverDashboard() {
             + Add Member
           </button>
         </div>
+      </div>
+
+      {/* Native Feature Integrations */}
+      <div className="px-5 mt-5">
+        <h2 className="text-ios-title3 text-foreground mb-3">Device Integrations</h2>
+        <PushNotificationSimulator />
+      </div>
+
+      <div className="px-5 mt-5">
+        <h2 className="text-ios-title3 text-foreground mb-3">Background Services</h2>
+        <BackgroundFetchSimulator />
+      </div>
+
+      <div className="px-5 mt-5">
+        <h2 className="text-ios-title3 text-foreground mb-3">Voice Assistants</h2>
+        <AlexaIntegrationSimulator />
+      </div>
+
+      <div className="px-5 mt-5">
+        <h2 className="text-ios-title3 text-foreground mb-3">Persistent Alerts</h2>
+        <PersistentNotificationSimulator />
       </div>
 
       {/* Patient Interface */}
