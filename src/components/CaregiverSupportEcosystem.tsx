@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, Brain, Shield, Coffee, BookOpen, MessageCircle,
   ChevronRight, ChevronLeft, ExternalLink, Users, AlertTriangle,
-  Smile, Frown, Meh, ArrowRight, Check, X, Clock, Lightbulb
+  Smile, Frown, Meh, ArrowRight, Check, X, Clock, Lightbulb, Loader2
 } from 'lucide-react';
 
 type Module = null | 'checkin' | 'chatbot' | 'safebreak' | 'burnout' | 'education';
 type EducationSub = null | 'alzheimers' | 'lewy' | 'frontotemporal' | 'vascular' | 'community' | 'stages';
+
+const SUPPORT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/caregiver-support`;
+const API_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+async function callSupport(body: Record<string, unknown>) {
+  const resp = await fetch(SUPPORT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) throw new Error(`API error ${resp.status}`);
+  return resp.json();
+}
 
 const moodOptions = [
   { emoji: '😊', label: 'Managing Well', color: 'bg-success/15 text-success border-success/30' },
@@ -34,57 +47,87 @@ export default function CaregiverSupportEcosystem() {
     { emoji: '😔', label: 'Feeling Tired', date: 'Wed' },
   ]);
   const [todayMood, setTodayMood] = useState<string | null>(null);
+  const [moodMessage, setMoodMessage] = useState('');
+  const [moodLoading, setMoodLoading] = useState(false);
+  const [moodSuggestChat, setMoodSuggestChat] = useState(false);
 
   // Chatbot state
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([
-    { role: 'bot', text: "Hi, I'm your dementia care support assistant. I'm here to listen and help. How are you feeling today?" },
+    { role: 'bot', text: "Hi, I'm your dementia care support assistant. I'm trained on Alzheimer's, Lewy Body, Frontotemporal, and Vascular dementia care. How can I help you today?" },
   ]);
   const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Burnout state
   const [burnoutAnswers, setBurnoutAnswers] = useState<number[]>([]);
   const [burnoutDone, setBurnoutDone] = useState(false);
+  const [burnoutRecs, setBurnoutRecs] = useState<any>(null);
+  const [burnoutRecsLoading, setBurnoutRecsLoading] = useState(false);
 
   // Safe break state
   const [breakActive, setBreakActive] = useState(false);
 
   const negativeCount = moodHistory.filter(m => m.emoji !== '😊').length;
 
-  const handleMoodSelect = (emoji: string, label: string) => {
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const handleMoodSelect = async (emoji: string, label: string) => {
     setTodayMood(emoji);
-    setMoodHistory(prev => [...prev, { emoji, label, date: 'Today' }]);
+    const newHistory = [...moodHistory, { emoji, label, date: 'Today' }];
+    setMoodHistory(newHistory);
+    setMoodLoading(true);
+    try {
+      const data = await callSupport({ type: 'mood_response', moodHistory: newHistory });
+      const result = data.result;
+      setMoodMessage(result?.message || result?.raw || "Thank you for checking in. Your feelings matter. 💙");
+      setMoodSuggestChat(result?.suggestChatbot === true);
+    } catch {
+      setMoodMessage(emoji === '😊' ? "Glad you're holding steady 💙" : "It's okay to feel this way. You're doing more than enough. 💙");
+      setMoodSuggestChat(emoji !== '😊');
+    }
+    setMoodLoading(false);
   };
 
-  const handleChatSend = () => {
-    if (!chatInput.trim()) return;
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return;
     const userMsg = chatInput.trim();
-    setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    const updatedMessages = [...chatMessages, { role: 'user' as const, text: userMsg }];
+    setChatMessages(updatedMessages);
     setChatInput('');
+    setChatLoading(true);
 
-    // Simulated bot responses
-    setTimeout(() => {
-      let response = "I understand. Caregiving is incredibly challenging. Would you like to try a quick breathing exercise, or would you prefer some practical tips?";
-
-      if (userMsg.toLowerCase().includes('exhaust') || userMsg.toLowerCase().includes('tired') || userMsg.toLowerCase().includes('fail')) {
-        response = "You are NOT failing. Dementia caregiving is one of the hardest roles anyone can take on. Exhaustion is completely normal. Would you like a short reset exercise?";
-      } else if (userMsg.toLowerCase().includes('wander')) {
-        response = "Night wandering is common in mid-stage Alzheimer's. Consider motion sensors or calming light cues before bedtime. Would you like more behavior management tips?";
-      } else if (userMsg.toLowerCase().includes('aggress') || userMsg.toLowerCase().includes('angry')) {
-        response = "Aggression in dementia is often from confusion or pain, not directed at you. Stay calm, speak slowly, and try redirecting to a familiar activity. You're doing your best. 💙";
-      } else if (userMsg.toLowerCase().includes('guilt')) {
-        response = "Caregiver guilt is incredibly common. Remember: seeking help isn't weakness, it's wisdom. You matter too. Would you like to explore some self-care strategies?";
-      } else if (userMsg.toLowerCase().includes('yes') || userMsg.toLowerCase().includes('sure')) {
-        response = "Great! Try this: Close your eyes. Breathe in for 4 counts, hold for 4, out for 6. Repeat 3 times. This activates your calm nervous system. 🧘";
-      }
-
-      setChatMessages(prev => [...prev, { role: 'bot', text: response }]);
-    }, 800);
+    try {
+      const data = await callSupport({ type: 'chatbot', messages: updatedMessages });
+      setChatMessages(prev => [...prev, { role: 'bot', text: data.reply }]);
+    } catch {
+      setChatMessages(prev => [...prev, { role: 'bot', text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment. 💙" }]);
+    }
+    setChatLoading(false);
   };
 
   const handleBurnoutAnswer = (score: number) => {
     const next = [...burnoutAnswers, score];
     setBurnoutAnswers(next);
-    if (next.length >= burnoutQuestions.length) setBurnoutDone(true);
+    if (next.length >= burnoutQuestions.length) {
+      setBurnoutDone(true);
+      fetchBurnoutRecs(next);
+    }
+  };
+
+  const fetchBurnoutRecs = async (answers: number[]) => {
+    const score = answers.reduce((a, b) => a + b, 0);
+    const level = score <= 5 ? 'Low' : score <= 10 ? 'Moderate' : 'High';
+    setBurnoutRecsLoading(true);
+    try {
+      const data = await callSupport({ type: 'burnout_recommendations', burnoutScore: score, burnoutLevel: level });
+      setBurnoutRecs(data.result);
+    } catch {
+      setBurnoutRecs(null);
+    }
+    setBurnoutRecsLoading(false);
   };
 
   const burnoutScore = burnoutAnswers.reduce((a, b) => a + b, 0);
@@ -102,7 +145,7 @@ export default function CaregiverSupportEcosystem() {
   if (activeModule === 'checkin') {
     return (
       <div className="space-y-4">
-        <BackButton onClick={() => { setActiveModule(null); setTodayMood(null); }} />
+        <BackButton onClick={() => { setActiveModule(null); setTodayMood(null); setMoodMessage(''); }} />
         <div className="text-center mb-2">
           <div className="text-[28px] mb-1">🧠</div>
           <h3 className="text-[18px] font-bold text-foreground">Caregiver Check-In</h3>
@@ -126,13 +169,20 @@ export default function CaregiverSupportEcosystem() {
         ) : (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="ios-card-elevated p-4 text-center">
             <div className="text-[36px] mb-2">{todayMood}</div>
-            <p className="text-[14px] text-foreground font-medium">
-              {todayMood === '😊' ? "Glad you're holding steady 💙" : todayMood === '😔' ? "It's okay to feel tired. You're doing more than enough." : "You've been through a lot. Consider talking to our support chatbot. 💙"}
-            </p>
-            {todayMood !== '😊' && (
-              <button onClick={() => setActiveModule('chatbot')} className="mt-3 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold">
-                Talk to Support Bot
-              </button>
+            {moodLoading ? (
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-[13px]">Thinking...</span>
+              </div>
+            ) : (
+              <>
+                <p className="text-[14px] text-foreground font-medium">{moodMessage}</p>
+                {moodSuggestChat && (
+                  <button onClick={() => setActiveModule('chatbot')} className="mt-3 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold">
+                    Talk to Support Bot
+                  </button>
+                )}
+              </>
             )}
           </motion.div>
         )}
@@ -168,7 +218,7 @@ export default function CaregiverSupportEcosystem() {
           </div>
           <div>
             <h3 className="text-[16px] font-bold text-foreground">Dementia Care Assistant</h3>
-            <p className="text-[11px] text-muted-foreground">Trained on dementia care best practices</p>
+            <p className="text-[11px] text-muted-foreground">AI-powered · Trained on dementia care best practices</p>
           </div>
         </div>
 
@@ -182,6 +232,15 @@ export default function CaregiverSupportEcosystem() {
               </div>
             </div>
           ))}
+          {chatLoading && (
+            <div className="flex justify-start">
+              <div className="bg-muted p-3 rounded-2xl rounded-bl-md flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-[12px] text-muted-foreground">Thinking...</span>
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
         </div>
 
         <div className="flex gap-2">
@@ -189,17 +248,18 @@ export default function CaregiverSupportEcosystem() {
             value={chatInput}
             onChange={e => setChatInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleChatSend()}
-            placeholder="Type how you're feeling..."
+            placeholder="Ask about dementia care, coping, behaviors..."
             className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-[13px] text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30"
+            disabled={chatLoading}
           />
-          <button onClick={handleChatSend} className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold shrink-0">
+          <button onClick={handleChatSend} disabled={chatLoading} className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold shrink-0 disabled:opacity-50">
             Send
           </button>
         </div>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {["I'm exhausted", "Wandering at night", "Feeling guilty", "Need a break"].map(q => (
-            <button key={q} onClick={() => { setChatInput(q); }} className="px-3 py-1.5 rounded-full bg-muted text-[11px] text-muted-foreground border border-border/60">
+          {["Sundowning tips", "Wandering at night", "Managing aggression", "I feel guilty", "Need a breathing exercise", "What stage is this?"].map(q => (
+            <button key={q} onClick={() => setChatInput(q)} className="px-3 py-1.5 rounded-full bg-muted text-[11px] text-muted-foreground border border-border/60">
               {q}
             </button>
           ))}
@@ -209,7 +269,7 @@ export default function CaregiverSupportEcosystem() {
   }
 
   if (activeModule === 'safebreak') {
-    const isStable = true; // Simulated: patient is stable
+    const isStable = true;
     return (
       <div className="space-y-4">
         <BackButton onClick={() => { setActiveModule(null); setBreakActive(false); }} />
@@ -267,7 +327,7 @@ export default function CaregiverSupportEcosystem() {
   if (activeModule === 'burnout') {
     return (
       <div className="space-y-4">
-        <BackButton onClick={() => { setActiveModule(null); setBurnoutAnswers([]); setBurnoutDone(false); }} />
+        <BackButton onClick={() => { setActiveModule(null); setBurnoutAnswers([]); setBurnoutDone(false); setBurnoutRecs(null); }} />
         <div className="text-center mb-2">
           <div className="text-[28px] mb-1">📊</div>
           <h3 className="text-[18px] font-bold text-foreground">Burnout Risk Assessment</h3>
@@ -310,31 +370,63 @@ export default function CaregiverSupportEcosystem() {
             </div>
 
             <div className="ios-card-elevated p-4">
-              <h4 className="text-[14px] font-bold text-foreground mb-2">💡 Recommendations</h4>
-              <div className="space-y-2 text-[13px] text-muted-foreground">
-                {burnoutLevel === 'High' ? (
-                  <>
-                    <p>• Talk to our support chatbot for immediate guidance</p>
-                    <p>• Consider joining a caregiver support group</p>
-                    <p>• Consult a professional counselor</p>
-                    <p>• Schedule regular respite care</p>
-                  </>
-                ) : burnoutLevel === 'Moderate' ? (
-                  <>
-                    <p>• Take regular breaks using Safe Break mode</p>
-                    <p>• Connect with other caregivers in our community section</p>
-                    <p>• Practice daily stress check-ins</p>
-                  </>
-                ) : (
-                  <>
-                    <p>• Great job managing your wellbeing! 💙</p>
-                    <p>• Continue your current self-care routine</p>
-                    <p>• Check in monthly to track your wellness</p>
-                  </>
-                )}
-              </div>
-              {burnoutLevel === 'High' && (
-                <button onClick={() => { setActiveModule('chatbot'); setBurnoutDone(false); setBurnoutAnswers([]); }} className="mt-3 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold">
+              <h4 className="text-[14px] font-bold text-foreground mb-2">💡 AI-Powered Recommendations</h4>
+              {burnoutRecsLoading ? (
+                <div className="flex items-center justify-center gap-2 py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  <span className="text-[13px] text-muted-foreground">Analyzing your results...</span>
+                </div>
+              ) : burnoutRecs ? (
+                <div className="space-y-3">
+                  {burnoutRecs.summary && (
+                    <p className="text-[13px] text-foreground italic">{burnoutRecs.summary}</p>
+                  )}
+                  {burnoutRecs.recommendations && (
+                    <div className="space-y-1.5">
+                      {burnoutRecs.recommendations.map((r: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <Check className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                          <span className="text-[13px] text-muted-foreground">{r}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {burnoutRecs.immediateAction && (
+                    <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
+                      <p className="text-[11px] text-primary font-bold uppercase tracking-wider mb-1">Do This Now</p>
+                      <p className="text-[13px] text-foreground">{burnoutRecs.immediateAction}</p>
+                    </div>
+                  )}
+                  {burnoutRecs.resource && (
+                    <p className="text-[12px] text-muted-foreground">📌 Resource: {burnoutRecs.resource}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2 text-[13px] text-muted-foreground">
+                  {burnoutLevel === 'High' ? (
+                    <>
+                      <p>• Talk to our support chatbot for immediate guidance</p>
+                      <p>• Consider joining a caregiver support group</p>
+                      <p>• Consult a professional counselor</p>
+                      <p>• Schedule regular respite care</p>
+                    </>
+                  ) : burnoutLevel === 'Moderate' ? (
+                    <>
+                      <p>• Take regular breaks using Safe Break mode</p>
+                      <p>• Connect with other caregivers in our community section</p>
+                      <p>• Practice daily stress check-ins</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>• Great job managing your wellbeing! 💙</p>
+                      <p>• Continue your current self-care routine</p>
+                      <p>• Check in monthly to track your wellness</p>
+                    </>
+                  )}
+                </div>
+              )}
+              {(burnoutLevel === 'High' || burnoutLevel === 'Moderate') && (
+                <button onClick={() => { setActiveModule('chatbot'); setBurnoutDone(false); setBurnoutAnswers([]); setBurnoutRecs(null); }} className="mt-3 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold">
                   Talk to Support Bot
                 </button>
               )}
@@ -388,7 +480,6 @@ export default function CaregiverSupportEcosystem() {
       );
     }
 
-    // Dementia type sub-pages
     const dementiaTypes: Record<string, { title: string; icon: string; source: string; topics: string[] }> = {
       alzheimers: { title: "Alzheimer's Disease", icon: '🧠', source: "Alzheimer's Association", topics: ['Early stage coping strategies', 'Mid-stage aggression management', 'Late stage comfort care', 'Memory preservation techniques'] },
       lewy: { title: 'Lewy Body Dementia', icon: '🔬', source: 'Lewy Body Dementia Association', topics: ['Hallucination management', 'Medication sensitivity awareness', 'Sleep disturbance patterns', 'Movement symptom care'] },
@@ -421,7 +512,6 @@ export default function CaregiverSupportEcosystem() {
       );
     }
 
-    // Education main page
     return (
       <div className="space-y-4">
         <BackButton onClick={() => setActiveModule(null)} />
@@ -431,7 +521,6 @@ export default function CaregiverSupportEcosystem() {
           <p className="text-[14px] text-muted-foreground mt-1">Learn, connect, and find trusted resources</p>
         </div>
 
-        {/* By Dementia Type */}
         <div>
           <h4 className="text-[14px] font-bold text-foreground mb-2.5">By Dementia Type</h4>
           <div className="grid grid-cols-2 gap-2.5">
@@ -449,7 +538,6 @@ export default function CaregiverSupportEcosystem() {
           </div>
         </div>
 
-        {/* Community & Stages */}
         <div className="space-y-2.5">
           <motion.button whileTap={{ scale: 0.98 }} onClick={() => setEducationSub('community')} className="w-full ios-card-elevated p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-lavender/10 flex items-center justify-center shrink-0">
@@ -480,7 +568,7 @@ export default function CaregiverSupportEcosystem() {
   // ── MAIN CARD GRID ──
   const modules = [
     { id: 'checkin' as Module, icon: '🧠', title: 'Daily Stress Check-In', desc: 'Quick emotional pulse', bg: 'bg-primary/8', border: 'border-primary/15' },
-    { id: 'chatbot' as Module, icon: '💬', title: 'Support Chatbot', desc: 'Dementia-trained AI assistant', bg: 'bg-lavender/8', border: 'border-lavender/15' },
+    { id: 'chatbot' as Module, icon: '💬', title: 'Support Chatbot', desc: 'AI-powered dementia care assistant', bg: 'bg-lavender/8', border: 'border-lavender/15' },
     { id: 'safebreak' as Module, icon: '☕', title: 'Safe Break Mode', desc: 'Rest when patient is stable', bg: 'bg-success/8', border: 'border-success/15' },
     { id: 'burnout' as Module, icon: '📊', title: 'Burnout Assessment', desc: 'Monthly wellness check', bg: 'bg-warning/8', border: 'border-warning/15' },
     { id: 'education' as Module, icon: '📚', title: 'Education & Community', desc: 'Learn & connect with others', bg: 'bg-accent/8', border: 'border-accent/15' },
