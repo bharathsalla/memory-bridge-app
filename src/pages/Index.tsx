@@ -13,6 +13,8 @@ import CareScreen from '@/screens/CareScreen';
 import WellbeingScreen from '@/screens/WellbeingScreen';
 import CaregiverDashboard from '@/screens/CaregiverDashboard';
 import CaregiverMemoryInsights from '@/screens/CaregiverMemoryInsights';
+import RemindersScreen from '@/screens/RemindersScreen';
+import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -30,6 +32,7 @@ const cgNavTitles: Record<string, string> = {
   reports: 'Reports',
   memories: 'Memory Insights',
   settings: 'Settings',
+  reminders: 'Reminders',
 };
 
 const Index = () => {
@@ -71,7 +74,9 @@ const Index = () => {
               className="h-full"
             >
               {isCaregiverView ? (
-                activeCaregiverTab === 'memories' ? <CaregiverMemoryInsights /> : <CaregiverDashboard />
+                activeCaregiverTab === 'memories' ? <CaregiverMemoryInsights /> :
+                activeCaregiverTab === 'reminders' ? <CaregiverRemindersPanel /> :
+                <CaregiverDashboard />
               ) : (
                 <>
                   {activePatientTab === 'today' && <TodayScreen />}

@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.voice-assistant]
 verify_jwt = false
+
+[functions.analyze-user-patterns]
+verify_jwt = false
+
+[functions.send-caregiver-reminder]
+verify_jwt = false
+
+[functions.alexa-skill]
+verify_jwt = false
