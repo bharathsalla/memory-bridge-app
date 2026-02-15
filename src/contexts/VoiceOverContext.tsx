@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { useApp, PatientTab } from './AppContext';
 import { getScreenMeta, getOnboardingMeta, ScreenReadItem } from '@/services/screenReader';
-import { correctName, correctInput, checkRelevance } from '@/services/voiceNLP';
+import { correctName, correctInput } from '@/services/voiceNLP';
+
+const ASSISTANT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-assistant`;
+const API_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 interface VoiceOverContextType {
   isVoiceOverActive: boolean;
@@ -38,7 +41,6 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
   const lastScreenRef = useRef<string>(appContext.activePatientTab);
-  const tapCountRef = useRef<{ count: number; timer: ReturnType<typeof setTimeout> | null }>({ count: 0, timer: null });
   const isActiveRef = useRef(false);
   const isSpeakingRef = useRef(false);
   const isOnHoldRef = useRef(false);
@@ -50,8 +52,8 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
   const highlightedInputIdRef = useRef<string | null>(null);
   const shouldRestartListeningRef = useRef(true);
   const appContextRef = useRef(appContext);
+  const processingCommandRef = useRef(false);
 
-  // Keep appContext ref fresh
   useEffect(() => { appContextRef.current = appContext; }, [appContext]);
   useEffect(() => { isActiveRef.current = isVoiceOverActive; }, [isVoiceOverActive]);
   useEffect(() => { isOnHoldRef.current = isOnHold; }, [isOnHold]);
@@ -86,7 +88,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.72;
+    utterance.rate = 0.75;
     utterance.pitch = 0.92;
     utterance.volume = 0.75;
 
@@ -107,7 +109,6 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       setIsSpeaking(false);
       if (!isActiveRef.current || isOnHoldRef.current) return;
 
-      // If waiting for input, ensure listening is active
       if (waitingForInputRef.current) {
         ensureListening();
         return;
@@ -119,7 +120,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
           if (!isActiveRef.current) return;
           const next = readingQueueRef.current.shift()!;
           processReadItem(next);
-        }, 400);
+        }, 300);
       } else {
         isReadingPageRef.current = false;
         ensureListening();
@@ -130,10 +131,9 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
     window.speechSynthesis.speak(utterance);
   }, []);
 
-  // ── Ensure listening is always running ──
   const ensureListening = useCallback(() => {
     if (!isActiveRef.current) return;
-    if (recognitionRef.current) return; // already running
+    if (recognitionRef.current) return;
     startListening();
   }, []);
 
@@ -152,15 +152,14 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
         text = `Button: ${item.label}. ${item.detail || ''}`;
         break;
       case 'input':
-        // Stop reading queue, highlight input, wait for spoken answer
+        // STOP reading, highlight input, wait for spoken answer
         text = `I need your help here. ${item.detail || `Please tell me your ${item.label}.`}`;
         if (item.inputId) {
           setHighlightedInputId(item.inputId);
           highlightedInputIdRef.current = item.inputId;
           waitingForInputRef.current = true;
           setIsWaitingForInput(true);
-          // Pause reading — will resume after input is captured
-          isReadingPageRef.current = false;
+          isReadingPageRef.current = false; // STOP queue
         }
         break;
       case 'stat':
@@ -196,18 +195,329 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
 
     readingQueueRef.current = [...meta.items];
     isReadingPageRef.current = true;
-
     speak(meta.overview, true);
   }, [speak, immediateStop]);
 
-  // ── STT — continuous listening with auto-restart ──
+  // ── Build screen context string for AI ──
+  const buildScreenContext = useCallback(() => {
+    const ctx = appContextRef.current;
+    if (!ctx.onboarded) {
+      const meta = getOnboardingMeta(onboardingStepRef.current);
+      return `Onboarding step: ${onboardingStepRef.current}. ${meta.overview} ${meta.purpose}`;
+    }
+    const meta = getScreenMeta(ctx.activePatientTab, {
+      medications: ctx.medications,
+      currentMood: ctx.currentMood,
+      stepCount: ctx.stepCount,
+      sleepHours: ctx.sleepHours,
+    });
+    const medInfo = ctx.medications.map(m => `${m.name} ${m.dosage} at ${m.time} (${m.taken ? 'taken' : 'not taken'})`).join('; ');
+    const actInfo = ctx.activities.map(a => `${a.time}: ${a.description} (${a.completed ? 'done' : 'pending'})`).join('; ');
+    return `${meta.overview} ${meta.purpose} Medications: ${medInfo || 'none'}. Activities: ${actInfo || 'none'}. Mood: ${ctx.currentMood.label}. Steps: ${ctx.stepCount}. Sleep: ${ctx.sleepHours}h.`;
+  }, []);
+
+  // ── Call AI assistant for unknown/complex commands ──
+  const callAIAssistant = useCallback(async (command: string): Promise<{ reply: string; action: string | null; isRelevant?: boolean }> => {
+    try {
+      const ctx = appContextRef.current;
+      const resp = await fetch(ASSISTANT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          command,
+          screen: ctx.onboarded ? ctx.activePatientTab : 'onboarding',
+          screenContext: buildScreenContext(),
+          patientName: ctx.patientName,
+          onboardingStep: onboardingStepRef.current,
+        }),
+      });
+      if (!resp.ok) return { reply: 'I did not catch that. Could you say it again?', action: null };
+      return await resp.json();
+    } catch {
+      return { reply: 'I am having trouble hearing you. Please try again.', action: null };
+    }
+  }, [buildScreenContext]);
+
+  // ── Execute an AI-suggested action ──
+  const executeAction = useCallback((action: string | null) => {
+    if (!action) return;
+    const ctx = appContextRef.current;
+
+    const navMap: Record<string, PatientTab> = {
+      nav_today: 'today',
+      nav_memories: 'memories',
+      nav_safety: 'safety',
+      nav_care: 'care',
+      nav_wellbeing: 'wellbeing',
+    };
+
+    if (navMap[action]) {
+      ctx.setActivePatientTab(navMap[action]);
+      return;
+    }
+
+    switch (action) {
+      case 'take_med': {
+        const pending = ctx.medications.filter(m => !m.taken);
+        if (pending.length > 0) ctx.markMedicationTaken(pending[0].id);
+        break;
+      }
+      case 'sos':
+        ctx.triggerSOS();
+        ctx.setActivePatientTab('safety');
+        break;
+      case 'cancel_sos':
+        ctx.cancelSOS();
+        break;
+      case 'read_page':
+        setTimeout(() => readCurrentPage(), 500);
+        break;
+      case 'mood_happy':
+        ctx.setMood({ emoji: '😊', label: 'Happy', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        break;
+      case 'mood_sad':
+        ctx.setMood({ emoji: '😔', label: 'Sad', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        break;
+      case 'mood_tired':
+        ctx.setMood({ emoji: '😴', label: 'Tired', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        break;
+      case 'mood_anxious':
+        ctx.setMood({ emoji: '😰', label: 'Anxious', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        break;
+      case 'mood_calm':
+        ctx.setMood({ emoji: '😌', label: 'Calm', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        break;
+    }
+  }, [readCurrentPage]);
+
+  // ── Intent matcher ──
+  const matchesIntent = (cmd: string, patterns: string[]): boolean => {
+    return patterns.some(p => cmd.includes(p));
+  };
+
+  // ── Handle voice commands — interrupt-first ──
+  const handleVoiceCommand = useCallback(async (command: string) => {
+    if (processingCommandRef.current) return;
+    processingCommandRef.current = true;
+    const ctx = appContextRef.current;
+
+    try {
+      // ★★★ STOP — highest priority ★★★
+      if (matchesIntent(command, ['stop', 'quiet', 'silence', 'shut up', 'be quiet', 'enough', 'mute'])) {
+        immediateStop();
+        waitingForInputRef.current = false;
+        setIsWaitingForInput(false);
+        setHighlightedInputId(null);
+        highlightedInputIdRef.current = null;
+
+        const utterance = new SpeechSynthesisUtterance('Okay, I will be quiet. Tap the microphone when you need me.');
+        utterance.rate = 0.75; utterance.pitch = 0.92; utterance.volume = 0.7;
+        const voices = window.speechSynthesis.getVoices();
+        const v = voices.find(v => v.name.includes('Samantha')) || voices.find(v => v.lang.startsWith('en'));
+        if (v) utterance.voice = v;
+        utterance.onend = () => stopVoiceOverFull();
+        window.speechSynthesis.speak(utterance);
+        return;
+      }
+
+      // ★ HOLD / PAUSE
+      if (matchesIntent(command, ['hold on', 'wait', 'pause', 'one moment', 'one second', 'just a moment'])) {
+        immediateStop();
+        waitingForInputRef.current = false;
+        setIsWaitingForInput(false);
+        isReadingPageRef.current = false;
+        setIsOnHold(true);
+        isOnHoldRef.current = true;
+        speak('Take your time. Say "continue" when you are ready.', true);
+        return;
+      }
+
+      // ★ RESUME from hold
+      if (isOnHoldRef.current && matchesIntent(command, ['continue', 'go on', 'resume', 'carry on', 'okay', 'i am ready', "i'm ready", 'go ahead'])) {
+        setIsOnHold(false);
+        isOnHoldRef.current = false;
+        speak('Welcome back! Let me read this page for you.', true);
+        setTimeout(() => readCurrentPage(), 2000);
+        return;
+      }
+
+      if (isOnHoldRef.current) {
+        speak('I am waiting. Say "continue" when you are ready.', true);
+        return;
+      }
+
+      // ★★ INPUT MODE — capture spoken answer ★★
+      if (waitingForInputRef.current && inputCallbackRef.current) {
+        if (matchesIntent(command, ['skip', 'next', 'leave it', 'no thanks'])) {
+          waitingForInputRef.current = false;
+          setIsWaitingForInput(false);
+          setHighlightedInputId(null);
+          highlightedInputIdRef.current = null;
+          speak('Okay, skipping this.');
+          if (readingQueueRef.current.length > 0) {
+            isReadingPageRef.current = true;
+            setTimeout(() => {
+              const next = readingQueueRef.current.shift()!;
+              processReadItem(next);
+            }, 1500);
+          }
+          return;
+        }
+
+        if (matchesIntent(command, ['try again', 'redo', 'again', 'repeat', 'wrong'])) {
+          speak('Okay, please say it again clearly.');
+          return;
+        }
+
+        // Process the spoken input
+        const fieldId = highlightedInputIdRef.current;
+        const fieldLabel = fieldId === 'onboarding-name' ? 'name' : 'text';
+
+        speak('Let me write that down.');
+
+        let corrected = command;
+        try {
+          if (fieldLabel === 'name') {
+            corrected = await correctName(command);
+          } else {
+            corrected = await correctInput(command, fieldLabel);
+          }
+        } catch {
+          corrected = command.charAt(0).toUpperCase() + command.slice(1);
+        }
+
+        inputCallbackRef.current(corrected);
+        waitingForInputRef.current = false;
+        setIsWaitingForInput(false);
+        setHighlightedInputId(null);
+        highlightedInputIdRef.current = null;
+
+        speak(`I wrote "${corrected}". Is that right? Say "continue" to go on, or "try again" to change it.`, true);
+        return;
+      }
+
+      // ★ TRY AGAIN for name re-entry
+      if (matchesIntent(command, ['try again', 'redo']) && onboardingStepRef.current === 'personalize') {
+        setHighlightedInputId('onboarding-name');
+        highlightedInputIdRef.current = 'onboarding-name';
+        waitingForInputRef.current = true;
+        setIsWaitingForInput(true);
+        speak('Okay, please say your name now.');
+        return;
+      }
+
+      // ★ YES / CONTINUE in onboarding — fast local handling
+      if (matchesIntent(command, ['continue', 'next', 'go on', 'proceed', 'yes', 'correct', "that's right", 'that is right', 'move on'])) {
+        if (isReadingPageRef.current) {
+          readingQueueRef.current = [];
+          isReadingPageRef.current = false;
+          speak('What would you like to do?');
+          return;
+        }
+        // During onboarding, "yes/continue" advances
+        if (!ctx.onboarded && onboardingStepRef.current) {
+          speak('Moving on.');
+          return;
+        }
+        speak('What would you like to do? You can say a screen name, "take my medicine", or "help".');
+        return;
+      }
+
+      // ★ NO — fast local handling
+      if (matchesIntent(command, ['no', 'nope', 'not that', 'wrong'])) {
+        if (isReadingPageRef.current) {
+          immediateStop();
+          readingQueueRef.current = [];
+          isReadingPageRef.current = false;
+        }
+        speak('Okay, no problem. What would you like instead?');
+        return;
+      }
+
+      // ★ READ page
+      if (matchesIntent(command, ['read', 'where am i', 'tell me about', 'what is this', 'describe', 'what page', 'what screen'])) {
+        readCurrentPage();
+        return;
+      }
+
+      // ★ HELP
+      if (matchesIntent(command, ['help', 'options', 'what can', 'menu', 'commands'])) {
+        speak('I can do many things. Say "go to today" or "go to safety" to navigate. "Take my medicine" to log medication. "Call Sarah" for emergencies. "Tell me my activities" for your daily plan. "Read" to hear about this page. "Hold on" to pause me. Or "stop" to turn me off.');
+        return;
+      }
+
+      // ★ QUICK NAVIGATION — local pattern match for speed
+      const navPatterns: { patterns: string[]; tab: PatientTab; label: string }[] = [
+        { patterns: ['today', 'home', 'main', 'dashboard', 'daily'], tab: 'today', label: 'Today' },
+        { patterns: ['memories', 'photos', 'pictures', 'gallery', 'album'], tab: 'memories', label: 'Memories' },
+        { patterns: ['safety', 'safe', 'emergency', 'location', 'map'], tab: 'safety', label: 'Safety' },
+        { patterns: ['care', 'family', 'chat', 'circle', 'caregiver', 'sarah'], tab: 'care', label: 'Care Circle' },
+        { patterns: ['wellbeing', 'well being', 'health', 'profile', 'settings', 'mood', 'how i feel'], tab: 'wellbeing', label: 'Wellbeing' },
+      ];
+
+      for (const nav of navPatterns) {
+        if (nav.patterns.some(p => command.includes(p))) {
+          ctx.setActivePatientTab(nav.tab);
+          speak(`Taking you to ${nav.label}.`);
+          return;
+        }
+      }
+
+      // ★ QUICK MEDICATION — local
+      if (matchesIntent(command, ['take', 'medicine', 'medication', 'med', 'pill', 'drug'])) {
+        const pendingMeds = ctx.medications.filter(m => !m.taken);
+        if (pendingMeds.length > 0) {
+          ctx.markMedicationTaken(pendingMeds[0].id);
+          const remaining = pendingMeds.length - 1;
+          speak(`Done! I marked ${pendingMeds[0].name} as taken. ${remaining > 0 ? `You still have ${remaining} left.` : 'All done for today!'}`);
+          ctx.setActivePatientTab('today');
+        } else {
+          speak('You have already taken all your medications. Well done!');
+        }
+        return;
+      }
+
+      // ★ EMERGENCY — local
+      if (matchesIntent(command, ['call sarah', 'call sara', 'call caregiver', 'call help', 'emergency', 'sos', 'help me'])) {
+        speak('Calling Sarah now.');
+        ctx.triggerSOS();
+        ctx.setActivePatientTab('safety');
+        return;
+      }
+      if (matchesIntent(command, ['cancel call', 'cancel emergency', 'never mind'])) {
+        ctx.cancelSOS();
+        speak('Emergency cancelled.');
+        return;
+      }
+
+      // ★★ ANYTHING ELSE → route to AI assistant for smart response ★★
+      immediateStop(); // Stop narration while we think
+      speak('Let me think about that.');
+
+      const aiResult = await callAIAssistant(command);
+      immediateStop(); // Cancel "let me think"
+      speak(aiResult.reply, true);
+      executeAction(aiResult.action);
+
+      if (aiResult.isRelevant === false) {
+        const alertMsg = `Patient said: "${command}" (off-topic on ${ctx.onboarded ? ctx.activePatientTab : 'onboarding'}). AI: ${aiResult.reply}`;
+        setCaretakerMessages(prev => [...prev, alertMsg]);
+      }
+    } finally {
+      processingCommandRef.current = false;
+    }
+  }, [speak, readCurrentPage, immediateStop, processReadItem, callAIAssistant, executeAction]);
+
+  // ── STT — continuous with INTERIM RESULTS for instant interruption ──
   const startListening = useCallback(() => {
     if (!isActiveRef.current) return;
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
-    // Kill existing
     if (recognitionRef.current) {
       try { recognitionRef.current.abort(); } catch { }
       recognitionRef.current = null;
@@ -217,7 +527,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
+    recognition.interimResults = true; // ★ KEY: detect speech early to interrupt TTS
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
@@ -227,9 +537,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       recognitionRef.current = null;
       if (shouldRestartListeningRef.current && isActiveRef.current) {
         setTimeout(() => {
-          if (shouldRestartListeningRef.current && isActiveRef.current) {
-            startListening();
-          }
+          if (shouldRestartListeningRef.current && isActiveRef.current) startListening();
         }, 200);
       }
     };
@@ -237,17 +545,29 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       if (e.error === 'aborted') return;
       setIsListening(false);
       recognitionRef.current = null;
-      if (e.error !== 'no-speech' && shouldRestartListeningRef.current && isActiveRef.current) {
-        setTimeout(() => startListening(), 500);
-      } else if (e.error === 'no-speech' && shouldRestartListeningRef.current && isActiveRef.current) {
-        setTimeout(() => startListening(), 300);
+      if (shouldRestartListeningRef.current && isActiveRef.current) {
+        setTimeout(() => startListening(), e.error === 'no-speech' ? 300 : 500);
       }
     };
     recognition.onresult = (event: any) => {
       const lastResult = event.results[event.results.length - 1];
-      if (!lastResult.isFinal) return;
+      
+      // ★★ INTERIM RESULT — user started speaking → IMMEDIATELY stop TTS ★★
+      if (!lastResult.isFinal) {
+        if (isSpeakingRef.current && !waitingForInputRef.current) {
+          // User is trying to interrupt — stop narration immediately
+          immediateStop();
+        }
+        return;
+      }
+
+      // ★ FINAL RESULT — process the command
       const transcript = lastResult[0].transcript.toLowerCase().trim();
       if (!transcript) return;
+      
+      // Always stop current speech when user finishes talking
+      immediateStop();
+      
       setLastUserSpeech(transcript);
       lastActivityRef.current = Date.now();
       handleVoiceCommand(transcript);
@@ -258,253 +578,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       console.warn('Recognition start failed:', e);
       recognitionRef.current = null;
     }
-  }, []);
-
-  // ── Intent matcher ──
-  const matchesIntent = (cmd: string, patterns: string[]): boolean => {
-    return patterns.some(p => cmd.includes(p));
-  };
-
-  // ── Handle voice commands ──
-  const handleVoiceCommand = useCallback(async (command: string) => {
-    const ctx = appContextRef.current;
-
-    // ★★★ STOP — highest priority, cancel everything immediately ★★★
-    if (matchesIntent(command, ['stop', 'quiet', 'silence', 'shut up', 'be quiet', 'enough', 'mute'])) {
-      immediateStop();
-      waitingForInputRef.current = false;
-      setIsWaitingForInput(false);
-      setHighlightedInputId(null);
-      highlightedInputIdRef.current = null;
-
-      // Brief goodbye then fully stop
-      const utterance = new SpeechSynthesisUtterance('Okay, I will be quiet. Tap the microphone when you need me.');
-      utterance.rate = 0.75;
-      utterance.pitch = 0.92;
-      utterance.volume = 0.7;
-      const voices = window.speechSynthesis.getVoices();
-      const v = voices.find(v => v.name.includes('Samantha')) || voices.find(v => v.lang.startsWith('en'));
-      if (v) utterance.voice = v;
-      utterance.onend = () => {
-        stopVoiceOverFull();
-      };
-      window.speechSynthesis.speak(utterance);
-      return;
-    }
-
-    // ★ HOLD / PAUSE
-    if (matchesIntent(command, ['hold on', 'wait', 'pause', 'one moment', 'one second', 'just a moment'])) {
-      immediateStop();
-      waitingForInputRef.current = false;
-      setIsWaitingForInput(false);
-      isReadingPageRef.current = false;
-      setIsOnHold(true);
-      isOnHoldRef.current = true;
-      speak('Take your time. Say "continue" when you are ready.', true);
-      return;
-    }
-
-    // ★ RESUME
-    if (isOnHoldRef.current && matchesIntent(command, ['continue', 'go on', 'resume', 'carry on', 'okay', 'i am ready', "i'm ready", 'go ahead'])) {
-      setIsOnHold(false);
-      isOnHoldRef.current = false;
-      speak('Welcome back! Let me read this page for you.', true);
-      setTimeout(() => readCurrentPage(), 2000);
-      return;
-    }
-
-    if (isOnHoldRef.current) {
-      speak('I am waiting. Say "continue" when you are ready.', true);
-      return;
-    }
-
-    // ★★ INPUT MODE — capture spoken answer ★★
-    if (waitingForInputRef.current && inputCallbackRef.current) {
-      // Skip
-      if (matchesIntent(command, ['skip', 'next', 'leave it', 'no thanks'])) {
-        waitingForInputRef.current = false;
-        setIsWaitingForInput(false);
-        setHighlightedInputId(null);
-        highlightedInputIdRef.current = null;
-        speak('Okay, skipping this.');
-        if (readingQueueRef.current.length > 0) {
-          isReadingPageRef.current = true;
-          setTimeout(() => {
-            const next = readingQueueRef.current.shift()!;
-            processReadItem(next);
-          }, 1500);
-        }
-        return;
-      }
-
-      // Try again
-      if (matchesIntent(command, ['try again', 'redo', 'again', 'repeat', 'wrong'])) {
-        speak('Okay, please say it again clearly.');
-        return;
-      }
-
-      // Process the spoken input
-      const fieldId = highlightedInputIdRef.current;
-      const fieldLabel = fieldId === 'onboarding-name' ? 'name' : 'text';
-
-      speak('Let me write that down for you.');
-
-      let corrected = command;
-      try {
-        if (fieldLabel === 'name') {
-          corrected = await correctName(command);
-        } else {
-          corrected = await correctInput(command, fieldLabel);
-        }
-      } catch {
-        corrected = command.charAt(0).toUpperCase() + command.slice(1);
-      }
-
-      // Fill the input
-      inputCallbackRef.current(corrected);
-
-      // Clear input mode
-      waitingForInputRef.current = false;
-      setIsWaitingForInput(false);
-      setHighlightedInputId(null);
-      highlightedInputIdRef.current = null;
-
-      speak(`I wrote "${corrected}". Is that right? Say "continue" to go on, or "try again" to change it.`, true);
-      return;
-    }
-
-    // ★ TRY AGAIN for name re-entry
-    if (matchesIntent(command, ['try again', 'redo']) && onboardingStepRef.current === 'personalize') {
-      setHighlightedInputId('onboarding-name');
-      highlightedInputIdRef.current = 'onboarding-name';
-      waitingForInputRef.current = true;
-      setIsWaitingForInput(true);
-      speak('Okay, please say your name now.');
-      return;
-    }
-
-    // ★ READ page
-    if (matchesIntent(command, ['read', 'where am i', 'tell me about', 'what is this', 'describe', 'what page', 'what screen'])) {
-      readCurrentPage();
-      return;
-    }
-
-    // ★ NAVIGATION
-    const navPatterns: { patterns: string[]; tab: PatientTab; label: string }[] = [
-      { patterns: ['today', 'home', 'main', 'dashboard', 'daily'], tab: 'today', label: 'Today' },
-      { patterns: ['memories', 'photos', 'pictures', 'gallery', 'album'], tab: 'memories', label: 'Memories' },
-      { patterns: ['safety', 'safe', 'emergency', 'location', 'map'], tab: 'safety', label: 'Safety' },
-      { patterns: ['care', 'family', 'chat', 'circle', 'caregiver', 'sarah'], tab: 'care', label: 'Care Circle' },
-      { patterns: ['wellbeing', 'well being', 'health', 'profile', 'settings', 'mood', 'how i feel'], tab: 'wellbeing', label: 'Wellbeing' },
-    ];
-
-    for (const nav of navPatterns) {
-      if (nav.patterns.some(p => command.includes(p))) {
-        ctx.setActivePatientTab(nav.tab);
-        speak(`Sure! Taking you to ${nav.label}.`);
-        return;
-      }
-    }
-
-    // ★ MEDICATIONS
-    if (matchesIntent(command, ['take', 'medicine', 'medication', 'med', 'pill', 'drug'])) {
-      const pendingMeds = ctx.medications.filter(m => !m.taken);
-      if (pendingMeds.length > 0) {
-        ctx.markMedicationTaken(pendingMeds[0].id);
-        const remaining = pendingMeds.length - 1;
-        speak(`Done! I marked ${pendingMeds[0].name} as taken. ${remaining > 0 ? `You still have ${remaining} left.` : 'All done for today!'}`);
-        ctx.setActivePatientTab('today');
-      } else {
-        speak('You have already taken all your medications. Well done!');
-      }
-      return;
-    }
-
-    // ★ EMERGENCY
-    if (matchesIntent(command, ['call sarah', 'call sara', 'call caregiver', 'call help'])) {
-      speak('Calling Sarah now.');
-      ctx.setActivePatientTab('safety');
-      ctx.triggerSOS();
-      return;
-    }
-    if (matchesIntent(command, ['emergency', 'sos', 'help me'])) {
-      speak('Activating emergency now.');
-      ctx.triggerSOS();
-      ctx.setActivePatientTab('safety');
-      return;
-    }
-    if (matchesIntent(command, ['cancel call', 'cancel emergency', 'never mind'])) {
-      ctx.cancelSOS();
-      speak('Emergency cancelled.');
-      return;
-    }
-
-    // ★ MOOD
-    if (matchesIntent(command, ['happy', 'good', 'great', 'fine', 'wonderful', 'amazing'])) {
-      ctx.setMood({ emoji: '😊', label: 'Happy', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
-      speak('Lovely! I noted you are feeling happy.');
-      return;
-    }
-    if (matchesIntent(command, ['sad', 'down', 'upset', 'not good', 'unhappy', 'low'])) {
-      ctx.setMood({ emoji: '😔', label: 'Sad', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
-      speak('I am sorry to hear that. Would you like to see some memories or call Sarah?');
-      return;
-    }
-    if (matchesIntent(command, ['tired', 'sleepy', 'exhausted'])) {
-      ctx.setMood({ emoji: '😴', label: 'Tired', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
-      speak('I noted you are tired. Maybe some rest would help.');
-      return;
-    }
-
-    // ★ CONTINUE / NEXT in onboarding flow
-    if (matchesIntent(command, ['continue', 'next', 'go on', 'proceed', 'move on', 'yes', 'correct', "that's right", 'that is right'])) {
-      // If there's a reading queue, skip ahead
-      if (isReadingPageRef.current) {
-        readingQueueRef.current = [];
-        isReadingPageRef.current = false;
-        speak('What would you like to do?');
-        return;
-      }
-      speak('What would you like to do? You can say a screen name like "memories", "take my medicine", or "help".');
-      return;
-    }
-
-    // ★ HIGHLIGHT
-    if (matchesIntent(command, ['highlight', 'point', 'show me the', 'where is the'])) {
-      speak('Let me read this page for you.');
-      readCurrentPage();
-      return;
-    }
-
-    // ★ HELP
-    if (matchesIntent(command, ['help', 'options', 'what can', 'menu', 'commands'])) {
-      speak('Here is what I can do. Say "take my medicine" to log medication. "Call Sarah" for your caregiver. Say a screen name like "memories" or "safety" to go there. "Read" to hear about this page. "Hold on" to pause. Or "stop" to turn me off.');
-      return;
-    }
-
-    // ★ NLP relevance check for unknown commands
-    const screen = ctx.onboarded ? ctx.activePatientTab : 'onboarding';
-    const meta = ctx.onboarded
-      ? getScreenMeta(ctx.activePatientTab, {
-          medications: ctx.medications,
-          currentMood: ctx.currentMood,
-          stepCount: ctx.stepCount,
-          sleepHours: ctx.sleepHours,
-        })
-      : getOnboardingMeta(onboardingStepRef.current);
-
-    try {
-      const relevance = await checkRelevance(command, screen, meta.purpose, onboardingStepRef.current || 'browsing');
-      if (!relevance.relevant) {
-        const alertMsg = `Patient said: "${command}" (off-topic on ${screen}). ${relevance.summary}`;
-        setCaretakerMessages(prev => [...prev, alertMsg]);
-        speak(relevance.redirect_message || `Let us focus here. You are on the ${screen} screen. ${meta.overview}`);
-        return;
-      }
-    } catch { /* NLP unavailable */ }
-
-    speak(`I heard "${command}" but I am not sure what you need. Say "help" to hear what I can do.`);
-  }, [speak, readCurrentPage, immediateStop, processReadItem]);
+  }, [immediateStop, handleVoiceCommand]);
 
   const readScreen = readCurrentPage;
 
@@ -516,7 +590,6 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       setIsWaitingForInput(false);
       setHighlightedInputId(null);
       highlightedInputIdRef.current = null;
-      // Give the UI time to render the new step
       setTimeout(() => readCurrentPage(), 800);
     }
   }, [readCurrentPage]);
@@ -534,21 +607,18 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
     waitingForInputRef.current = false;
     setIsWaitingForInput(false);
     lastActivityRef.current = Date.now();
-
-    // Start listening immediately so user can interrupt
     setTimeout(() => startListening(), 300);
-  }, []);
+  }, [startListening]);
 
-  // Separate: speak welcome + read page AFTER state is set
+  // Welcome + read page on activation
   useEffect(() => {
     if (!isVoiceOverActive) return;
-    // Only greet once when becoming active
     const timer = setTimeout(() => {
       if (!isActiveRef.current) return;
       const h = new Date().getHours();
       const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
       const name = appContextRef.current.patientName;
-      speak(`${greeting}${name ? ', ' + name : ''}. I am your MemoCare companion. I will read each screen for you and listen to what you say. Say "hold on" to pause me, or "stop" to turn me off. Let me tell you about this page.`, true);
+      speak(`${greeting}${name ? ', ' + name : ''}. I am your MemoCare companion. I will read each screen for you and listen to what you say. You can interrupt me anytime by speaking. Say "hold on" to pause, or "stop" to turn me off. Let me tell you about this page.`, true);
       setTimeout(() => readCurrentPage(), 500);
     }, 600);
     return () => clearTimeout(timer);
@@ -598,7 +668,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
     return () => { if (idleTimerRef.current) clearInterval(idleTimerRef.current); };
   }, [isVoiceOverActive, speak]);
 
-  // ── Tab change detection ──
+  // ── Tab change detection — auto-read new page ──
   useEffect(() => {
     if (!isVoiceOverActive) return;
     if (appContext.activePatientTab !== lastScreenRef.current) {
@@ -615,20 +685,26 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
   // ── Rapid tap detection ──
   useEffect(() => {
     if (!isVoiceOverActive) return;
+    let tapCount = 0;
+    let tapTimer: ReturnType<typeof setTimeout> | null = null;
     const handleClick = () => {
+      // ★ When user taps, pause current narration to let them interact
+      if (isSpeakingRef.current && isReadingPageRef.current) {
+        immediateStop();
+      }
       lastActivityRef.current = Date.now();
-      tapCountRef.current.count++;
-      if (tapCountRef.current.timer) clearTimeout(tapCountRef.current.timer);
-      tapCountRef.current.timer = setTimeout(() => {
-        if (tapCountRef.current.count >= 5) {
+      tapCount++;
+      if (tapTimer) clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => {
+        if (tapCount >= 5) {
           speak('It seems like you need help. Just tell me what you need.');
         }
-        tapCountRef.current.count = 0;
+        tapCount = 0;
       }, 3000);
     };
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [isVoiceOverActive, speak]);
+  }, [isVoiceOverActive, speak, immediateStop]);
 
   // Load voices
   useEffect(() => {
