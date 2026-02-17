@@ -152,7 +152,7 @@ export default function TodayScreen() {
       <div className="h-full overflow-y-auto bg-background pb-24">
         {/* Greeting */}
         <div className="px-5 pt-5 pb-4">
-          <div className="ios-card-elevated p-5 flex items-start justify-between">
+          <div className="ios-card-elevated p-5 flex items-start justify-between mx-0 my-[6px] px-[7px]">
             <div className="flex items-center gap-4">
               <img src={patientAvatar} alt="Profile" className="w-16 h-16 object-cover shrink-0 ring-2 ring-primary/20" />
               <div>
@@ -171,7 +171,7 @@ export default function TodayScreen() {
 
         {/* Quick Stats - 2 per row */}
         <div className="px-5">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 px-[11px]">
             {[
             { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, color: 'text-sage', bg: 'bg-sage/10' },
             { label: 'Mood', value: currentMood.emoji, Icon: null, color: '', bg: 'bg-accent/10' },
