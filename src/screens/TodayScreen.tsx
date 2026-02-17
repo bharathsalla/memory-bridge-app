@@ -194,7 +194,7 @@ export default function TodayScreen() {
         <div className="px-5 mt-5">
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowIDCard(true)}
           className="w-full p-5 flex items-center gap-4 bg-primary text-primary-foreground">
-            <div className="w-14 h-14 bg-primary-foreground/15 flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 bg-primary-foreground/15 flex items-center justify-center shrink-0 rounded-md">
               <User className="w-7 h-7" />
             </div>
             <div className="flex-1 text-left">
