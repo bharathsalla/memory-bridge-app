@@ -47,7 +47,7 @@
     --input: 35 15% 87%;
     --ring: 170 38% 42%;
 
-    --radius: 1.25rem;
+    --radius: 0px;
 
     --surface: 35 22% 95%;
     --ios-nav: 35 18% 96%;
@@ -91,12 +91,12 @@
 
 @layer utilities {
   .ios-card {
-    @apply bg-card rounded-2xl;
+    @apply bg-card rounded-none;
     box-shadow: var(--shadow-card);
   }
 
   .ios-card-elevated {
-    @apply bg-card rounded-2xl;
+    @apply bg-card rounded-none;
     box-shadow: var(--shadow-elevated);
   }
 
@@ -105,7 +105,7 @@
   }
 
   .ios-inset-grouped {
-    @apply bg-card rounded-2xl mx-4;
+    @apply bg-card rounded-none mx-4;
     box-shadow: var(--shadow-card);
   }
 
