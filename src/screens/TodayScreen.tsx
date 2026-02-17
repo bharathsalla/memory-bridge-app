@@ -152,7 +152,7 @@ export default function TodayScreen() {
       <div className="h-full overflow-y-auto bg-background pb-24">
         {/* Greeting */}
         <div className="px-5 pt-5 pb-4">
-          <div className="ios-card-elevated p-5 flex items-start justify-between mx-0 my-[6px] px-[7px]">
+          <div className="ios-card-elevated p-5 flex items-start justify-between my-[6px] px-[17px] mx-[9px]">
             <div className="flex items-center gap-4">
               <img src={patientAvatar} alt="Profile" className="w-16 h-16 object-cover shrink-0 ring-2 ring-primary/20" />
               <div>
@@ -179,7 +179,7 @@ export default function TodayScreen() {
             { label: 'Meds', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, color: 'text-primary', bg: 'bg-primary/10' }].
             map((stat) =>
             <motion.div key={stat.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="ios-card-elevated p-4 flex flex-col items-center gap-2">
+            className="ios-card-elevated p-4 flex flex-col items-center gap-2 mx-0 py-[19px] px-[20px] my-[2px]">
                 <div className={`w-12 h-12 ${stat.bg} flex items-center justify-center`}>
                   {stat.Icon ? <stat.Icon className={`w-6 h-6 ${stat.color}`} /> : <span className="text-[24px] leading-none">{stat.value}</span>}
                 </div>
