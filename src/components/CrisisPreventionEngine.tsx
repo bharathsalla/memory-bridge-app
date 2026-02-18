@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, AlertTriangle, Activity, Heart, Moon, Thermometer,
@@ -6,7 +7,7 @@ import {
   Check, Phone, Clock, Zap, Eye, Wind, Footprints, MessageCircle,
   Smartphone, Watch, Radio, BarChart3, Target, ArrowUp, ArrowDown,
   CheckCircle2, Circle, X, Send, Bot, Wifi, WifiOff, Plus,
-  Bluetooth, Signal, Battery, ChevronLeft, Sparkles, Star
+  Bluetooth, Signal, Battery, ChevronLeft, Sparkles, Star, Navigation, History, Settings2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 
-type CrisisTab = 'forecast' | 'plan' | 'coach' | 'devices';
+type CrisisTab = 'forecast' | 'plan' | 'coach' | 'devices' | 'gps' | 'weather';
 
 // ─── Dynamic Data Generation ───────────────────────────────────────
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -163,12 +164,14 @@ const levelColors = {
 const typeEmoji: Record<string, string> = { agitation: '😤', wandering: '🚶', confusion: '😵', fall: '⚠️' };
 
 export default function CrisisPreventionEngine() {
+  const { mode, setMode } = useApp();
   const [activeTab, setActiveTab] = useState<CrisisTab>('forecast');
   const [expandedAlert, setExpandedAlert] = useState<string | null>('1');
   const [chatInput, setChatInput] = useState('');
   const [connectedDevices, setConnectedDevices] = useState<string[]>([]);
   const [connectingDevice, setConnectingDevice] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [showModeSwitcher, setShowModeSwitcher] = useState(false);
 
   // Generate dynamic data on mount (changes per load)
   const alerts = useMemo(() => generateAlerts(), []);
@@ -247,51 +250,78 @@ export default function CrisisPreventionEngine() {
           </div>
         </div>
 
-        {/* Device Status Pills */}
-        <div className="flex gap-1.5 mb-3 overflow-x-auto">
-          {[
-            { icon: '⌚', label: 'Watch', connected: connectedDevices.includes('apple-watch') || connectedDevices.includes('fitbit') || connectedDevices.includes('samsung') },
-            { icon: '📱', label: 'GPS', connected: connectedDevices.includes('phone-gps') },
-            { icon: '🌤️', label: 'Weather', connected: connectedDevices.includes('weather') },
-          ].map(d => (
-            <button
-              key={d.label}
-              onClick={() => setActiveTab('devices')}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
-                d.connected
-                  ? 'bg-success/10 text-success border border-success/20'
-                  : 'bg-muted/60 text-muted-foreground border border-border/50'
-              }`}
-            >
-              <span className="text-[12px]">{d.icon}</span>
-              {d.label}
-              <div className={`w-1.5 h-1.5 rounded-full ${d.connected ? 'bg-success' : 'bg-muted-foreground/40'}`} />
-            </button>
-          ))}
+        {/* iOS Segmented Tab Bar */}
+        <div className="overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="flex bg-muted/60 rounded-2xl p-1 gap-1 min-w-max">
+            {([
+              { id: 'forecast' as CrisisTab, label: 'Forecast', icon: BarChart3 },
+              { id: 'gps' as CrisisTab, label: 'GPS', icon: MapPin },
+              { id: 'weather' as CrisisTab, label: 'Weather', icon: Cloud },
+              { id: 'plan' as CrisisTab, label: 'Plan', icon: Target },
+              { id: 'coach' as CrisisTab, label: 'AI Coach', icon: Bot },
+              { id: 'devices' as CrisisTab, label: 'Devices', icon: Smartphone },
+            ]).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-card text-foreground shadow-md'
+                    : 'text-muted-foreground hover:text-foreground/70'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="flex bg-muted/50 rounded-2xl p-1 gap-0.5">
-          {([
-            { id: 'forecast' as const, label: 'Forecast', icon: BarChart3 },
-            { id: 'plan' as const, label: 'Plan', icon: Target },
-            { id: 'coach' as const, label: 'AI Coach', icon: Bot },
-            { id: 'devices' as const, label: 'Devices', icon: Smartphone },
-          ]).map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1 h-9 rounded-xl text-[11px] font-bold transition-all ${
-                activeTab === tab.id
-                  ? 'bg-card text-foreground shadow-md'
-                  : 'text-muted-foreground hover:text-foreground/70'
-              }`}
+        {/* Patient Mode Switcher */}
+        <button
+          onClick={() => setShowModeSwitcher(!showModeSwitcher)}
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 mt-1"
+        >
+          <div className="flex items-center gap-2">
+            <Settings2 className="w-4 h-4 text-primary" />
+            <span className="text-[12px] font-bold text-foreground">Patient View</span>
+          </div>
+          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+            mode === 'full' ? 'bg-primary/10 text-primary' : mode === 'simplified' ? 'bg-warning/10 text-warning' : 'bg-destructive/10 text-destructive'
+          }`}>
+            {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
+          </span>
+        </button>
+
+        <AnimatePresence>
+          {showModeSwitcher && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
             >
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+              <div className="flex gap-2 mt-2">
+                {([
+                  { key: 'full' as const, label: 'Independent', desc: 'Full features', color: 'border-primary text-primary bg-primary/5' },
+                  { key: 'simplified' as const, label: 'Guided', desc: 'Simpler UI', color: 'border-warning text-warning bg-warning/5' },
+                  { key: 'essential' as const, label: 'Assisted', desc: 'Minimal', color: 'border-destructive text-destructive bg-destructive/5' },
+                ]).map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setMode(opt.key); setShowModeSwitcher(false); }}
+                    className={`flex-1 p-3 rounded-xl border-2 text-center transition-all ${
+                      mode === opt.key ? opt.color : 'border-border/50 text-muted-foreground bg-card'
+                    }`}
+                  >
+                    <div className="text-[13px] font-bold">{opt.label}</div>
+                    <div className="text-[10px] opacity-70 mt-0.5">{opt.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Content */}
@@ -426,29 +456,176 @@ export default function CrisisPreventionEngine() {
               {/* Vitals Grid */}
               <p className="text-[13px] font-extrabold text-foreground pt-1 px-0.5">📊 Live Vitals</p>
               <div className="grid grid-cols-3 gap-2">
-                {vitals.map(v => {
+                {vitals.map((v, idx) => {
                   const isAbove = v.value > v.baseline;
                   const diff = Math.abs(v.value - v.baseline);
                   const critical = diff > v.baseline * 0.2;
+                  const rowBg = idx < 3 ? 'bg-gradient-to-br from-card to-muted/20' : 'bg-gradient-to-br from-muted/10 to-card';
                   return (
                     <Card key={v.label} className={`border shadow-sm overflow-hidden ${critical ? 'border-destructive/30' : 'border-border/50'}`}>
-                      <CardContent className="p-2.5">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[16px]">{v.icon}</span>
-                          {v.trend === 'up' ? <ArrowUp className={`w-3 h-3 ${critical ? 'text-destructive' : 'text-muted-foreground'}`} /> :
-                           v.trend === 'down' ? <ArrowDown className={`w-3 h-3 ${critical ? 'text-destructive' : 'text-warning'}`} /> :
+                      <CardContent className={`p-3 ${rowBg}`}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[18px]">{v.icon}</span>
+                          {v.trend === 'up' ? <ArrowUp className={`w-3.5 h-3.5 ${critical ? 'text-destructive' : 'text-muted-foreground'}`} /> :
+                           v.trend === 'down' ? <ArrowDown className={`w-3.5 h-3.5 ${critical ? 'text-destructive' : 'text-warning'}`} /> :
                            <span className="text-[10px] text-success font-bold">—</span>}
                         </div>
-                        <p className="text-[18px] font-black text-foreground leading-none">
+                        <p className="text-[20px] font-black text-foreground leading-none">
                           {v.value.toLocaleString()}
                           <span className="text-[10px] text-muted-foreground ml-0.5 font-semibold">{v.unit}</span>
                         </p>
-                        <p className="text-[9px] text-muted-foreground font-bold mt-1 truncate">{v.label}</p>
+                        <p className="text-[10px] text-muted-foreground font-bold mt-1.5 truncate">{v.label}</p>
                       </CardContent>
                     </Card>
                   );
                 })}
               </div>
+            </motion.div>
+          )}
+
+          {/* ─── GPS TAB ─── */}
+          {activeTab === 'gps' && (
+            <motion.div key="gps" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+              <Card className="border-0 overflow-hidden shadow-none">
+                <div className="bg-gradient-to-br from-primary/8 to-accent/6 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <p className="text-[16px] font-extrabold text-foreground">GPS Tracking</p>
+                  </div>
+                  <p className="text-[12px] text-muted-foreground font-medium">Real-time location & safe zone monitoring</p>
+                </div>
+              </Card>
+
+              {/* Live Map */}
+              <Card className="border border-border/50 shadow-sm overflow-hidden">
+                <div className="rounded-xl overflow-hidden h-44">
+                  <iframe
+                    title="Patient location map"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=78.45%2C17.37%2C78.52%2C17.41&layer=mapnik&marker=17.385%2C78.4867"
+                    className="w-full h-full border-0"
+                  />
+                </div>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+                    <span className="text-[13px] font-bold text-foreground">Home — Lakshmi Nagar</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">Safe zone: 200m radius · Last updated 2 min ago</p>
+                </CardContent>
+              </Card>
+
+              {/* Location Timeline */}
+              <Card className="border border-border/50 shadow-sm">
+                <CardContent className="p-3">
+                  <p className="text-[12px] font-extrabold text-foreground mb-2 flex items-center gap-1.5">
+                    <History className="w-3.5 h-3.5 text-primary" /> Today's Timeline
+                  </p>
+                  {[
+                    { time: '9:00 AM', place: 'Home', status: 'safe' },
+                    { time: '10:15 AM', place: 'Morning Walk — Park', status: 'safe' },
+                    { time: '10:45 AM', place: 'Near Temple', status: 'safe' },
+                    { time: '11:30 AM', place: 'Back Home', status: 'safe' },
+                    { time: '2:00 PM', place: 'Left Home', status: 'alert' },
+                    { time: '2:15 PM', place: 'Near Metro Station', status: 'alert' },
+                  ].map((entry, i) => (
+                    <div key={i} className={`flex items-center gap-3 py-2 ${i % 2 === 0 ? 'bg-muted/20 -mx-3 px-3 rounded-lg' : ''}`}>
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${entry.status === 'safe' ? 'bg-success' : 'bg-destructive'}`} />
+                      <span className="text-[12px] font-semibold text-foreground flex-1">{entry.place}</span>
+                      <span className="text-[11px] text-muted-foreground">{entry.time}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Safe Zone Config */}
+              <Card className="border border-border/50 shadow-sm">
+                <CardContent className="p-3">
+                  <p className="text-[12px] font-extrabold text-foreground mb-2">🛡️ Safe Zone Radius</p>
+                  <div className="flex gap-2">
+                    {[100, 200, 500].map(r => (
+                      <button key={r} className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold ${r === 200 ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}`}>
+                        {r}m
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* ─── WEATHER TAB ─── */}
+          {activeTab === 'weather' && (
+            <motion.div key="weather" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+              <Card className="border-0 overflow-hidden shadow-none">
+                <div className="bg-gradient-to-br from-sky-500/10 to-blue-500/8 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[12px] font-bold text-primary/80">🌤️ Weather & Atmosphere</p>
+                      <p className="text-[18px] font-extrabold text-foreground">Hyderabad</p>
+                      <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">Environmental factors affecting patient</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[32px] font-black text-foreground leading-none">{rand(28, 34)}°</p>
+                      <p className="text-[11px] text-muted-foreground font-semibold">Partly Cloudy</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Atmospheric Readings */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Barometric Pressure', value: `${rand(1008, 1018)} hPa`, icon: '🌡️', alert: true, bg: 'bg-gradient-to-br from-destructive/5 to-card' },
+                  { label: 'Humidity', value: `${rand(55, 78)}%`, icon: '💧', alert: false, bg: 'bg-gradient-to-br from-primary/5 to-card' },
+                  { label: 'UV Index', value: `${rand(3, 9)}`, icon: '☀️', alert: false, bg: 'bg-gradient-to-br from-warning/5 to-card' },
+                  { label: 'Air Quality', value: `${rand(60, 120)} AQI`, icon: '🌬️', alert: rand(0, 1) === 1, bg: 'bg-gradient-to-br from-success/5 to-card' },
+                ].map(item => (
+                  <Card key={item.label} className={`border shadow-sm ${item.alert ? 'border-destructive/30' : 'border-border/50'}`}>
+                    <CardContent className={`p-3 ${item.bg}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[16px]">{item.icon}</span>
+                        {item.alert && <AlertTriangle className="w-3.5 h-3.5 text-destructive" />}
+                      </div>
+                      <p className="text-[18px] font-black text-foreground">{item.value}</p>
+                      <p className="text-[10px] text-muted-foreground font-bold mt-1">{item.label}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pressure Alert */}
+              <Card className="border-2 border-warning/30 shadow-sm">
+                <CardContent className="p-3 bg-gradient-to-r from-warning/8 to-warning/3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-warning/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <AlertTriangle className="w-4.5 h-4.5 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-foreground">Barometric Drop Detected</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                        Pressure dropped {rand(5, 12)}mb in 12 hours. This pattern has preceded agitation episodes in {rand(60, 80)}% of past cases.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 5-day Forecast */}
+              <Card className="border border-border/50 shadow-sm">
+                <CardContent className="p-3">
+                  <p className="text-[12px] font-extrabold text-foreground mb-2">📅 5-Day Outlook</p>
+                  {['Today', 'Tomorrow', 'Wed', 'Thu', 'Fri'].map((day, i) => (
+                    <div key={day} className={`flex items-center justify-between py-2 ${i % 2 === 0 ? 'bg-muted/20 -mx-3 px-3 rounded-lg' : ''}`}>
+                      <span className="text-[12px] font-semibold text-foreground w-16">{day}</span>
+                      <span className="text-[14px]">{['🌤️', '🌧️', '☀️', '⛅', '🌦️'][i]}</span>
+                      <span className="text-[12px] text-muted-foreground">{rand(26, 35)}°/{rand(20, 26)}°</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${i === 1 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
+                        {i === 1 ? 'Risk' : 'OK'}
+                      </span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </motion.div>
           )}
 
