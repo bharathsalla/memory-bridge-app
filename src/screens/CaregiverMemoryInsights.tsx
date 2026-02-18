@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Brain, Sparkles, TrendingUp, TrendingDown, Loader2,
-  ChevronRight, BookOpen, AlertTriangle, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle } from
+  ChevronRight, BookOpen, AlertTriangle, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle, Heart } from
 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import {
