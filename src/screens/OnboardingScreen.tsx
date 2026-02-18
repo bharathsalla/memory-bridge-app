@@ -2,10 +2,54 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, CheckCircle, ArrowRight } from 'lucide-react';
+import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
+
+/* ── Animated MemoCare Logo ── */
+function MemoCareLogo() {
+  return (
+    <motion.div
+      initial={{ scale: 0.3, opacity: 0, rotateY: -30 }}
+      animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+      transition={{ delay: 0.15, type: 'spring', bounce: 0.35, duration: 1 }}
+      className="relative w-40 h-40 mb-12"
+    >
+      {/* Outer glow ring */}
+      <motion.div
+        animate={{ scale: [1, 1.08, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute inset-0 rounded-[2.5rem] bg-white/10"
+      />
+      {/* Glass card */}
+      <div className="absolute inset-2 rounded-[2rem] bg-white/15 backdrop-blur-md shadow-2xl border border-white/20 flex items-center justify-center">
+        {/* Brain icon */}
+        <motion.div
+          animate={{ y: [0, -4, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Brain className="w-16 h-16 text-white drop-shadow-lg" strokeWidth={1.4} />
+        </motion.div>
+        {/* Sparkle accents */}
+        <motion.div
+          animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          className="absolute top-3 right-4"
+        >
+          <Sparkles className="w-5 h-5 text-white/70" strokeWidth={1.5} />
+        </motion.div>
+        <motion.div
+          animate={{ scale: [1, 0.7, 1], opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          className="absolute bottom-4 left-4"
+        >
+          <Heart className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function OnboardingScreen() {
   const { completeOnboarding } = useApp();
@@ -56,22 +100,6 @@ export default function OnboardingScreen() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
-      {/* Progress dots — floating over content */}
-      <div className="absolute top-0 left-0 right-0 flex justify-center gap-2.5 pt-14 pb-4 z-20">
-        {steps.map((s) => (
-          <div
-            key={s}
-            className={`h-[5px] rounded-full transition-all duration-500 ${
-              s === step
-                ? 'w-10 bg-white/90'
-                : steps.indexOf(s) < steps.indexOf(step)
-                ? 'w-[5px] bg-white/40'
-                : 'w-[5px] bg-white/20'
-            }`}
-          />
-        ))}
-      </div>
-
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -81,27 +109,38 @@ export default function OnboardingScreen() {
           transition={{ duration: 0.3 }}
           className="flex-1 flex flex-col relative z-10"
         >
-          {/* ── Welcome ── */}
+          {/* ── Welcome ── full primary green, edge-to-edge */}
           {step === 'welcome' && (
-            <div className="flex-1 flex flex-col bg-primary">
-              {/* Radial glow */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,hsl(var(--primary)/0.6),transparent_70%)]" />
+            <div
+              className="flex-1 flex flex-col"
+              style={{ background: 'linear-gradient(170deg, hsl(168 42% 46%) 0%, hsl(168 42% 34%) 60%, hsl(168 50% 26%) 100%)' }}
+            >
+              {/* Radial highlight */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 30%, hsla(168,50%,60%,0.35), transparent)' }}
+              />
 
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-7 relative z-10">
-                <motion.div
-                  initial={{ scale: 0.4, opacity: 0, y: 20 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, type: 'spring', bounce: 0.35, duration: 0.8 }}
-                  className="w-36 h-36 mb-10 rounded-[2.5rem] bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-2xl"
-                >
-                  <Brain className="w-20 h-20 text-white" strokeWidth={1.3} />
-                </motion.div>
+              {/* Progress dots on green */}
+              <div className="flex justify-center gap-2.5 pt-14 pb-4 relative z-20">
+                {steps.map((s) => (
+                  <div
+                    key={s}
+                    className={`h-[5px] rounded-full transition-all duration-500 ${
+                      s === step ? 'w-10 bg-white/80' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-white/40' : 'w-[5px] bg-white/20'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-8 relative z-10">
+                <MemoCareLogo />
 
                 <motion.h1
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-[32px] font-extrabold text-white mb-4 leading-[1.15] font-display tracking-tight"
+                  className="text-[34px] font-extrabold text-white mb-4 leading-[1.1] font-display tracking-tight"
                 >
                   Welcome to
                   <br />
@@ -112,7 +151,7 @@ export default function OnboardingScreen() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.55, duration: 0.5 }}
-                  className="text-[16px] text-white/70 max-w-[280px] leading-relaxed"
+                  className="text-[16px] text-white/65 max-w-[280px] leading-relaxed"
                 >
                   Supporting you every step of the way, with care and kindness.
                 </motion.p>
@@ -126,10 +165,15 @@ export default function OnboardingScreen() {
                   transition={{ delay: 0.7, duration: 0.4 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={next}
-                  className="w-full h-[56px] bg-white text-primary text-[17px] font-bold rounded-2xl shadow-lg flex items-center justify-center gap-3 active:opacity-90 transition-all"
+                  className="w-full h-[58px] bg-white rounded-full shadow-xl flex items-center justify-between pl-8 pr-2 active:opacity-90 transition-all"
                 >
-                  Get Started
-                  <div className="w-9 h-9 rounded-xl bg-foreground flex items-center justify-center">
+                  <span className="text-[18px] font-bold" style={{ color: 'hsl(168 42% 36%)' }}>
+                    Get Started
+                  </span>
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{ background: 'hsl(168 42% 36%)' }}
+                  >
                     <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
                   </div>
                 </motion.button>
@@ -139,7 +183,7 @@ export default function OnboardingScreen() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.85 }}
                   onClick={() => { setSelectedMode('full'); setStep('personalize'); }}
-                  className="w-full h-12 text-white/80 text-[16px] font-semibold rounded-2xl"
+                  className="w-full h-12 text-white/70 text-[16px] font-semibold rounded-2xl active:text-white/90 transition-colors"
                 >
                   I'm a caregiver
                 </motion.button>
@@ -149,8 +193,20 @@ export default function OnboardingScreen() {
 
           {/* ── Voice Choice ── */}
           {step === 'voiceChoice' && (
-            <div className="flex-1 flex flex-col bg-background px-7">
-              <div className="flex-1 flex flex-col items-center justify-center text-center">
+            <div className="flex-1 flex flex-col bg-background">
+              {/* Progress dots */}
+              <div className="flex justify-center gap-2.5 pt-14 pb-4">
+                {steps.map((s) => (
+                  <div
+                    key={s}
+                    className={`h-[5px] rounded-full transition-all duration-500 ${
+                      s === step ? 'w-10 gradient-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-7">
                 <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">
                   How would you like
                   <br />
@@ -167,34 +223,30 @@ export default function OnboardingScreen() {
                     onClick={next}
                     className="w-full p-5 flex items-center gap-4 text-left rounded-2xl bg-card shadow-sm active:bg-muted/50 transition-all"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Monitor className="w-6 h-6 text-primary" strokeWidth={1.8} />
-                    </div>
+                    <IconBox Icon={Monitor} color={iosColors.blue} size={48} iconSize={24} />
                     <div className="flex-1">
                       <div className="text-[17px] font-bold text-foreground">Browse Mode</div>
                       <div className="text-[13px] text-muted-foreground mt-0.5 leading-snug">
                         Use the app by tapping and swiping
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground/40 shrink-0" />
+                    <ArrowRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                   </motion.button>
 
-                  {/* Voice Care — no border, no bg color */}
+                  {/* Voice Care */}
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={handleVoiceChoice}
                     className="w-full p-5 flex items-center gap-4 text-left rounded-2xl bg-card shadow-sm active:bg-muted/50 transition-all"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                      <Mic className="w-6 h-6 text-accent" strokeWidth={1.8} />
-                    </div>
+                    <IconBox Icon={Mic} color={iosColors.orange} size={48} iconSize={24} />
                     <div className="flex-1">
                       <div className="text-[17px] font-bold text-foreground">Voice Care</div>
                       <div className="text-[13px] text-muted-foreground mt-0.5 leading-snug">
                         I'll guide you with voice navigation
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground/40 shrink-0" />
+                    <ArrowRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                   </motion.button>
                 </div>
               </div>
@@ -203,120 +255,147 @@ export default function OnboardingScreen() {
 
           {/* ── Assess ── */}
           {step === 'assess' && (
-            <div className="flex-1 flex flex-col bg-background px-7 pt-20">
-              <h1 className="text-[28px] font-extrabold text-foreground mb-2 leading-tight font-display">
-                How comfortable are you with technology?
-              </h1>
-              <p className="text-[15px] text-muted-foreground mb-8">
-                This helps us set up the best experience for you.
-              </p>
-              <div className="flex flex-col gap-3">
-                {modeOptions.map((opt) => (
-                  <motion.button
-                    key={opt.mode}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => { setSelectedMode(opt.mode); setStep('personalize'); }}
-                    className={`p-5 text-left flex items-center gap-4 rounded-2xl bg-card shadow-sm active:bg-muted/50 transition-all ${
-                      selectedMode === opt.mode ? 'ring-2 ring-primary' : ''
-                    }`}
-                  >
-                    <IconBox
-                      Icon={opt.icon}
-                      color={opt.mode === 'full' ? iosColors.blue : opt.mode === 'simplified' ? iosColors.orange : iosColors.green}
-                      size={48}
-                      iconSize={24}
-                    />
-                    <div className="flex-1">
-                      <div className="text-[17px] font-bold text-foreground">{opt.title}</div>
-                      <div className="text-[13px] text-muted-foreground mt-0.5">{opt.desc}</div>
-                    </div>
-                  </motion.button>
+            <div className="flex-1 flex flex-col bg-background">
+              <div className="flex justify-center gap-2.5 pt-14 pb-4">
+                {steps.map((s) => (
+                  <div key={s} className={`h-[5px] rounded-full transition-all duration-500 ${
+                    s === step ? 'w-10 gradient-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
+                  }`} />
                 ))}
+              </div>
+              <div className="px-7 pt-6">
+                <h1 className="text-[28px] font-extrabold text-foreground mb-2 leading-tight font-display">
+                  How comfortable are you with technology?
+                </h1>
+                <p className="text-[15px] text-muted-foreground mb-8">
+                  This helps us set up the best experience for you.
+                </p>
+                <div className="flex flex-col gap-3">
+                  {modeOptions.map((opt) => (
+                    <motion.button
+                      key={opt.mode}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => { setSelectedMode(opt.mode); setStep('personalize'); }}
+                      className={`p-5 text-left flex items-center gap-4 rounded-2xl bg-card shadow-sm active:bg-muted/50 transition-all ${
+                        selectedMode === opt.mode ? 'ring-2 ring-primary' : ''
+                      }`}
+                    >
+                      <IconBox
+                        Icon={opt.icon}
+                        color={opt.mode === 'full' ? iosColors.blue : opt.mode === 'simplified' ? iosColors.orange : iosColors.green}
+                        size={48}
+                        iconSize={24}
+                      />
+                      <div className="flex-1">
+                        <div className="text-[17px] font-bold text-foreground">{opt.title}</div>
+                        <div className="text-[13px] text-muted-foreground mt-0.5">{opt.desc}</div>
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {/* ── Personalize ── */}
           {step === 'personalize' && (
-            <div className="flex-1 flex flex-col bg-background px-7 pt-20">
-              <h1 className="text-[28px] font-extrabold text-foreground mb-2 leading-tight font-display">
-                What should we call you?
-              </h1>
-              <p className="text-[15px] text-muted-foreground mb-8">
-                We'll use this to personalize your experience.
-              </p>
-              <div
-                className={`rounded-2xl bg-card shadow-sm overflow-hidden transition-all duration-300 ${
-                  isHighlighted('onboarding-name') ? 'ring-4 ring-secondary shadow-lg' : ''
-                }`}
-              >
-                <input
-                  id="onboarding-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={isHighlighted('onboarding-name') ? 'Listening for your name...' : 'Your name'}
-                  className="w-full h-14 px-5 bg-transparent text-[17px] text-foreground placeholder:text-muted-foreground/60 outline-none"
-                  autoFocus
-                />
+            <div className="flex-1 flex flex-col bg-background">
+              <div className="flex justify-center gap-2.5 pt-14 pb-4">
+                {steps.map((s) => (
+                  <div key={s} className={`h-[5px] rounded-full transition-all duration-500 ${
+                    s === step ? 'w-10 gradient-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
+                  }`} />
+                ))}
               </div>
-              {isHighlighted('onboarding-name') && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-3 flex items-center justify-center gap-2 text-[14px] text-secondary font-medium"
+              <div className="flex-1 flex flex-col px-7 pt-6">
+                <h1 className="text-[28px] font-extrabold text-foreground mb-2 leading-tight font-display">
+                  What should we call you?
+                </h1>
+                <p className="text-[15px] text-muted-foreground mb-8">
+                  We'll use this to personalize your experience.
+                </p>
+                <div
+                  className={`rounded-2xl bg-card shadow-sm overflow-hidden transition-all duration-300 ${
+                    isHighlighted('onboarding-name') ? 'ring-4 ring-secondary shadow-lg' : ''
+                  }`}
                 >
-                  <Mic className="w-4 h-4" /> Say your name clearly — I will type it for you
-                </motion.div>
-              )}
-              <div className="mt-auto pb-8">
-                <button
-                  onClick={() => setStep('complete')}
-                  className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
-                >
-                  Continue
-                </button>
+                  <input
+                    id="onboarding-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={isHighlighted('onboarding-name') ? 'Listening for your name...' : 'Your name'}
+                    className="w-full h-14 px-5 bg-transparent text-[17px] text-foreground placeholder:text-muted-foreground/60 outline-none"
+                    autoFocus
+                  />
+                </div>
+                {isHighlighted('onboarding-name') && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 flex items-center justify-center gap-2 text-[14px] text-secondary font-medium"
+                  >
+                    <Mic className="w-4 h-4" /> Say your name clearly — I will type it for you
+                  </motion.div>
+                )}
+                <div className="mt-auto pb-8">
+                  <button
+                    onClick={() => setStep('complete')}
+                    className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
           {/* ── Complete ── */}
           {step === 'complete' && (
-            <div className="flex-1 flex flex-col items-center justify-center text-center bg-background px-7">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', bounce: 0.5 }}
-                className="w-28 h-28 rounded-full gradient-success flex items-center justify-center mb-8 shadow-lg"
-              >
+            <div className="flex-1 flex flex-col bg-background">
+              <div className="flex justify-center gap-2.5 pt-14 pb-4">
+                {steps.map((s) => (
+                  <div key={s} className={`h-[5px] rounded-full transition-all duration-500 ${
+                    s === step ? 'w-10 gradient-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
+                  }`} />
+                ))}
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-7">
                 <motion.div
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.3, type: 'spring' }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', bounce: 0.5 }}
+                  className="w-28 h-28 rounded-full gradient-success flex items-center justify-center mb-8 shadow-lg"
                 >
-                  <CheckCircle className="w-14 h-14 text-success-foreground" strokeWidth={2} />
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.3, type: 'spring' }}
+                  >
+                    <CheckCircle className="w-14 h-14 text-success-foreground" strokeWidth={2} />
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-              <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">
-                You're all set{name ? `, ${name}` : ''}!
-              </h1>
-              <p className="text-[15px] text-muted-foreground max-w-[280px]">
-                MemoCare is ready to help you every day.
-              </p>
-              <div className="mt-auto pb-8 w-full space-y-3">
-                <button
-                  onClick={() => finish(false)}
-                  className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
-                >
-                  Start Browsing
-                </button>
-                <button
-                  onClick={() => finish(true)}
-                  className="w-full h-14 text-secondary text-[17px] font-semibold active:scale-[0.98] transition-transform rounded-2xl flex items-center justify-center gap-3 bg-card shadow-sm"
-                >
-                  <Mic className="w-5 h-5" />
-                  Start with Voice Care
-                </button>
+                <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">
+                  You're all set{name ? `, ${name}` : ''}!
+                </h1>
+                <p className="text-[15px] text-muted-foreground max-w-[280px]">
+                  MemoCare is ready to help you every day.
+                </p>
+                <div className="mt-auto pb-8 w-full space-y-3">
+                  <button
+                    onClick={() => finish(false)}
+                    className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
+                  >
+                    Start Browsing
+                  </button>
+                  <button
+                    onClick={() => finish(true)}
+                    className="w-full h-14 text-secondary text-[17px] font-semibold active:scale-[0.98] transition-transform rounded-2xl flex items-center justify-center gap-3 bg-card shadow-sm"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Start with Voice Care
+                  </button>
+                </div>
               </div>
             </div>
           )}
