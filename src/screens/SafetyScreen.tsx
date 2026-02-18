@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Shield, MapPin, Phone, AlertTriangle, Activity, Check, ChevronRight, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Shield, MapPin, Phone, Activity, Check, ChevronRight, User } from 'lucide-react';
 
 export default function SafetyScreen() {
-  const { mode, isSOSActive, triggerSOS, cancelSOS, patientLocation } = useApp();
+  const { mode, isSOSActive, triggerSOS, cancelSOS } = useApp();
   const [sosCountdown, setSosCountdown] = useState<number | null>(null);
 
   const handleSOS = () => {
@@ -29,7 +28,7 @@ export default function SafetyScreen() {
           <h1 className="text-ios-large-title text-foreground">You're Safe</h1>
         </div>
         <motion.button whileTap={{ scale: 0.95 }} onClick={handleSOS}
-          className="w-full py-12 bg-destructive text-destructive-foreground rounded-2xl flex flex-col items-center justify-center gap-4 sos-pulse relative z-10 shadow-xl">
+          className="w-full py-12 bg-destructive text-destructive-foreground rounded-2xl flex flex-col items-center justify-center gap-4 relative z-10">
           <Phone className="w-14 h-14" />
           <span className="text-[28px] font-bold">
             {isSOSActive ? 'Calling...' : sosCountdown !== null ? `Calling in ${sosCountdown}...` : 'Emergency Call'}
@@ -50,10 +49,10 @@ export default function SafetyScreen() {
           <p className="text-ios-subheadline text-muted-foreground mt-1">Everything looks good</p>
         </div>
 
-        <div className="px-4 mt-4 space-y-3">
+        <div className="px-4 mt-3 space-y-3">
           {/* Status */}
           <div className="ios-card overflow-hidden">
-            <div className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+            <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
               <Shield className="w-5 h-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
                 <div className="text-ios-callout font-medium text-foreground">You're Safe</div>
@@ -70,7 +69,7 @@ export default function SafetyScreen() {
               <span className="text-ios-callout font-medium text-foreground">Current Location</span>
             </div>
             <div className="px-4 pb-4">
-              <div className="rounded-xl overflow-hidden h-40">
+              <div className="rounded-xl overflow-hidden h-36">
                 <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
               </div>
               <div className="flex items-center gap-2 mt-3">
@@ -81,15 +80,15 @@ export default function SafetyScreen() {
             </div>
           </div>
 
-          <Button variant="destructive" size="lg" onClick={handleSOS}
-            className={`w-full h-[72px] rounded-2xl text-[20px] font-bold gap-3 ${isSOSActive ? 'bg-destructive/10 border-2 border-destructive text-destructive' : 'sos-pulse'}`}>
+          <button onClick={handleSOS}
+            className={`w-full h-[72px] rounded-2xl text-[20px] font-bold flex items-center justify-center gap-3 ${isSOSActive ? 'bg-destructive/10 border-2 border-destructive text-destructive' : 'bg-destructive text-destructive-foreground'}`}>
             <Phone className="w-8 h-8" />
             {isSOSActive ? 'Calling Sarah...' : sosCountdown !== null ? `Calling in ${sosCountdown}...` : 'Emergency SOS'}
-          </Button>
+          </button>
           {(isSOSActive || sosCountdown !== null) && (
-            <Button variant="ghost" onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full h-12 text-ios-callout text-muted-foreground font-semibold">
+            <button onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full h-12 text-ios-callout text-muted-foreground font-semibold">
               Cancel Emergency
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -105,7 +104,7 @@ export default function SafetyScreen() {
       </div>
 
       {/* Status */}
-      <div className="mt-4">
+      <div className="mt-3">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Status</p>
         <div className="mx-4 ios-card overflow-hidden">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
@@ -120,11 +119,11 @@ export default function SafetyScreen() {
       </div>
 
       {/* Location */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Location</p>
         <div className="mx-4 ios-card overflow-hidden">
           <div className="px-4 pt-3 pb-4">
-            <div className="rounded-xl overflow-hidden h-36">
+            <div className="rounded-xl overflow-hidden h-32">
               <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
             </div>
             <div className="flex items-center gap-2 mt-3">
@@ -137,7 +136,7 @@ export default function SafetyScreen() {
       </div>
 
       {/* Safety Features */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Safety Features</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
@@ -150,7 +149,7 @@ export default function SafetyScreen() {
       </div>
 
       {/* Emergency Contacts */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Emergency Contacts</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           {[
@@ -171,16 +170,16 @@ export default function SafetyScreen() {
       </div>
 
       {/* SOS */}
-      <div className="px-4 mt-6">
-        <Button variant="destructive" size="lg" onClick={handleSOS}
-          className="w-full h-[52px] rounded-xl text-ios-headline font-bold gap-3 sos-pulse">
-          <AlertTriangle className="w-5 h-5" />
+      <div className="px-4 mt-5">
+        <button onClick={handleSOS}
+          className="w-full h-[52px] rounded-xl bg-destructive text-destructive-foreground text-ios-headline font-bold flex items-center justify-center gap-3">
+          <Phone className="w-5 h-5" />
           {isSOSActive ? 'Calling Sarah...' : sosCountdown !== null ? `Calling in ${sosCountdown}...` : 'Emergency SOS'}
-        </Button>
+        </button>
         {(isSOSActive || sosCountdown !== null) && (
-          <Button variant="ghost" onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full text-ios-subheadline text-muted-foreground font-semibold mt-2">
+          <button onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full text-ios-subheadline text-muted-foreground font-semibold mt-2">
             Cancel
-          </Button>
+          </button>
         )}
       </div>
     </div>
