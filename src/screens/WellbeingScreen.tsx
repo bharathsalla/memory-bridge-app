@@ -72,23 +72,23 @@ export default function WellbeingScreen() {
         </div>
       </div>
 
-      {/* Health Summary — grouped list */}
+      {/* Health Summary — 2x2 Card Grid like Apple Fitness */}
       <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
-        <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+        <div className="mx-4 grid grid-cols-2 gap-2.5">
           {[
             { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, detail: 'Last night' },
             { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Today' },
             { label: 'Med Adherence', value: `${medicationAdherence}%`, Icon: Pill, detail: 'This week' },
             { label: 'Mood Trend', value: 'Stable', Icon: Heart, detail: 'Last 7 days' },
           ].map(stat => (
-            <div key={stat.label} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-              <stat.Icon className="w-5 h-5 text-muted-foreground shrink-0" />
-              <div className="flex-1">
-                <p className="text-ios-callout font-medium text-foreground">{stat.label}</p>
-                <p className="text-ios-footnote text-muted-foreground">{stat.detail}</p>
+            <div key={stat.label} className="ios-card p-3.5 flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <stat.Icon className="w-5 h-5 text-muted-foreground" />
+                <span className="text-ios-footnote text-muted-foreground">{stat.detail}</span>
               </div>
-              <p className="text-ios-headline text-foreground">{stat.value}</p>
+              <p className="text-[22px] font-bold text-foreground leading-tight">{stat.value}</p>
+              <p className="text-ios-footnote text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>

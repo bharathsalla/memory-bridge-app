@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import patientAvatar from '@/assets/patient-avatar.jpg';
 import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSimulator, PersistentNotificationSimulator } from '@/components/NativeFeatureSimulators';
 import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
@@ -52,17 +53,16 @@ export default function CaregiverDashboard() {
           <p className="text-[15px] text-muted-foreground mt-1">Margaret's care overview</p>
         </div>
 
-        {/* Patient Status */}
+        {/* Patient Status — Enhanced Profile Card */}
         <div className="px-5 mt-1">
-          <div className="ios-card overflow-hidden">
-            <div className="flex items-center gap-3 px-4" style={{ minHeight: 64 }}>
+          <div className="ios-card overflow-hidden" style={{ background: 'hsl(var(--success) / 0.06)' }}>
+            <div className="flex items-center gap-3 px-4 py-4" style={{ minHeight: 76 }}>
               <div className="relative shrink-0">
-                <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
-                  <User className="w-5 h-5 text-muted-foreground" />
-                </div>
+                <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover ring-2 ring-success/20" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-ios-callout font-semibold text-foreground">Margaret Smith</div>
+                <div className="text-ios-headline font-semibold text-foreground">Margaret Smith</div>
                 <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">

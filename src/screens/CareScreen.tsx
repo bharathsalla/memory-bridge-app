@@ -78,7 +78,8 @@ export default function CareScreen() {
           <h1 className="text-ios-large-title text-foreground">Care Circle</h1>
           <button
             onClick={() => setViewModalOpen(true)}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted text-ios-footnote font-semibold text-muted-foreground"
+            className="flex items-center gap-1.5 h-9 px-3 rounded-full text-ios-footnote font-semibold text-primary-foreground"
+            style={{ background: 'hsl(var(--success))' }}
           >
             <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
             Dashboard
@@ -118,29 +119,29 @@ export default function CareScreen() {
               <span className="text-[11px] text-muted-foreground font-medium bg-muted/50 px-4 py-1.5 rounded-full">Today</span>
             </div>
 
-            <div className="space-y-3">
+          <div className="space-y-2">
               {messages.map((msg) => (
                 <div key={msg.id}>
                   {msg.isMine ? (
                     <div className="flex justify-end">
-                      <div className="max-w-[78%]">
-                        <div className="bg-primary text-primary-foreground px-4 py-2.5 rounded-2xl rounded-br-md">
-                          <p className="text-[15px] leading-relaxed">{msg.text}</p>
+                      <div className="max-w-[75%]">
+                        <div className="px-3.5 py-2 rounded-[18px] rounded-br-sm" style={{ background: 'hsl(var(--primary))' }}>
+                          <p className="text-[15px] leading-snug text-primary-foreground">{msg.text}</p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/50 mt-1 text-right mr-1">{msg.time}</p>
+                        <p className="text-[10px] text-muted-foreground/40 mt-0.5 text-right mr-1">{msg.time}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex gap-2 items-end">
-                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                    <div className="flex gap-1.5 items-end">
+                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 mb-4">
+                        <span className="text-[10px] font-semibold text-muted-foreground">{msg.sender[0]}</span>
                       </div>
-                      <div className="max-w-[78%]">
-                        <p className="text-[11px] font-semibold text-muted-foreground ml-1 mb-0.5">{msg.sender}</p>
-                        <div className="bg-muted text-foreground px-4 py-2.5 rounded-2xl rounded-bl-md">
-                          <p className="text-[15px] leading-relaxed">{msg.text}</p>
+                      <div className="max-w-[75%]">
+                        <p className="text-[10px] font-medium text-muted-foreground ml-1 mb-0.5">{msg.sender}</p>
+                        <div className="bg-muted text-foreground px-3.5 py-2 rounded-[18px] rounded-bl-sm">
+                          <p className="text-[15px] leading-snug">{msg.text}</p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/50 mt-1 ml-1">{msg.time}</p>
+                        <p className="text-[10px] text-muted-foreground/40 mt-0.5 ml-1">{msg.time}</p>
                       </div>
                     </div>
                   )}
