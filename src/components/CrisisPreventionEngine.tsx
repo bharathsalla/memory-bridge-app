@@ -289,30 +289,11 @@ export default function CrisisPreventionEngine() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-6">
+      <div className="flex-1 overflow-y-auto pb-6 pt-1">
         <AnimatePresence mode="wait">
           {/* ─── FORECAST ─── */}
           {activeTab === 'forecast' &&
           <motion.div key="forecast" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
-              {/* Greeting */}
-              <Card className="border-0 overflow-hidden shadow-none">
-                <div className="bg-muted/30 p-4">
-                  
-
-
-
-
-
-
-
-
-
-
-
-
-
-                </div>
-              </Card>
 
               {/* Risk Alerts */}
               {alerts.map((alert: any) => {
