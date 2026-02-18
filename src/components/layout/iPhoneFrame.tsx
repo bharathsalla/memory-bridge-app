@@ -11,12 +11,12 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
 
   return (
     <div className="h-full w-full flex items-center justify-center bg-black">
-      {/* iPhone 15 Pro — exact logical resolution 393×852 */}
+      {/* iPhone 16 Pro — logical resolution 402×874 */}
       <div
         className="relative overflow-hidden flex flex-col"
         style={{
-          width: 393,
-          height: 852,
+          width: 402,
+          height: 874,
           maxHeight: '100dvh',
           borderRadius: 55,
           background: '#1C1C1E',
