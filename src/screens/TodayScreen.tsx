@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
 import { motion } from 'framer-motion';
-import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight } from 'lucide-react';
+import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Volume2, Mic } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ const medColors: Record<string, string> = {
 const defaultMedColor = 'bg-muted/30 border-border';
 
 export default function TodayScreen() {
-  const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
+  const { mode, patientName, currentMood, toggleCaregiverView, voiceReminders, acknowledgeVoiceReminder } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
@@ -281,6 +281,74 @@ export default function TodayScreen() {
                         </div>
                       </CardContent>
                     </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* Voice Reminders as Medication Cards */}
+            {voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed').length > 0 && (
+              <div className="space-y-4 mb-4">
+                <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                  <Mic className="w-3.5 h-3.5" /> Voice Reminders
+                </p>
+                {voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed').map((vr, i) => (
+                  <motion.div key={vr.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
+                    <Card className="border-2 shadow-lg overflow-hidden bg-violet-50 border-violet-200">
+                      <CardContent className="p-0">
+                        <div className="p-5 flex items-start gap-5">
+                          <div className="relative shrink-0">
+                            <div className="w-[88px] h-[88px] rounded-2xl bg-violet-100 flex items-center justify-center shadow-md ring-2 ring-white/60">
+                              <Volume2 className="w-10 h-10 text-violet-500" />
+                            </div>
+                            <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-md ring-2 ring-white">
+                              <Mic className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <p className="text-[20px] font-extrabold text-foreground leading-tight">{vr.medication}</p>
+                            <p className="text-[16px] text-muted-foreground font-bold mt-1.5">From {vr.caregiverName}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge variant="outline" className="text-[13px] font-semibold border-violet-300 text-violet-600 gap-1 px-2.5 py-0.5">
+                                <Clock className="w-3 h-3" /> {vr.time}
+                              </Badge>
+                              <Badge variant="outline" className="text-[13px] font-semibold border-violet-300 text-violet-600 gap-1 px-2.5 py-0.5">
+                                {vr.frequency}
+                              </Badge>
+                            </div>
+                            <p className="text-[14px] text-muted-foreground/70 mt-2 italic leading-snug">"{vr.patientMessage}"</p>
+                          </div>
+                        </div>
+                        <div className="px-5 pb-5">
+                          <Button onClick={() => acknowledgeVoiceReminder(vr.id)} size="lg" className="w-full h-14 rounded-2xl text-[18px] font-bold gap-2 shadow-sm bg-violet-600 hover:bg-violet-700 text-white">
+                            <Check className="w-6 h-6" />
+                            Mark as Taken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* Taken voice reminders */}
+            {voiceReminders.filter(r => r.status === 'taken').length > 0 && (
+              <div className="space-y-2 mb-4">
+                {voiceReminders.filter(r => r.status === 'taken').map((vr, i) => (
+                  <motion.div key={vr.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
+                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
+                      <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center grayscale opacity-50 shrink-0">
+                        <Volume2 className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[15px] font-semibold text-muted-foreground line-through">{vr.medication} · {vr.time}</p>
+                        <p className="text-[13px] text-muted-foreground/60 mt-0.5">Voice reminder from {vr.caregiverName}</p>
+                      </div>
+                      <div className="w-9 h-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                        <Check className="w-5 h-5 text-success" />
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
