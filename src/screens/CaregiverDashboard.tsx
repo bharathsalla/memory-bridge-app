@@ -41,12 +41,22 @@ export default function CaregiverDashboard() {
   if (activeCaregiverTab === 'dashboard') {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        <div className="px-5 pt-4 pb-2">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-extrabold text-foreground font-display">🩺 Care Dashboard</h1>
-            <button onClick={toggleCaregiverView} className="px-3.5 h-9 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold touch-target flex items-center gap-1.5">
+        {/* Gradient Header — Care-style */}
+        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+                <Activity className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Dashboard</h1>
+                <p className="text-[13px] text-primary-foreground/60 font-medium">Margaret's care overview</p>
+              </div>
+            </div>
+            <Button onClick={toggleCaregiverView} size="sm" className="h-10 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-primary-foreground/25">
               <Eye className="w-4 h-4" /> Patient View
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -255,7 +265,7 @@ export default function CaregiverDashboard() {
     ];
 
     return (
-      <div className="h-full overflow-y-auto bg-background pb-6">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* Patient Mode Switch Button — under tab bar */}
         <div className="px-5 pt-4 pb-3">
           <Button
@@ -332,13 +342,24 @@ export default function CaregiverDashboard() {
     ];
 
     return (
-      <div className="h-full overflow-y-auto warm-gradient pb-6 relative">
-        <div className="px-5 pt-3 pb-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-bold text-foreground">Care Tasks</h1>
-            <span className="text-[13px] text-muted-foreground font-medium">{tasksDone.size}/{tasks.length} done</span>
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+                <Check className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Tasks</h1>
+                <p className="text-[13px] text-primary-foreground/60 font-medium">{tasksDone.size}/{tasks.length} done</p>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 mt-3">
+        </div>
+        <div className="px-5 mt-3">
+          <div className="flex gap-2">
             {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
               <button key={f} className={`px-4 h-8 rounded-full text-[12px] font-semibold touch-target ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 {f}
@@ -476,15 +497,27 @@ export default function CaregiverDashboard() {
     };
 
     return (
-      <div className="h-full overflow-y-auto warm-gradient pb-6">
-        <div className="px-5 pt-3 pb-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-bold text-foreground">Behavioral Analytics</h1>
-            <button className="flex items-center gap-1 text-[14px] text-primary font-medium touch-target">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Behavioral Analytics</h1>
+                <p className="text-[13px] text-primary-foreground/60 font-medium">AI-powered insights</p>
+              </div>
+            </div>
+            <button className="flex items-center gap-1 text-[13px] text-primary-foreground/80 font-medium touch-target bg-primary-foreground/10 px-3 h-9 rounded-xl">
               <Share2 className="w-4 h-4" /> Export
             </button>
           </div>
-          <div className="flex gap-2 mt-3">
+        </div>
+        <div className="px-5 mt-3">
+          <div className="flex gap-2">
             {(['7', '30', '90'] as const).map(r => (
               <button
                 key={r}
@@ -738,9 +771,19 @@ export default function CaregiverDashboard() {
 
   // Settings Tab
   return (
-    <div className="h-full overflow-y-auto warm-gradient pb-6">
-      <div className="px-5 pt-3 pb-3">
-        <h1 className="text-[22px] font-bold text-foreground">Settings</h1>
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+            <Settings2 className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Settings</h1>
+            <p className="text-[13px] text-primary-foreground/60 font-medium">Manage preferences</p>
+          </div>
+        </div>
       </div>
 
       {/* Profile */}
