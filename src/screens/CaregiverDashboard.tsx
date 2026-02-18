@@ -11,6 +11,8 @@ import {
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
   Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid,
@@ -19,7 +21,7 @@ import {
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
 
 export default function CaregiverDashboard() {
-  const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode, isSOSActive, sosTriggeredLocation, patientLocation, sosHistory, cancelSOS } = useApp();
+  const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode, setMode, isSOSActive, sosTriggeredLocation, patientLocation, sosHistory, cancelSOS } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
@@ -241,10 +243,59 @@ export default function CaregiverDashboard() {
     );
   }
 
-  // Vitals Tab - Crisis Prevention Engine
+  // Vitals Tab - Crisis Prevention Engine + Patient Mode Switcher
   if (activeCaregiverTab === 'vitals') {
+    const modeOptions = [
+      { id: 'full' as const, label: 'Independent', desc: 'Full navigation & features', icon: '🟢' },
+      { id: 'simplified' as const, label: 'Guided', desc: 'Simplified with key tabs', icon: '🟡' },
+      { id: 'essential' as const, label: 'Assisted', desc: 'Single-screen essentials', icon: '🔴' },
+    ];
+
     return (
-      <div className="h-full overflow-y-auto bg-background">
+      <div className="h-full overflow-y-auto bg-background pb-6">
+        {/* Patient View Mode Switcher */}
+        <div className="px-5 pt-4 pb-2">
+          <div className="ios-card-elevated p-4 rounded-2xl">
+            <div className="flex items-center gap-2 mb-3">
+              <Eye className="w-5 h-5 text-primary" />
+              <h3 className="text-[16px] font-extrabold text-foreground">Patient View Mode</h3>
+            </div>
+            <p className="text-[13px] text-muted-foreground mb-4">
+              Current: <span className="font-bold text-foreground">{mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}</span>
+            </p>
+            <div className="space-y-2.5">
+              {modeOptions.map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => setMode(opt.id)}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all text-left ${
+                    mode === opt.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border/60 bg-card hover:border-primary/30'
+                  }`}
+                >
+                  <span className="text-[20px]">{opt.icon}</span>
+                  <div className="flex-1">
+                    <p className={`text-[15px] font-bold ${mode === opt.id ? 'text-primary' : 'text-foreground'}`}>{opt.label}</p>
+                    <p className="text-[12px] text-muted-foreground">{opt.desc}</p>
+                  </div>
+                  {mode === opt.id && <Check className="w-5 h-5 text-primary shrink-0" />}
+                </button>
+              ))}
+            </div>
+            <Button
+              className="w-full h-14 mt-4 rounded-2xl text-[16px] font-bold"
+              onClick={() => {/* mode already applied on click above */}}
+            >
+              <Eye className="w-5 h-5 mr-2" />
+              Switch to Patient View
+            </Button>
+          </div>
+        </div>
+
+        <Separator className="mx-5 my-2" />
+
+        {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
       </div>
     );
