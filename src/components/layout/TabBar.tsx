@@ -1,5 +1,5 @@
 import { useApp, PatientTab, CaregiverTab } from '@/contexts/AppContext';
-import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, BarChart3, BookHeart, Brain } from 'lucide-react';
+import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, Settings2, BookHeart, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
@@ -21,7 +21,7 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'vitals', label: 'Vitals', icon: Heart },
   { id: 'memories', label: 'Memories', icon: Brain },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
-  { id: 'reports', label: 'Reports', icon: BarChart3 },
+  { id: 'settings', label: 'Settings', icon: Settings2 },
 ];
 
 export default function TabBar() {
