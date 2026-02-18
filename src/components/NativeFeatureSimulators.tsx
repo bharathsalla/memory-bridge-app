@@ -390,7 +390,7 @@ export function PersistentNotificationSimulator() {
   const [notifications, setNotifications] = useState([
     {
       id: '1',
-      title: '💊 Medication Reminder',
+      title: 'Medication Reminder',
       message: 'Time to take Lisinopril 10mg — Take 1 tablet with water',
       type: 'medication',
       priority: 'critical',
@@ -400,7 +400,7 @@ export function PersistentNotificationSimulator() {
     },
     {
       id: '2',
-      title: '🍽️ Lunch Time',
+      title: 'Lunch Time',
       message: 'Remember to eat lunch. Sarah prepared soup in the fridge.',
       type: 'meal',
       priority: 'high',
@@ -427,9 +427,7 @@ export function PersistentNotificationSimulator() {
       <div className="ios-card-elevated p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-destructive" />
-            </div>
+            <IconBox Icon={Shield} color={iosColors.red} />
             <div>
               <div className="text-[14px] font-bold text-foreground">Persistent Alerts</div>
               <div className="text-[11px] text-muted-foreground">
@@ -491,9 +489,7 @@ export function PersistentNotificationSimulator() {
         onClick={() => setShowOverlay(true)}
         className="w-full ios-card-elevated p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
       >
-        <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center">
-          <Smartphone className="w-4 h-4 text-secondary" />
-        </div>
+        <IconBox Icon={Smartphone} color={iosColors.blue} />
         <div className="flex-1 text-left">
           <div className="text-[13px] font-semibold text-foreground">Preview Lock Screen Alert</div>
           <div className="text-[11px] text-muted-foreground">See how it looks on device</div>
@@ -534,16 +530,16 @@ export function PersistentNotificationSimulator() {
                 </div>
                 <span className="text-[12px] text-white/60 font-medium">MEMOCARE • now</span>
               </div>
-              <div className="text-[18px] font-bold text-white">💊 Medication Reminder</div>
+              <div className="text-[18px] font-bold text-white">Medication Reminder</div>
               <div className="text-[15px] text-white/70 mt-1 leading-relaxed">
                 Time to take Lisinopril 10mg — Take 1 tablet with water
               </div>
               <div className="flex gap-3 mt-4">
                 <button className="flex-1 bg-white/20 rounded-2xl py-3 text-[15px] font-bold text-white active:bg-white/30 transition-colors">
-                  ✓ Done
+                  Done
                 </button>
                 <button className="flex-1 bg-white/20 rounded-2xl py-3 text-[15px] font-bold text-white active:bg-white/30 transition-colors">
-                  ⏰ Snooze
+                  Snooze
                 </button>
               </div>
             </motion.div>
