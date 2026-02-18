@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const messages = [
   { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false, avatar: '👩' },
@@ -12,27 +18,27 @@ const messages = [
 ];
 
 const careTasks = [
-  { id: '1', title: 'Morning shower', assignee: 'Sarah', done: true, time: '8:00 AM', emoji: '🛁' },
-  { id: '2', title: 'Prepare lunch', assignee: 'Sarah', done: false, time: '12:00 PM', emoji: '🍽️' },
-  { id: '3', title: 'Evening walk', assignee: 'John', done: false, time: '5:00 PM', emoji: '🚶' },
-  { id: '4', title: 'Doctor visit', assignee: 'Sarah', done: false, time: 'Tomorrow 10 AM', emoji: '🏥' },
+  { id: '1', title: 'Morning shower', assignee: 'Sarah', done: true, time: '8:00 AM' },
+  { id: '2', title: 'Prepare lunch', assignee: 'Sarah', done: false, time: '12:00 PM' },
+  { id: '3', title: 'Evening walk', assignee: 'John', done: false, time: '5:00 PM' },
+  { id: '4', title: 'Doctor visit', assignee: 'Sarah', done: false, time: 'Tomorrow 10 AM' },
 ];
 
 const careViewOptions = [
-  { id: 'husband', label: 'Husband', emoji: '👨', role: 'Primary Family' },
-  { id: 'daughter', label: 'Daughter (Sarah)', emoji: '👩', role: 'Primary Caregiver' },
-  { id: 'son', label: 'Son (John)', emoji: '👨', role: 'Family Member' },
-  { id: 'doctor', label: 'Dr. Smith', emoji: '👨‍⚕️', role: 'Physician' },
-  { id: 'nurse', label: 'Nurse Maria', emoji: '👩‍⚕️', role: 'Home Nurse' },
+  { id: 'husband', label: 'Husband', role: 'Primary Family' },
+  { id: 'daughter', label: 'Daughter (Sarah)', role: 'Primary Caregiver' },
+  { id: 'son', label: 'Son (John)', role: 'Family Member' },
+  { id: 'doctor', label: 'Dr. Smith', role: 'Physician' },
+  { id: 'nurse', label: 'Nurse Maria', role: 'Home Nurse' },
 ];
 
 export default function CareScreen() {
   const { toggleCaregiverView } = useApp();
-  const [activeSection, setActiveSection] = useState<'chat' | 'tasks' | 'calendar' | 'team'>('chat');
   const [messageInput, setMessageInput] = useState('');
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1']));
   const [manageOpen, setManageOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('chat');
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => {
@@ -42,236 +48,224 @@ export default function CareScreen() {
     });
   };
 
-  const handleDashboardClick = () => {
-    setViewModalOpen(true);
-  };
-
   const selectView = (viewId: string) => {
     setViewModalOpen(false);
     toggleCaregiverView();
   };
 
-  const sections = [
-    { id: 'chat' as const, label: 'Chat', icon: MessageCircle },
-    { id: 'tasks' as const, label: 'Tasks', icon: CheckSquare },
-    { id: 'calendar' as const, label: 'Calendar', icon: CalendarDays },
-    { id: 'team' as const, label: 'Team', icon: Users },
-  ];
-
-  const showFab = activeSection === 'tasks' || activeSection === 'calendar' || activeSection === 'team';
+  const showFab = activeTab === 'tasks' || activeTab === 'calendar' || activeTab === 'team';
 
   return (
-    <div className="h-full flex flex-col bg-background relative">
+    <div className="h-full flex flex-col bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="px-5 pt-4 pb-3 bg-background">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Heart className="w-6 h-6 text-primary" />
+      <div className="bg-primary px-5 py-5 rounded-b-2xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-[20px] font-extrabold text-foreground leading-tight">Care Circle</h1>
-              <p className="text-[14px] text-muted-foreground font-medium">3 members online</p>
+              <h1 className="text-[22px] font-bold text-primary-foreground leading-tight">Care Circle</h1>
+              <p className="text-[14px] text-primary-foreground/70 font-medium">3 members online</p>
             </div>
           </div>
-          <button
-            onClick={handleDashboardClick}
-            className="flex items-center gap-2 px-4 h-11 rounded-2xl gradient-primary text-primary-foreground text-[15px] font-bold active:scale-95 transition-transform touch-target shadow-md"
+          <Button
+            onClick={() => setViewModalOpen(true)}
+            variant="outline"
+            size="lg"
+            className="h-11 px-4 rounded-xl text-[15px] font-semibold border-primary-foreground/30 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 gap-2"
           >
-            <img src={patientAvatar} alt="" className="w-6 h-6 rounded-full object-cover border border-primary-foreground/20" />
+            <img src={patientAvatar} alt="" className="w-6 h-6 rounded-full object-cover" />
             Dashboard
-          </button>
-        </div>
-        {/* Segment tabs */}
-        <div className="flex bg-muted/50 rounded-2xl p-1.5">
-          {sections.map(s => {
-            const Icon = s.icon;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setActiveSection(s.id)}
-                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-[14px] font-bold transition-all touch-target ${
-                  activeSection === s.id
-                    ? 'bg-card text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                <Icon className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
-                {s.label}
-              </button>
-            );
-          })}
+          </Button>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        {activeSection === 'chat' && (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 px-5 pt-4 space-y-4 pb-3">
-              {messages.map((msg, i) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`flex gap-3 ${msg.isMine ? 'flex-row-reverse' : ''}`}
-                >
-                  {!msg.isMine && (
-                    <div className="w-10 h-10 rounded-full bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-[20px] shadow-sm">
-                      {msg.avatar}
-                    </div>
-                  )}
-                  <div className={`max-w-[72%] px-4 py-3 ${
-                    msg.isMine
-                      ? 'gradient-primary text-primary-foreground rounded-2xl rounded-br-lg shadow-md'
-                      : 'bg-card border border-border/30 rounded-2xl rounded-bl-lg shadow-sm'
-                  }`}>
-                    {!msg.isMine && <div className="text-[13px] font-bold text-primary mb-1">{msg.sender}</div>}
-                    <p className={`text-[16px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
-                    <p className={`text-[12px] mt-2 ${msg.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground'}`}>{msg.time}</p>
+      {/* Tabs — using shadcn Tabs with proper spacing */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <div className="px-5 pt-4 pb-2">
+          <TabsList className="w-full h-12 rounded-xl bg-muted/50 p-1">
+            <TabsTrigger value="chat" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
+              <MessageCircle className="w-4 h-4" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
+              <CheckSquare className="w-4 h-4" />
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
+              <CalendarDays className="w-4 h-4" />
+              Events
+            </TabsTrigger>
+            <TabsTrigger value="team" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
+              <Users className="w-4 h-4" />
+              Team
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Chat */}
+        <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0">
+          <div className="flex-1 overflow-y-auto px-5 pt-3 space-y-4 pb-3">
+            {messages.map((msg, i) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className={`flex gap-3 ${msg.isMine ? 'flex-row-reverse' : ''}`}
+              >
+                {!msg.isMine && (
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 text-[20px]">
+                    {msg.avatar}
                   </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="px-4 pb-4 pt-3 bg-background border-t border-border/20">
-              <div className="flex gap-3 items-center">
-                <input
-                  type="text"
-                  value={messageInput}
-                  onChange={e => setMessageInput(e.target.value)}
-                  placeholder="Message your family..."
-                  className="flex-1 h-12 px-5 rounded-full bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 transition-colors"
-                />
-                <button className="w-12 h-12 rounded-full gradient-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md touch-target">
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
+                )}
+                <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${
+                  msg.isMine
+                    ? 'bg-primary text-primary-foreground rounded-br-md shadow-sm'
+                    : 'bg-card border border-border rounded-bl-md shadow-sm'
+                }`}>
+                  {!msg.isMine && <p className="text-[13px] font-bold text-primary mb-1">{msg.sender}</p>}
+                  <p className={`text-[16px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
+                  <p className={`text-[12px] mt-1.5 ${msg.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground'}`}>{msg.time}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="px-4 pb-4 pt-3 bg-background border-t border-border/30">
+            <div className="flex gap-3 items-center">
+              <Input
+                value={messageInput}
+                onChange={e => setMessageInput(e.target.value)}
+                placeholder="Message your family..."
+                className="flex-1 h-12 rounded-full text-[16px] border-border"
+              />
+              <Button size="icon" className="w-12 h-12 rounded-full shrink-0 touch-target">
+                <Send className="w-5 h-5" />
+              </Button>
             </div>
           </div>
-        )}
+        </TabsContent>
 
-        {activeSection === 'tasks' && (
-          <div className="px-5 pt-4 pb-24">
+        {/* Tasks */}
+        <TabsContent value="tasks" className="flex-1 overflow-y-auto mt-0">
+          <div className="px-5 pt-3 pb-24">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[18px] font-extrabold text-foreground">Today's Tasks</h2>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10">
-                <Check className="w-4 h-4 text-primary" />
-                <span className="text-[14px] font-bold text-primary">{tasksDone.size}/{careTasks.length}</span>
-              </div>
+              <h2 className="text-[20px] font-bold text-foreground">Today's Tasks</h2>
+              <Badge variant="secondary" className="text-[14px] font-semibold bg-primary/10 text-primary border-primary/20 px-3 py-1">
+                {tasksDone.size}/{careTasks.length}
+              </Badge>
             </div>
             <div className="space-y-3">
               {careTasks.map((task, i) => (
-                <motion.button
-                  key={task.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  onClick={() => toggleTask(task.id)}
-                  className="w-full ios-card-elevated flex items-center gap-4 p-4 text-left active:scale-[0.98] transition-transform touch-target"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
-                    <span className="text-[24px]">{task.emoji}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={`text-[16px] font-bold leading-tight ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                      {task.title}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <UserCheck className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-[13px] text-muted-foreground font-medium">{task.assignee}</span>
-                      <span className="text-muted-foreground/30">·</span>
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-[13px] text-muted-foreground font-medium">{task.time}</span>
-                    </div>
-                  </div>
-                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
-                    tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border/60'
-                  }`}>
-                    {tasksDone.has(task.id) && <Check className="w-4 h-4 text-success-foreground" />}
-                  </div>
-                </motion.button>
+                <motion.div key={task.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <Card className="border border-border shadow-sm cursor-pointer active:scale-[0.98] transition-transform" onClick={() => toggleTask(task.id)}>
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border'
+                      }`}>
+                        {tasksDone.has(task.id) && <Check className="w-4 h-4 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[17px] font-semibold leading-tight ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                          {task.title}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-[14px] text-muted-foreground font-medium flex items-center gap-1">
+                            <UserCheck className="w-3.5 h-3.5" /> {task.assignee}
+                          </span>
+                          <span className="text-[14px] text-muted-foreground font-medium flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" /> {task.time}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
-        )}
+        </TabsContent>
 
-        {activeSection === 'calendar' && (
-          <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[18px] font-extrabold text-foreground mb-4">Upcoming</h2>
+        {/* Calendar */}
+        <TabsContent value="calendar" className="flex-1 overflow-y-auto mt-0">
+          <div className="px-5 pt-3 pb-24">
+            <h2 className="text-[20px] font-bold text-foreground mb-4">Upcoming Events</h2>
             <div className="space-y-3">
               {[
-                { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', emoji: '🏥', type: 'Medical' },
-                { title: 'Family Lunch', date: 'Saturday, 12:00 PM', emoji: '🍽️', type: 'Social' },
-                { title: 'Physical Therapy', date: 'Monday, 2:00 PM', emoji: '💪', type: 'Health' },
+                { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', type: 'Medical' },
+                { title: 'Family Lunch', date: 'Saturday, 12:00 PM', type: 'Social' },
+                { title: 'Physical Therapy', date: 'Monday, 2:00 PM', type: 'Health' },
               ].map((apt, i) => (
-                <motion.div
-                  key={apt.title}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="ios-card-elevated p-5 flex items-center gap-4"
-                >
-                  <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
-                    <span className="text-[28px]">{apt.emoji}</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-[17px] font-bold text-foreground">{apt.title}</div>
-                    <div className="text-[15px] text-muted-foreground mt-1 font-medium">{apt.date}</div>
-                    <span className="inline-block mt-1.5 px-3 py-1 rounded-lg text-[12px] font-bold bg-primary/8 text-primary">{apt.type}</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 shrink-0" />
+                <motion.div key={apt.title} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <Card className="border border-border shadow-sm">
+                    <CardContent className="p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                        <CalendarDays className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[17px] font-bold text-foreground">{apt.title}</p>
+                        <p className="text-[15px] text-muted-foreground mt-1 font-medium">{apt.date}</p>
+                        <Badge variant="outline" className="mt-1.5 text-[12px] font-semibold text-primary border-primary/20">
+                          {apt.type}
+                        </Badge>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground/40 shrink-0" />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
             </div>
           </div>
-        )}
+        </TabsContent>
 
-        {activeSection === 'team' && (
-          <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[18px] font-extrabold text-foreground mb-4">Care Team</h2>
+        {/* Team */}
+        <TabsContent value="team" className="flex-1 overflow-y-auto mt-0">
+          <div className="px-5 pt-3 pb-24">
+            <h2 className="text-[20px] font-bold text-foreground mb-4">Care Team</h2>
             <div className="space-y-3">
               {[
-                { name: 'Sarah Johnson', role: 'Primary Caregiver', emoji: '👩', status: 'Online', online: true },
-                { name: 'John Johnson', role: 'Son', emoji: '👨', status: 'Last seen 1h ago', online: false },
-                { name: 'Dr. Smith', role: 'Primary Physician', emoji: '👨‍⚕️', status: 'Available', online: true },
-                { name: 'Nurse Maria', role: 'Home Nurse', emoji: '👩‍⚕️', status: 'Next visit: Mon', online: false },
+                { name: 'Sarah Johnson', role: 'Primary Caregiver', status: 'Online', online: true },
+                { name: 'John Johnson', role: 'Son', status: 'Last seen 1h ago', online: false },
+                { name: 'Dr. Smith', role: 'Primary Physician', status: 'Available', online: true },
+                { name: 'Nurse Maria', role: 'Home Nurse', status: 'Next visit: Mon', online: false },
               ].map((member, i) => (
-                <motion.div
-                  key={member.name}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="ios-card-elevated flex items-center gap-4 p-4"
-                >
-                  <div className="relative shrink-0">
-                    <div className="w-14 h-14 rounded-2xl bg-muted/60 flex items-center justify-center">
-                      <span className="text-[26px]">{member.emoji}</span>
-                    </div>
-                    {member.online && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-success border-[2.5px] border-card" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[17px] font-bold text-foreground">{member.name}</div>
-                    <div className="text-[14px] text-muted-foreground mt-0.5 font-medium">{member.role}</div>
-                  </div>
-                  <span className={`text-[13px] font-bold px-3 py-1.5 rounded-lg ${
-                    member.online ? 'text-success bg-success/8' : 'text-muted-foreground bg-muted/40'
-                  }`}>{member.status}</span>
+                <motion.div key={member.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <Card className="border border-border shadow-sm">
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className="relative shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-primary" />
+                        </div>
+                        {member.online && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[17px] font-bold text-foreground">{member.name}</p>
+                        <p className="text-[14px] text-muted-foreground mt-0.5 font-medium">{member.role}</p>
+                      </div>
+                      <Badge variant={member.online ? 'secondary' : 'outline'} className={`text-[12px] font-semibold shrink-0 ${
+                        member.online ? 'bg-success/10 text-success border-success/20' : 'text-muted-foreground'
+                      }`}>
+                        {member.status}
+                      </Badge>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
             </div>
           </div>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
 
+      {/* FAB */}
       {showFab && (
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           onClick={() => setManageOpen(true)}
-          className="absolute bottom-6 right-5 w-14 h-14 rounded-2xl gradient-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform touch-target"
+          className="absolute bottom-6 right-5 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform touch-target"
           aria-label="Add new item"
         >
           <Plus className="w-6 h-6" />
@@ -280,13 +274,14 @@ export default function CareScreen() {
 
       <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
 
+      {/* View Picker Modal — inline, inside app */}
       <AnimatePresence>
         {viewModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-5"
+            className="absolute inset-0 z-50 bg-black/30 flex items-center justify-center px-5"
             onClick={() => setViewModalOpen(false)}
           >
             <motion.div
@@ -294,41 +289,38 @@ export default function CareScreen() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.92, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="bg-card rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-border/20"
+              className="bg-card rounded-2xl w-full max-w-sm overflow-hidden shadow-xl border border-border"
               onClick={e => e.stopPropagation()}
             >
-              <div className="p-6 pb-4 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Heart className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="text-[20px] font-extrabold text-foreground">Choose Dashboard View</h3>
-                <p className="text-[15px] text-muted-foreground mt-1.5 font-medium">Select who is viewing</p>
+              <div className="p-5 pb-3 flex items-center justify-between">
+                <h3 className="text-[20px] font-bold text-foreground">Choose Dashboard View</h3>
+                <button onClick={() => setViewModalOpen(false)} className="w-8 h-8 rounded-full bg-muted/60 flex items-center justify-center touch-target">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
               </div>
-              <div className="px-4 pb-3 space-y-2">
+              <Separator />
+              <div className="p-3 space-y-1">
                 {careViewOptions.map(opt => (
                   <button
                     key={opt.id}
                     onClick={() => selectView(opt.id)}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl active:bg-muted/50 transition-colors hover:bg-muted/30 touch-target"
+                    className="w-full flex items-center gap-3 p-3.5 rounded-xl active:bg-muted/50 transition-colors touch-target"
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
-                      <span className="text-[26px]">{opt.emoji}</span>
+                    <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                      <Users className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-[17px] font-bold text-foreground">{opt.label}</div>
-                      <div className="text-[14px] text-muted-foreground font-medium">{opt.role}</div>
+                      <p className="text-[16px] font-semibold text-foreground">{opt.label}</p>
+                      <p className="text-[13px] text-muted-foreground font-medium">{opt.role}</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground/40" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
                   </button>
                 ))}
               </div>
-              <div className="p-4 border-t border-border/20">
-                <button
-                  onClick={() => setViewModalOpen(false)}
-                  className="w-full h-12 rounded-2xl bg-muted/50 text-muted-foreground text-[16px] font-bold active:bg-muted transition-colors touch-target"
-                >
+              <div className="p-3 border-t border-border">
+                <Button variant="outline" onClick={() => setViewModalOpen(false)} size="lg" className="w-full h-12 rounded-xl text-[16px] font-semibold border-border">
                   Cancel
-                </button>
+                </Button>
               </div>
             </motion.div>
           </motion.div>
