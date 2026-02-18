@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -327,7 +328,7 @@ export default function MemoriesScreen() {
                 className="w-full flex items-center gap-3 px-4 text-left touch-target"
                 style={{ minHeight: 56 }}>
 
-                  <Play className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <IconBox Icon={Play} color={iosColors.purple} size={40} iconSize={20} />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">Play Memory Slideshow</p>
                     <p className="text-ios-footnote text-muted-foreground">{filteredMemories.length} memories</p>

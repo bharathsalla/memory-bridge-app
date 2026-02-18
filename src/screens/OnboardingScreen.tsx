@@ -20,10 +20,10 @@ function MemoCareLogo() {
       <motion.div
         animate={{ scale: [1, 1.08, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute inset-0 rounded-[2.5rem] bg-white/10"
+        className="absolute inset-0 rounded bg-white/10"
       />
       {/* Glass card */}
-      <div className="absolute inset-2 rounded-[2rem] bg-white/15 backdrop-blur-md shadow-2xl border border-white/20 flex items-center justify-center">
+      <div className="absolute inset-2 rounded bg-white/15 backdrop-blur-md shadow-2xl border border-white/20 flex items-center justify-center">
         {/* Brain icon */}
         <motion.div
           animate={{ y: [0, -4, 0] }}
@@ -165,13 +165,13 @@ export default function OnboardingScreen() {
                   transition={{ delay: 0.7, duration: 0.4 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={next}
-                  className="w-full h-[58px] bg-white rounded-full shadow-xl flex items-center justify-between pl-8 pr-2 active:opacity-90 transition-all"
+                  className="w-full h-[58px] bg-white rounded shadow-xl flex items-center justify-between pl-8 pr-2 active:opacity-90 transition-all"
                 >
                   <span className="text-[18px] font-bold" style={{ color: 'hsl(168 42% 36%)' }}>
                     Get Started
                   </span>
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    className="w-12 h-12 rounded flex items-center justify-center"
                     style={{ background: 'hsl(168 42% 36%)' }}
                   >
                     <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
