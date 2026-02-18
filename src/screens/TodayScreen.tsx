@@ -149,17 +149,17 @@ export default function TodayScreen() {
           <h1 className="text-ios-large-title text-foreground">{greeting()}</h1>
         </div>
 
-        {/* Profile Row */}
+        {/* Profile Row — Green tint */}
         <div className="px-4 mt-3">
-          <div className="ios-card overflow-hidden">
+          <div className="rounded-2xl overflow-hidden" style={{ background: 'hsl(var(--success) / 0.08)' }}>
             <button
               onClick={() => setShowIDCard(true)}
               className="w-full flex items-center gap-3 px-4 text-left touch-target"
-              style={{ minHeight: 60 }}
+              style={{ minHeight: 64 }}
             >
-              <img src={patientAvatar} alt="Profile" className="w-11 h-11 object-cover shrink-0 rounded-full" />
+              <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full ring-2 ring-success/20" />
               <div className="flex-1">
-                <p className="text-ios-callout font-medium text-foreground">{patientName || 'Friend'}</p>
+                <p className="text-ios-callout font-semibold text-foreground">{patientName || 'Friend'}</p>
                 <p className="text-ios-footnote text-muted-foreground">My ID & Emergency Contacts</p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
@@ -167,23 +167,23 @@ export default function TodayScreen() {
           </div>
         </div>
 
-        {/* Health Summary — Apple Health grouped list */}
-        <div className="mt-5">
+        {/* Health Summary — 2x2 Card Grid */}
+        <div className="mt-4">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
-          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+          <div className="mx-4 grid grid-cols-2 gap-2.5">
             {[
               { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Goal: 5,000' },
               { label: 'Sleep', value: `${sleepHours} hrs`, Icon: Moon, detail: 'Last night' },
               { label: 'Mood', value: currentMood.label, Icon: Heart, detail: currentMood.time },
-              { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}% complete` },
+              { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}%` },
             ].map((stat) => (
-              <div key={stat.label} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                <stat.Icon className="w-5 h-5 text-muted-foreground shrink-0" />
-                <div className="flex-1">
-                  <p className="text-ios-callout font-medium text-foreground">{stat.label}</p>
-                  <p className="text-ios-footnote text-muted-foreground">{stat.detail}</p>
+              <div key={stat.label} className="ios-card p-3.5 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <stat.Icon className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-ios-footnote text-muted-foreground">{stat.detail}</span>
                 </div>
-                <p className="text-ios-headline text-foreground">{stat.value}</p>
+                <p className="text-[22px] font-bold text-foreground leading-tight">{stat.value}</p>
+                <p className="text-ios-footnote text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
