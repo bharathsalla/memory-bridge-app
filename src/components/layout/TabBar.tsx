@@ -19,7 +19,7 @@ const simplifiedTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
 const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'vitals', label: 'Vitals', icon: Heart },
-  { id: 'memories', label: 'Memories', icon: Brain },
+  { id: 'memories', label: 'Insights', icon: Brain },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
   { id: 'settings', label: 'Settings', icon: Settings2 },
 ];
