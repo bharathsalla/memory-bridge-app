@@ -42,8 +42,8 @@ export default function TodayScreen() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 w-full relative z-10">
           <div>
             <img src={patientAvatar} alt="Profile" className="w-32 h-32 mx-auto mb-5 object-cover ring-4 ring-primary/20 shadow-lg rounded-[28px]" />
-            <h1 className="text-[48px] font-extrabold text-foreground leading-none">{greeting()}</h1>
-            <p className="text-[28px] text-primary mt-3 font-bold">{patientName || 'Friend'}</p>
+            <h1 className="text-[48px] font-extrabold text-foreground leading-none font-display">{greeting()}</h1>
+            <p className="text-[28px] text-primary mt-3 font-bold font-display">{patientName || 'Friend'}</p>
           </div>
 
           <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 text-[22px] font-bold gap-3 rounded-2xl">
@@ -54,7 +54,7 @@ export default function TodayScreen() {
           {pendingMeds.length > 0 ? (
             <div className="rounded-2xl border border-primary/20 shadow-lg overflow-hidden bg-card p-8 flex flex-col items-center gap-4">
               <Pill className="w-16 h-16 text-primary" />
-              <h2 className="text-[28px] font-extrabold text-foreground">Take Your Medicine</h2>
+              <h2 className="text-[28px] font-extrabold text-foreground font-display">Take Your Medicine</h2>
               <p className="text-[20px] text-muted-foreground font-semibold">{pendingMeds[0].name} {pendingMeds[0].dosage}</p>
               <Button onClick={() => markMedicationTaken(pendingMeds[0].id)} size="lg" className="w-full h-16 text-[20px] font-bold rounded-2xl">
                 Mark as Taken
@@ -63,7 +63,7 @@ export default function TodayScreen() {
           ) : (
             <div className="rounded-2xl border border-success/20 bg-success/5 p-8 flex flex-col items-center gap-3">
               <Check className="w-16 h-16 text-success" />
-              <span className="text-[28px] font-extrabold text-success">All done for now</span>
+              <span className="text-[28px] font-extrabold text-success font-display">All done for now</span>
             </div>
           )}
 
@@ -86,7 +86,7 @@ export default function TodayScreen() {
               <img src={patientAvatar} alt="Profile" className="w-16 h-16 object-cover shrink-0 ring-2 ring-primary-foreground/20 rounded-2xl" />
               <div>
                 <p className="text-[16px] text-primary-foreground/80 font-semibold">{greeting()}</p>
-                <h1 className="text-[28px] font-bold text-primary-foreground leading-tight">{patientName || 'Friend'}</h1>
+                <h1 className="text-[28px] font-bold text-primary-foreground leading-tight font-display">{patientName || 'Friend'}</h1>
               </div>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function TodayScreen() {
                 </div>
                 <div>
                   <p className="text-[13px] text-primary-foreground/60 font-medium">{greeting()} 👋</p>
-                  <h1 className="text-[22px] font-extrabold text-primary-foreground leading-tight">{patientName || 'Friend'}</h1>
+                  <h1 className="text-[22px] font-extrabold text-primary-foreground leading-tight font-display">{patientName || 'Friend'}</h1>
                   <p className="text-[12px] text-primary-foreground/50 mt-0.5 font-medium">{dateStr}</p>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function TodayScreen() {
                       </div>
                       <span className="text-[12px] text-muted-foreground font-semibold uppercase tracking-wide">{stat.label}</span>
                     </div>
-                    <p className="text-[22px] font-extrabold text-foreground leading-none">{stat.value}</p>
+                    <p className="text-[22px] font-extrabold text-foreground leading-none font-display">{stat.value}</p>
                     {stat.sub && <p className="text-[11px] text-muted-foreground mt-1.5 font-medium">{stat.sub}</p>}
                   </div>
                 </motion.div>
@@ -231,7 +231,7 @@ export default function TodayScreen() {
           {/* Medications Section */}
           <div className="px-5 mt-6">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[19px] font-extrabold text-foreground">💊 Medications</h2>
+              <h2 className="text-[19px] font-extrabold text-foreground font-display">💊 Medications</h2>
               <Badge variant="secondary" className="text-[13px] font-bold bg-primary/10 text-primary border-primary/20 px-3 py-1 rounded-full">
                 {takenMeds.length}/{medications.length}
               </Badge>
@@ -305,7 +305,7 @@ export default function TodayScreen() {
 
           {/* Today's Activity */}
           <div className="px-5 mt-6 mb-8">
-            <h2 className="text-[19px] font-extrabold text-foreground mb-4">📋 Today's Activity</h2>
+            <h2 className="text-[19px] font-extrabold text-foreground mb-4 font-display">📋 Today's Activity</h2>
             <div className="space-y-3">
               {activities.map((item, i) => (
                 <motion.div key={item.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>

@@ -87,7 +87,7 @@ export default function CareScreen() {
               <Heart className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight">Care Circle</h1>
+              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Circle</h1>
               <p className="text-[13px] text-primary-foreground/60 font-medium">3 members online</p>
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function CareScreen() {
         <TabsContent value="tasks" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[19px] font-extrabold text-foreground">Today's Tasks</h2>
+              <h2 className="text-[19px] font-extrabold text-foreground font-display">Today's Tasks</h2>
               <Badge variant="secondary" className="text-[13px] font-bold bg-primary/10 text-primary border-primary/20 px-3 py-1 rounded-full">
                 {tasksDone.size}/{careTasks.length}
               </Badge>
@@ -263,7 +263,7 @@ export default function CareScreen() {
         {/* Calendar */}
         <TabsContent value="calendar" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[19px] font-extrabold text-foreground mb-4">Upcoming Events</h2>
+            <h2 className="text-[19px] font-extrabold text-foreground mb-4 font-display">Upcoming Events</h2>
             <div className="space-y-3">
               {[
                 { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', type: 'Medical' },
@@ -295,7 +295,7 @@ export default function CareScreen() {
         {/* Team */}
         <TabsContent value="team" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[19px] font-extrabold text-foreground mb-4">Care Team</h2>
+            <h2 className="text-[19px] font-extrabold text-foreground mb-4 font-display">Care Team</h2>
             <div className="space-y-3">
               {[
                 { name: 'Sarah Johnson', role: 'Primary Caregiver', status: 'Online', online: true },

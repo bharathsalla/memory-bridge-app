@@ -26,7 +26,7 @@ export default function SafetyScreen() {
           <div className="w-32 h-32 rounded-3xl gradient-success flex items-center justify-center mx-auto mb-6 shadow-lg">
             <Shield className="w-16 h-16 text-success-foreground" />
           </div>
-          <h1 className="text-[48px] font-extrabold text-foreground">You're Safe</h1>
+          <h1 className="text-[48px] font-extrabold text-foreground font-display">You're Safe</h1>
         </div>
         <motion.button whileTap={{ scale: 0.95 }} onClick={handleSOS}
           className="w-full py-12 bg-destructive text-destructive-foreground rounded-3xl flex flex-col items-center justify-center gap-4 sos-pulse relative z-10 shadow-xl">
@@ -48,7 +48,7 @@ export default function SafetyScreen() {
         <div className="absolute inset-0 rose-glow" />
         <div className="relative z-10">
           <div className="px-6 pt-6 pb-4">
-            <h1 className="text-[34px] font-extrabold text-foreground">🛡️ Safety</h1>
+            <h1 className="text-[34px] font-extrabold text-foreground font-display">🛡️ Safety</h1>
           </div>
           <div className="px-5 space-y-5">
             <div className="ios-card-elevated p-6 flex items-center gap-5">
@@ -99,7 +99,7 @@ export default function SafetyScreen() {
       <div className="absolute inset-0 warm-glow" />
       <div className="relative z-10">
         <div className="px-5 pt-5 pb-4">
-          <h1 className="text-[26px] font-extrabold text-foreground">🛡️ Safety</h1>
+          <h1 className="text-[26px] font-extrabold text-foreground font-display">🛡️ Safety</h1>
         </div>
         <div className="px-5 space-y-4">
           <div className="ios-card-elevated p-5 flex items-center gap-4">

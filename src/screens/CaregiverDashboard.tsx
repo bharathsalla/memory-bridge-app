@@ -43,7 +43,7 @@ export default function CaregiverDashboard() {
       <div className="h-full overflow-y-auto bg-background pb-6">
         <div className="px-5 pt-4 pb-2">
           <div className="flex items-center justify-between">
-            <h1 className="text-[22px] font-extrabold text-foreground">🩺 Care Dashboard</h1>
+            <h1 className="text-[22px] font-extrabold text-foreground font-display">🩺 Care Dashboard</h1>
             <button onClick={toggleCaregiverView} className="px-3.5 h-9 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold touch-target flex items-center gap-1.5">
               <Eye className="w-4 h-4" /> Patient View
             </button>
@@ -154,7 +154,7 @@ export default function CaregiverDashboard() {
 
         {/* Activity Timeline */}
         <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3">📋 Today's Activity</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">📋 Today's Activity</h2>
           <div className="ios-card-elevated p-4">
             {activities.map((item, i) => (
               <div key={item.id} className="flex items-start gap-3 pb-3 last:pb-0">
@@ -180,7 +180,7 @@ export default function CaregiverDashboard() {
 
         {/* Health Metrics */}
         <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3">📊 Health Snapshot</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">📊 Health Snapshot</h2>
           <div className="flex gap-2.5 overflow-x-auto pb-1">
             {[
               { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up', color: 'text-lavender', bg: 'bg-lavender/8' },
@@ -208,7 +208,7 @@ export default function CaregiverDashboard() {
 
         {/* Alerts */}
         <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3">⚠️ Alerts</h2>
+          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">⚠️ Alerts</h2>
           <div className="ios-card-elevated divide-y divide-border/60">
             {/* Dynamic SOS history alerts */}
             {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (

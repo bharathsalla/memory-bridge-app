@@ -180,7 +180,7 @@ export default function MemoriesScreen() {
             <img src={mem.image} alt={mem.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8">
-              <p className="text-[28px] font-extrabold text-white leading-snug">{mem.title}</p>
+              <p className="text-[28px] font-extrabold text-white leading-snug font-display">{mem.title}</p>
               <p className="text-[20px] text-white/70 mt-2 font-medium">{mem.date}</p>
             </div>
           </motion.div>
@@ -201,7 +201,7 @@ export default function MemoriesScreen() {
               <img src={mem.image} alt={mem.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-7">
-                <p className="text-[24px] font-extrabold text-white leading-snug">{mem.title}</p>
+                <p className="text-[24px] font-extrabold text-white leading-snug font-display">{mem.title}</p>
                 <p className="text-[16px] text-white/70 mt-2 font-medium">{mem.subtitle}</p>
                 <p className="text-[14px] text-white/50 mt-1 font-medium">{mem.date}</p>
               </div>
@@ -248,7 +248,7 @@ export default function MemoriesScreen() {
                   <img src={mem.image} alt={mem.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <p className="text-[22px] font-extrabold text-white leading-snug">{mem.title}</p>
+                    <p className="text-[22px] font-extrabold text-white leading-snug font-display">{mem.title}</p>
                     <p className="text-[14px] text-white/60 mt-1 font-medium flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5" /> {mem.date} · {mem.location}
                     </p>
@@ -293,7 +293,7 @@ export default function MemoriesScreen() {
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-[22px] font-extrabold text-primary-foreground">Memories</h1>
+              <h1 className="text-[22px] font-extrabold text-primary-foreground font-display">Memories</h1>
               <p className="text-[13px] text-primary-foreground/60 font-medium mt-0.5">
                 {aiCuratedMemories.length} memories · AI curated daily
               </p>

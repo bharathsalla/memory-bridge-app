@@ -79,7 +79,7 @@ export default function OnboardingScreen() {
                 <Brain className="w-16 h-16 text-primary-foreground relative z-10" strokeWidth={1.5} />
                 <Sparkles className="w-6 h-6 text-primary-foreground/60 absolute top-3 right-3" />
               </motion.div>
-              <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight">Welcome to<br />MemoCare</h1>
+              <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">Welcome to<br />MemoCare</h1>
               <p className="text-[16px] text-muted-foreground max-w-[280px] leading-relaxed">
                 Supporting you every step of the way, with care and kindness.
               </p>
@@ -101,7 +101,7 @@ export default function OnboardingScreen() {
                 className="w-24 h-24 gradient-rose rounded-3xl flex items-center justify-center mb-8 shadow-lg">
                 <Mic className="w-12 h-12 text-secondary-foreground" />
               </motion.div>
-              <h1 className="text-[24px] font-extrabold text-foreground mb-3 leading-tight">How would you like to use MemoCare?</h1>
+              <h1 className="text-[24px] font-extrabold text-foreground mb-3 leading-tight font-display">How would you like to use MemoCare?</h1>
               <p className="text-[15px] text-muted-foreground max-w-[280px] leading-relaxed mb-8">
                 Choose your preferred way to interact.
               </p>

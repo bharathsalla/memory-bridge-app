@@ -28,7 +28,7 @@ export default function WellbeingScreen() {
       <div className="absolute inset-0 warm-glow" />
       <div className="relative z-10">
         <div className="px-5 pt-5 pb-4">
-          <h1 className="text-[26px] font-extrabold text-foreground">💜 My Wellbeing</h1>
+          <h1 className="text-[26px] font-extrabold text-foreground font-display">💜 My Wellbeing</h1>
         </div>
 
         {/* Profile Card */}
@@ -36,7 +36,7 @@ export default function WellbeingScreen() {
           <div className="ios-card-elevated p-5 flex items-center gap-5">
             <img src={patientAvatar} alt="Profile" className="rounded-2xl object-cover shrink-0 ring-2 ring-secondary/25 shadow-md" style={{ width: 72, height: 72 }} />
             <div className="flex-1 min-w-0">
-              <div className="text-[20px] font-extrabold text-foreground">{patientName || 'Friend'}</div>
+              <div className="text-[20px] font-extrabold text-foreground font-display">{patientName || 'Friend'}</div>
               <div className="text-[16px] text-muted-foreground font-medium">Tap to edit profile</div>
             </div>
             <ChevronRight className="w-6 h-6 text-muted-foreground shrink-0" />
@@ -45,7 +45,7 @@ export default function WellbeingScreen() {
 
         {/* Mood Tracker */}
         <div className="px-5 mt-6">
-          <h2 className="text-[20px] font-extrabold text-foreground mb-4">How are you feeling?</h2>
+          <h2 className="text-[20px] font-extrabold text-foreground mb-4 font-display">How are you feeling?</h2>
           <div className="ios-card-elevated p-5">
             <div className="grid grid-cols-3 gap-3">
               {moods.map(m => (
@@ -69,7 +69,7 @@ export default function WellbeingScreen() {
 
         {/* Health Summary */}
         <div className="px-5 mt-6">
-          <h2 className="text-[20px] font-extrabold text-foreground mb-4">Health Summary</h2>
+          <h2 className="text-[20px] font-extrabold text-foreground mb-4 font-display">Health Summary</h2>
           <div className="grid grid-cols-2 gap-4">
             {[
               { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'Good', trendColor: 'text-success', bg: 'bg-lavender/10', iconColor: 'text-lavender' },
@@ -81,7 +81,7 @@ export default function WellbeingScreen() {
                 <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center`}>
                   <stat.Icon className={`w-6 h-6 ${stat.iconColor}`} />
                 </div>
-                <div className="text-[24px] font-extrabold text-foreground">{stat.value}</div>
+                <div className="text-[24px] font-extrabold text-foreground font-display">{stat.value}</div>
                 <div className="text-[14px] text-muted-foreground font-bold uppercase tracking-wide">{stat.label}</div>
                 <div className={`text-[15px] font-bold ${stat.trendColor}`}>{stat.trend}</div>
               </div>
@@ -91,7 +91,7 @@ export default function WellbeingScreen() {
 
         {/* Mode Switcher */}
         <div className="px-5 mt-6">
-          <h2 className="text-[20px] font-extrabold text-foreground mb-4">Interface Mode</h2>
+          <h2 className="text-[20px] font-extrabold text-foreground mb-4 font-display">Interface Mode</h2>
           <button onClick={() => setShowModeSwitch(!showModeSwitch)}
             className="w-full ios-card-elevated p-5 flex items-center justify-between touch-target">
             <div className="flex items-center gap-4">
@@ -125,7 +125,7 @@ export default function WellbeingScreen() {
 
         {/* Settings */}
         <div className="px-5 mt-6">
-          <h2 className="text-[20px] font-extrabold text-foreground mb-4">Settings</h2>
+          <h2 className="text-[20px] font-extrabold text-foreground mb-4 font-display">Settings</h2>
           <div className="ios-card-elevated divide-y divide-border/40">
             {[
               { icon: Bell, label: 'Notifications', detail: 'On' },

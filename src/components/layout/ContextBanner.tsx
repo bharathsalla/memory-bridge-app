@@ -31,13 +31,13 @@ export default function ContextBanner() {
       key={activePatientTab}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="shrink-0 px-5 py-3 border-t border-border/10 bg-primary/4 flex items-center justify-center gap-3"
+      className="shrink-0 px-5 py-2.5 border-t border-border/8 bg-primary/3 flex items-center justify-center gap-3"
     >
-      <span className="text-[18px] font-extrabold text-foreground flex items-center gap-2">
+      <span className="text-[16px] font-bold text-foreground flex items-center gap-2 font-display">
         ⏰ {timeStr}
       </span>
-      <span className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-      <span className="text-[18px] font-extrabold text-foreground flex items-center gap-2">
+      <span className="w-1 h-1 rounded-full bg-primary/30" />
+      <span className="text-[16px] font-bold text-foreground flex items-center gap-2 font-display">
         {meta.emoji} {meta.label}
       </span>
     </motion.div>
