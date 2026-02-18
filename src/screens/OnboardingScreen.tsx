@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, Sparkles } from 'lucide-react';
+import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, Sparkles, CheckCircle } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
 
@@ -144,9 +145,7 @@ export default function OnboardingScreen() {
                   className={`ios-card-elevated p-5 text-left flex items-center gap-4 active:scale-[0.98] transition-all touch-target ${
                   selectedMode === opt.mode ? 'ring-2 ring-primary bg-primary/[0.03]' : ''}`
                   }>
-                      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-7 h-7 text-primary" />
-                      </div>
+                      <IconBox Icon={Icon} color={opt.mode === 'full' ? iosColors.blue : opt.mode === 'simplified' ? iosColors.orange : iosColors.green} size={56} iconSize={28} />
                       <div className="flex-1">
                         <div className="text-ios-headline text-foreground">{opt.title}</div>
                         <div className="text-ios-subheadline text-muted-foreground mt-0.5">{opt.desc}</div>
@@ -166,12 +165,12 @@ export default function OnboardingScreen() {
             isHighlighted('onboarding-name') ? 'ring-4 ring-secondary shadow-lg' : ''}`
             }>
                 <input id="onboarding-name" type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder={isHighlighted('onboarding-name') ? '🎤 Listening for your name...' : 'Your name'}
+              placeholder={isHighlighted('onboarding-name') ? 'Listening for your name...' : 'Your name'}
               className="w-full h-14 px-5 bg-transparent text-ios-body text-foreground placeholder:text-muted-foreground/60 outline-none rounded-2xl" autoFocus />
               </div>
               {isHighlighted('onboarding-name') &&
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 text-center text-[14px] text-secondary font-medium">
-                  🎙️ Say your name clearly — I will type it for you
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex items-center justify-center gap-2 text-[14px] text-secondary font-medium">
+                  <Mic className="w-4 h-4" /> Say your name clearly — I will type it for you
                 </motion.div>
             }
               <div className="mt-auto mb-8">
@@ -186,8 +185,9 @@ export default function OnboardingScreen() {
           <div className="flex-1 flex flex-col items-center justify-center text-center">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', bounce: 0.5 }}
             className="w-28 h-28 rounded-full gradient-success flex items-center justify-center mb-8 shadow-lg">
-                <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.3, type: 'spring' }}
-              className="text-success-foreground text-5xl font-bold">✓</motion.div>
+                <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.3, type: 'spring' }}>
+                  <CheckCircle className="w-14 h-14 text-success-foreground" strokeWidth={2} />
+                </motion.div>
               </motion.div>
               <h1 className="text-ios-title1 text-foreground mb-3">You're all set{name ? `, ${name}` : ''}!</h1>
               <p className="text-ios-body text-muted-foreground max-w-[280px]">

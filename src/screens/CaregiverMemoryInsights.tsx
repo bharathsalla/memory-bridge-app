@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Brain, Sparkles, Heart, TrendingUp, TrendingDown, Loader2,
-  ChevronRight, BookOpen, AlertTriangle, RefreshCw
+  ChevronRight, BookOpen, AlertTriangle, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle
 } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -181,22 +182,19 @@ export default function CaregiverMemoryInsights() {
                 className="w-full p-3.5 text-left active:bg-muted/20 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0">
-                    <span className="text-[20px]">{mem.emoji || '📝'}</span>
-                  </div>
+                  <IconBox Icon={mem.type === 'photo' ? Image : mem.type === 'voice' ? Mic : MessageSquare} color={mem.type === 'photo' ? iosColors.blue : mem.type === 'voice' ? iosColors.orange : iosColors.green} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="text-[13px] font-bold text-foreground">{mem.title}</span>
-                      <span className="text-[12px]">{mem.mood || '😊'}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[11px] text-muted-foreground">
                         {new Date(mem.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {new Date(mem.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                       </span>
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${
                         mem.cognitive_answer ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
                       }`}>
-                        {mem.cognitive_answer ? '✓ Recalled' : '○ Not recalled'}
+                        {mem.cognitive_answer ? <><Check className="w-2.5 h-2.5" /> Recalled</> : <><Circle className="w-2.5 h-2.5" /> Not recalled</>}
                       </span>
                     </div>
                   </div>
@@ -265,9 +263,7 @@ export default function CaregiverMemoryInsights() {
           <div className="space-y-2.5">
             {data.recommendations.map((rec, i) => (
               <div key={i} className="ios-card-elevated p-3.5 flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-2xl ${rec.bg || 'bg-primary/8'} flex items-center justify-center shrink-0`}>
-                  <span className="text-[20px]">{rec.emoji}</span>
-                </div>
+                <IconBox Icon={[Brain, Heart, BookOpen, Sparkles][i % 4]} color={getColor(i)} />
                 <div className="flex-1">
                   <div className="text-[13px] font-bold text-foreground">{rec.title}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{rec.desc}</div>

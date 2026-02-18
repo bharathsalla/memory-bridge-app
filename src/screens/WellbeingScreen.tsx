@@ -78,14 +78,14 @@ export default function WellbeingScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
         <div className="mx-4 grid grid-cols-2 gap-2.5">
           {[
-            { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, detail: 'Last night' },
-            { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Today' },
-            { label: 'Med Adherence', value: `${medicationAdherence}%`, Icon: Pill, detail: 'This week' },
-            { label: 'Mood Trend', value: 'Stable', Icon: Heart, detail: 'Last 7 days' },
+            { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, detail: 'Last night', color: iosColors.purple },
+            { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Today', color: iosColors.green },
+            { label: 'Med Adherence', value: `${medicationAdherence}%`, Icon: Pill, detail: 'This week', color: iosColors.orange },
+            { label: 'Mood Trend', value: 'Stable', Icon: Heart, detail: 'Last 7 days', color: iosColors.red },
           ].map(stat => (
             <div key={stat.label} className="ios-card p-3.5 flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <stat.Icon className="w-5 h-5 text-muted-foreground" />
+                <IconBox Icon={stat.Icon} color={stat.color} size={32} iconSize={16} />
                 <span className="text-ios-footnote text-muted-foreground">{stat.detail}</span>
               </div>
               <p className="text-[22px] font-bold text-foreground leading-tight">{stat.value}</p>
@@ -101,7 +101,7 @@ export default function WellbeingScreen() {
         <div className="mx-4 ios-card overflow-hidden">
           <button onClick={() => setShowModeSwitch(!showModeSwitch)}
             className="w-full flex items-center gap-3 px-4 text-left touch-target" style={{ minHeight: 56 }}>
-            <Eye className="w-5 h-5 text-muted-foreground shrink-0" />
+            <IconBox Icon={Eye} color={iosColors.blue} />
             <div className="flex-1">
               <div className="text-ios-callout font-medium text-foreground">Current: {modes.find(m => m.id === mode)?.label}</div>
               <div className="text-ios-footnote text-muted-foreground">Tap to change interface</div>
@@ -155,7 +155,7 @@ export default function WellbeingScreen() {
       <div className="mx-4 mt-5 mb-6">
         <div className="ios-card overflow-hidden">
           <button className="w-full flex items-center gap-3 px-4 text-left text-destructive touch-target" style={{ minHeight: 56 }}>
-            <LogOut className="w-5 h-5" />
+            <IconBox Icon={LogOut} color="#FF3B30" />
             <span className="text-ios-callout font-medium">Sign Out</span>
           </button>
         </div>
