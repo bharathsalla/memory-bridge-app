@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 
 const messages = [
   { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today? 💕', time: '10:30 AM', isMine: false, avatar: '👩' },
@@ -104,28 +104,28 @@ export default function CareScreen() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <div className="px-4 pt-3 pb-1.5 shrink-0">
-          <TabsList className="h-10 rounded-xl bg-muted/40 p-0.5 w-full grid grid-cols-5">
-            <TabsTrigger value="chat" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
-              <MessageCircle className="w-3.5 h-3.5" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="health" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
-              <Shield className="w-3.5 h-3.5" />
-              Health
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
-              <CheckSquare className="w-3.5 h-3.5" />
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
-              <CalendarDays className="w-3.5 h-3.5" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="team" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
-              <Users className="w-3.5 h-3.5" />
-              Team
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            {[
+              { value: 'chat', icon: <MessageCircle className="w-4 h-4" />, label: 'Chat' },
+              { value: 'health', icon: <Shield className="w-4 h-4" />, label: 'Health' },
+              { value: 'tasks', icon: <CheckSquare className="w-4 h-4" />, label: 'Tasks' },
+              { value: 'calendar', icon: <CalendarDays className="w-4 h-4" />, label: 'Events' },
+              { value: 'team', icon: <Users className="w-4 h-4" />, label: 'Team' },
+            ].map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className={`flex items-center gap-2 px-5 h-11 rounded-xl text-[14px] font-bold shrink-0 transition-all ${
+                  activeTab === tab.value
+                    ? 'bg-primary text-primary-foreground shadow-md'
+                    : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Chat — ChatGPT-style */}

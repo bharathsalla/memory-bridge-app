@@ -240,11 +240,11 @@ export default function TodayScreen() {
 
             {/* Pending medications — large cards */}
             {pendingMeds.length > 0 && (
-              <div className="space-y-3 mb-4">
+              <div className="space-y-4 mb-4">
                 {pendingMeds.map((med, i) => (
                   <motion.div key={med.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
                     <div className="bg-gradient-to-br from-card to-warning/5 rounded-2xl border border-warning/25 shadow-lg overflow-hidden">
-                       <div className="p-5">
+                       <div className="p-5 space-y-4">
                          <div className="flex items-center gap-4">
                            <div className="w-14 h-14 rounded-2xl bg-warning/15 flex items-center justify-center shrink-0 shadow-sm">
                              <Pill className="w-7 h-7 text-warning" />
@@ -252,18 +252,22 @@ export default function TodayScreen() {
                            <div className="flex-1 min-w-0">
                              <p className="text-[18px] font-extrabold text-foreground leading-tight">{med.name}</p>
                              <p className="text-[14px] text-muted-foreground font-semibold mt-0.5">{med.dosage}</p>
-                             <p className="text-[13px] text-muted-foreground/70 mt-1 flex items-center gap-1.5 font-medium">
+                           </div>
+                           <div className="text-right shrink-0">
+                             <p className="text-[13px] text-muted-foreground font-medium flex items-center gap-1">
                                <Clock className="w-3.5 h-3.5" /> {med.time}
-                               {med.instructions && <span className="ml-1">· {med.instructions}</span>}
                              </p>
                            </div>
                          </div>
+                         {med.instructions && (
+                           <p className="text-[13px] text-muted-foreground/70 italic px-1">{med.instructions}</p>
+                         )}
                          <Button
                            onClick={() => markMedicationTaken(med.id)}
                            size="lg"
-                           className="w-full h-13 rounded-2xl text-[16px] font-bold gap-2 mt-4"
+                           className="w-full h-14 rounded-2xl text-[17px] font-bold gap-2.5"
                          >
-                           <Check className="w-5 h-5" />
+                           <Check className="w-6 h-6" />
                            Mark as Taken
                          </Button>
                        </div>
