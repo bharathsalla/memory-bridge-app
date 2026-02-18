@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Send, MapPin, Image, Sparkles, Eye, Brain, Plus, CheckCircle2 } from 'lucide-react';
+import { Camera, X, Send, MapPin, Image, Sparkles, Eye, Brain, Plus, CheckCircle2, BookImage } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -125,9 +126,7 @@ export default function CaregiverMemorySender() {
     <div className="space-y-4">
       {/* Section Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Brain className="w-5 h-5 text-primary" />
-        </div>
+        <IconBox Icon={Brain} color={iosColors.purple} />
         <div>
           <h2 className="text-[17px] font-extrabold text-foreground">Memory Manager</h2>
           <p className="text-[12px] text-muted-foreground font-medium">Send & manage patient memories</p>
@@ -161,14 +160,12 @@ export default function CaregiverMemorySender() {
               onClick={() => setShowForm(true)}
             >
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Plus className="w-6 h-6 text-primary" />
-                </div>
+                <IconBox Icon={Plus} color={iosColors.green} />
                 <div className="flex-1">
                   <p className="text-[15px] font-bold text-foreground">Add & Send New Memory</p>
                   <p className="text-[12px] text-muted-foreground font-medium mt-0.5">Photos, location & personal message</p>
                 </div>
-                <Send className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                <IconBox Icon={Send} color={iosColors.blue} size={36} iconSize={16} />
               </CardContent>
             </Card>
           </motion.div>
@@ -290,9 +287,7 @@ export default function CaregiverMemorySender() {
         <CardHeader className="pb-2 bg-gradient-to-r from-primary/[0.04] to-accent/[0.04]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
-              </div>
+              <IconBox Icon={Sparkles} color={iosColors.orange} size={36} iconSize={16} />
               <div>
                 <CardTitle className="text-[14px]">AI Suggestions</CardTitle>
                 <CardDescription className="text-[11px]">Based on mood & recall patterns</CardDescription>
