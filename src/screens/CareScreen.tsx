@@ -82,9 +82,7 @@ export default function CareScreen() {
             onClick={() => setViewModalOpen(true)}
             className="flex items-center gap-1.5 h-9 px-3 rounded-full text-ios-footnote font-semibold bg-primary text-primary-foreground"
           >
-            <div className="w-[22px] h-[22px] rounded-[5px] bg-white/20 flex items-center justify-center">
-              <User className="w-3.5 h-3.5 text-primary-foreground" style={{ strokeWidth: 1.5 }} />
-            </div>
+            <img src={patientAvatar} alt="Profile" className="w-[22px] h-[22px] rounded-[5px] object-cover" />
             Dashboard
           </button>
         </div>
