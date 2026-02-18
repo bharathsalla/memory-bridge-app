@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp } from 'lucide-react';
+import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic } from 'lucide-react';
 import { useSendCaregiverReminder, useReminderLogs, useLearnedPatterns, useAnalyzePatterns } from '@/hooks/useReminders';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import VoiceReminderFlow from './VoiceReminderFlow';
 
 const reminderTypes = [
   { value: 'medication', label: '💊 Medication', defaultMessage: 'Time to take your medication' },
@@ -14,7 +15,7 @@ const reminderTypes = [
 ];
 
 export default function CaregiverRemindersPanel() {
-  const [activeTab, setActiveTab] = useState<'send' | 'logs' | 'patterns'>('send');
+  const [activeTab, setActiveTab] = useState<'voice' | 'send' | 'logs' | 'patterns'>('voice');
   const [type, setType] = useState('medication');
   const [message, setMessage] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
@@ -67,14 +68,15 @@ export default function CaregiverRemindersPanel() {
       <div className="px-4 pt-3 pb-2">
         <div className="flex bg-muted/50 rounded-2xl p-1">
           {[
-            { id: 'send' as const, label: 'Send Reminder', icon: Bell },
+            { id: 'voice' as const, label: 'Voice', icon: Mic },
+            { id: 'send' as const, label: 'Send', icon: Bell },
             { id: 'logs' as const, label: 'Activity', icon: Clock },
-            { id: 'patterns' as const, label: 'ML Patterns', icon: Brain },
+            { id: 'patterns' as const, label: 'ML', icon: Brain },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-[12px] font-semibold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1 h-9 rounded-xl text-[11px] font-semibold transition-all ${
                 activeTab === tab.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
               }`}
             >
@@ -84,6 +86,9 @@ export default function CaregiverRemindersPanel() {
           ))}
         </div>
       </div>
+
+      {/* Voice Tab */}
+      {activeTab === 'voice' && <VoiceReminderFlow />}
 
       {/* Send Tab */}
       {activeTab === 'send' && (
