@@ -3,95 +3,14 @@ import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
 import { motion } from 'framer-motion';
-import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart, Sparkles } from 'lucide-react';
+import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-
-// Yesterday's memories hook
-function useYesterdayMemories() {
-  return useQuery({
-    queryKey: ['yesterday-memories'],
-    queryFn: async () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const startOfDay = new Date(yesterday);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(yesterday);
-      endOfDay.setHours(23, 59, 59, 999);
-      const { data, error } = await supabase
-        .from('memories')
-        .select('*')
-        .gte('created_at', startOfDay.toISOString())
-        .lte('created_at', endOfDay.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(6);
-      if (error) throw error;
-      return data || [];
-    },
-  });
-}
-
-const fallbackMemories = [
-  { id: 'f1', title: 'Morning Garden Walk', emoji: '🌸', mood: 'happy', description: 'Saw the roses blooming' },
-  { id: 'f2', title: 'Tea with Sarah', emoji: '☕', mood: 'peaceful', description: 'Chamomile tea together' },
-  { id: 'f3', title: 'Family Video Call', emoji: '📱', mood: 'joyful', description: 'Spoke with grandchildren' },
-  { id: 'f4', title: 'Painting Session', emoji: '🎨', mood: 'creative', description: 'Watercolor flowers' },
-];
-
-const memoryCardStyles = [
-  'from-rose-100 to-pink-50 border-rose-200/60',
-  'from-amber-100 to-yellow-50 border-amber-200/60',
-  'from-sky-100 to-blue-50 border-sky-200/60',
-  'from-emerald-100 to-green-50 border-emerald-200/60',
-  'from-violet-100 to-purple-50 border-violet-200/60',
-  'from-orange-100 to-amber-50 border-orange-200/60',
-];
-
-function YesterdayMemories() {
-  const { data: dbMemories = [] } = useYesterdayMemories();
-  const memories = dbMemories.length > 0 ? dbMemories : fallbackMemories;
-
-  return (
-    <div className="px-5 mt-5">
-      <div className="flex items-center gap-2.5 mb-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-sm">
-          <Heart className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <h2 className="text-[17px] font-bold text-foreground leading-tight">Yesterday's Memories</h2>
-          <p className="text-[12px] text-muted-foreground font-medium">Relive your beautiful moments ✨</p>
-        </div>
-      </div>
-
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
-        {memories.map((mem, i) => (
-          <motion.div
-            key={mem.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.08 }}
-            className="snap-start shrink-0"
-          >
-            <div className={`w-[140px] h-[170px] rounded-2xl bg-gradient-to-br ${memoryCardStyles[i % memoryCardStyles.length]} border-2 p-4 flex flex-col justify-between shadow-sm cursor-pointer active:scale-95 transition-transform`}>
-              <span className="text-[36px] leading-none">{mem.emoji}</span>
-              <div>
-                <p className="text-[14px] font-bold text-foreground leading-tight line-clamp-2">{mem.title}</p>
-                <p className="text-[11px] text-muted-foreground font-medium mt-1 line-clamp-1">{mem.description}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const medImages: Record<string, string> = {
   'Lisinopril': 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&h=200&fit=crop&q=80',
@@ -314,8 +233,7 @@ export default function TodayScreen() {
             </Button>
           </div>
 
-          {/* Yesterday's Memories — Google Photos style */}
-          <YesterdayMemories />
+          {/* Medications — Bigger cards */}
 
           {/* Medications — Bigger cards */}
           <div className="px-5 mt-6">

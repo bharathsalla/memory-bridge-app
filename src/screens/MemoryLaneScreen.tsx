@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Phone, MapPin, Users, MessageSquare, Clock, Heart, X, Send, Sparkles, Loader2 } from 'lucide-react';
+import { Plus, Phone, MapPin, Users, MessageSquare, Clock, Heart, X, Send, Sparkles, Loader2, ChevronRight, ChevronDown, Image, Mic } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -163,9 +163,37 @@ export default function MemoryLaneScreen() {
     return acc;
   }, {});
 
+  // Yesterday's memories
+  const yesterdayMemories = useMemo(() => {
+    return memories.filter(m => m.date === 'Yesterday');
+  }, [memories]);
+
+  // Recent memories (last 7 days, excluding today)
+  const recentMemories = useMemo(() => {
+    return memories.filter(m => m.date !== 'Today');
+  }, [memories]);
+
+  const [showAllYesterday, setShowAllYesterday] = useState(false);
+  const displayedYesterday = showAllYesterday ? yesterdayMemories : yesterdayMemories.slice(0, 4);
+
   const now = new Date();
   const greeting = now.getHours() < 12 ? 'Good Morning!' : now.getHours() < 17 ? 'Good Afternoon!' : 'Good Evening!';
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const typeIcon = (type: string) => {
+    if (type === 'photo') return <Image className="w-4 h-4" />;
+    if (type === 'voice') return <Mic className="w-4 h-4" />;
+    return <MessageSquare className="w-4 h-4" />;
+  };
+
+  const memoryCardStyles = [
+    'from-rose-50 to-pink-50/50 border-rose-200/50',
+    'from-amber-50 to-yellow-50/50 border-amber-200/50',
+    'from-sky-50 to-blue-50/50 border-sky-200/50',
+    'from-emerald-50 to-green-50/50 border-emerald-200/50',
+    'from-violet-50 to-purple-50/50 border-violet-200/50',
+    'from-orange-50 to-amber-50/50 border-orange-200/50',
+  ];
 
   if (loading) {
     return (
@@ -177,75 +205,136 @@ export default function MemoryLaneScreen() {
 
   return (
     <div className="h-full flex flex-col bg-background relative overflow-hidden">
-      {/* Green header banner */}
-      <div className="bg-primary px-5 py-6 rounded-b-2xl">
-        <h1 className="text-[24px] font-bold text-primary-foreground">{greeting}</h1>
-        <p className="text-[16px] text-primary-foreground/80 mt-1">Today is {dateStr}</p>
+      {/* Header */}
+      <div className="bg-primary px-5 py-5 rounded-b-2xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-bold text-primary-foreground">Memory Lane</h1>
+            <p className="text-[14px] text-primary-foreground/70 mt-0.5">{dateStr}</p>
+          </div>
+          <Button onClick={() => setShowAdd(true)} size="sm" className="h-10 px-4 rounded-xl text-[14px] font-semibold gap-1.5 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 border-0">
+            <Plus className="w-4 h-4" /> Add
+          </Button>
+        </div>
       </div>
 
-      {/* My Day title + Add button */}
-      <div className="flex items-center justify-between px-5 py-5">
-        <h2 className="text-[24px] font-bold text-foreground">My Day</h2>
-        <Button onClick={() => setShowAdd(true)} size="lg" className="h-12 px-6 rounded-xl text-[16px] font-semibold gap-2">
-          <Plus className="w-5 h-5" /> Add Activity
-        </Button>
-      </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto pb-24">
 
-      {/* Timeline */}
-      <div className="flex-1 overflow-y-auto px-5 pb-24">
-        {memories.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-              <Clock className="w-8 h-8 text-primary" />
+        {/* Yesterday's Memories — Featured Section */}
+        {yesterdayMemories.length > 0 && (
+          <div className="px-5 pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-sm">
+                  <Heart className="w-4.5 h-4.5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-[17px] font-bold text-foreground">Yesterday's Memories</h2>
+                  <p className="text-[12px] text-muted-foreground font-medium">{yesterdayMemories.length} moment{yesterdayMemories.length > 1 ? 's' : ''} captured</p>
+                </div>
+              </div>
+              {yesterdayMemories.length > 4 && (
+                <Button variant="ghost" size="sm" onClick={() => setShowAllYesterday(!showAllYesterday)} className="text-[13px] text-primary font-semibold gap-1 h-8 px-2">
+                  {showAllYesterday ? 'Less' : 'Show All'}
+                  {showAllYesterday ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </Button>
+              )}
             </div>
-            <h3 className="text-[20px] font-bold text-foreground mb-2">No activities yet</h3>
-            <p className="text-[17px] text-muted-foreground text-center leading-relaxed">
-              Tap "Add Activity" to log your first moment of the day.
-            </p>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {displayedYesterday.map((mem, i) => (
+                <motion.button
+                  key={mem.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.06 }}
+                  onClick={() => setSelectedMemory(mem)}
+                  className="text-left"
+                >
+                  <div className={`rounded-2xl bg-gradient-to-br ${memoryCardStyles[i % memoryCardStyles.length]} border p-4 h-[130px] flex flex-col justify-between shadow-sm active:scale-[0.97] transition-transform`}>
+                    <div className="flex items-start justify-between">
+                      <span className="text-[32px] leading-none">{mem.emoji}</span>
+                      <div className="flex items-center gap-1">
+                        {mem.isFavorite && <Heart className="w-3.5 h-3.5 text-destructive fill-destructive" />}
+                        {mem.cognitiveAnswer && <Sparkles className="w-3.5 h-3.5 text-success" />}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[14px] font-bold text-foreground leading-tight line-clamp-2">{mem.title}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {typeIcon(mem.type)}
+                        <span className="text-[11px] text-muted-foreground font-medium">{mem.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            <Separator className="mt-5" />
           </div>
         )}
 
-        {Object.entries(groupedByDate).map(([date, entries]) => (
-          <div key={date} className="mb-7">
-            {date !== 'Today' && (
-              <p className="text-[15px] font-semibold text-primary uppercase tracking-wider mb-4">{date}</p>
-            )}
-            <div className="relative">
-              <div className="absolute left-[19px] top-8 bottom-8 w-[2px] bg-border" />
-              <div className="space-y-5">
+        {/* All Memories Timeline */}
+        <div className="px-5 pt-4">
+          <h2 className="text-[18px] font-bold text-foreground mb-4">All Memories</h2>
+
+          {memories.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+                <Clock className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-[20px] font-bold text-foreground mb-2">No memories yet</h3>
+              <p className="text-[16px] text-muted-foreground text-center leading-relaxed">
+                Tap "Add" to log your first moment.
+              </p>
+            </div>
+          )}
+
+          {Object.entries(groupedByDate).map(([date, entries]) => (
+            <div key={date} className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant="secondary" className="text-[12px] font-bold bg-primary/10 text-primary border-primary/20 px-2.5 py-0.5">
+                  {date}
+                </Badge>
+                <span className="text-[12px] text-muted-foreground font-medium">{entries.length} memor{entries.length > 1 ? 'ies' : 'y'}</span>
+              </div>
+
+              <div className="space-y-2.5">
                 {entries.map((memory, i) => {
                   const cat = typeToCategory(memory.type);
                   const IconComp = cat.icon;
                   return (
                     <motion.button
                       key={memory.id}
-                      initial={{ opacity: 0, y: 8 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06 }}
+                      transition={{ delay: i * 0.04 }}
                       onClick={() => setSelectedMemory(memory)}
-                      className="w-full flex gap-4 text-left"
+                      className="w-full text-left"
                     >
-                      <div className={`w-[40px] h-[40px] rounded-full ${cat.color} flex items-center justify-center shrink-0 z-10 shadow-md`}>
-                        <IconComp className="w-[20px] h-[20px] text-white" />
-                      </div>
-                      <Card className="flex-1 border border-border shadow-sm active:scale-[0.98] transition-transform cursor-pointer hover:shadow-md">
-                        <CardContent className="p-5">
-                          <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                            <Clock className="w-4 h-4" />
-                            <span className="text-[15px] font-medium">{memory.time}</span>
+                      <Card className="border border-border shadow-sm active:scale-[0.98] transition-transform hover:shadow-md">
+                        <CardContent className="p-4 flex items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 text-[22px]">
+                            {memory.emoji}
                           </div>
-                          <h3 className="text-[19px] font-bold text-foreground leading-snug">{memory.title}</h3>
-                          {memory.description && (
-                            <p className="text-[16px] text-muted-foreground mt-2 leading-relaxed line-clamp-3">{memory.description}</p>
-                          )}
-                          {(memory.cognitiveAnswer || memory.isFavorite) && (
-                            <div className="flex items-center gap-2 mt-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[16px] font-bold text-foreground leading-tight line-clamp-1">{memory.title}</p>
+                            {memory.description && (
+                              <p className="text-[13px] text-muted-foreground mt-0.5 line-clamp-1 font-medium">{memory.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[12px] text-muted-foreground/70 font-medium flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> {memory.time}
+                              </span>
                               {memory.cognitiveAnswer && (
-                                <Badge variant="secondary" className="text-[13px] bg-success/10 text-success border-success/20 font-semibold">Recalled</Badge>
+                                <Badge variant="secondary" className="text-[10px] font-bold bg-success/10 text-success border-success/20 px-1.5 py-0">✓ Recalled</Badge>
                               )}
-                              {memory.isFavorite && <Heart className="w-4 h-4 text-destructive fill-destructive" />}
                             </div>
-                          )}
+                          </div>
+                          {memory.isFavorite && <Heart className="w-4 h-4 text-destructive fill-destructive shrink-0" />}
+                          <ChevronRight className="w-4 h-4 text-muted-foreground/30 shrink-0" />
                         </CardContent>
                       </Card>
                     </motion.button>
@@ -253,8 +342,8 @@ export default function MemoryLaneScreen() {
                 })}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* ===== ADD ACTIVITY MODAL (inline, inside app) ===== */}
