@@ -4,6 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import CaregiverSupportEcosystem from '@/components/CaregiverSupportEcosystem';
 import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
+import CaregiverMemorySender from '@/components/CaregiverMemorySender';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
@@ -383,6 +384,10 @@ export default function CaregiverDashboard() {
               <div className="text-[12px] text-muted-foreground">Tomorrow, 10:00 AM · Sarah</div>
             </div>
           </div>
+
+          {/* Memory Manager Section */}
+          <Separator className="my-6" />
+          <CaregiverMemorySender />
         </div>
 
         {/* FAB - Plus icon to open manage widget */}
