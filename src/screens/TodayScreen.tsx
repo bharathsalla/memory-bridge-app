@@ -50,7 +50,7 @@ export default function TodayScreen() {
 
           {pendingMeds.length > 0 ? (
             <div className="ios-card p-8 flex flex-col items-center gap-4">
-              <Pill className="w-16 h-16 text-primary" />
+              <Pill className="w-16 h-16 text-muted-foreground" />
               <h2 className="text-[28px] font-bold text-foreground">Take Your Medicine</h2>
               <p className="text-[20px] text-muted-foreground font-medium">{pendingMeds[0].name} {pendingMeds[0].dosage}</p>
               <Button onClick={() => markMedicationTaken(pendingMeds[0].id)} size="lg" className="w-full h-16 text-[20px] font-bold rounded-2xl">
@@ -59,8 +59,8 @@ export default function TodayScreen() {
             </div>
           ) : (
             <div className="ios-card p-8 flex flex-col items-center gap-3">
-              <Check className="w-16 h-16 text-success" />
-              <span className="text-[28px] font-bold text-success">All done for now</span>
+              <Check className="w-16 h-16 text-muted-foreground" />
+              <span className="text-[28px] font-bold text-foreground">All done for now</span>
             </div>
           )}
 
@@ -93,36 +93,38 @@ export default function TodayScreen() {
             View Me
           </Button>
 
-          {pendingMeds.map((med) => (
-            <div key={med.id} className="ios-card">
-              <div className="p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                  <Pill className="w-6 h-6 text-primary" />
+          {/* Pending meds grouped */}
+          {pendingMeds.length > 0 && (
+            <div className="ios-card overflow-hidden divide-y divide-border/30">
+              {pendingMeds.map((med) => (
+                <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+                  <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-ios-headline text-foreground">{med.name}</p>
+                    <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
+                  </div>
+                  <Button onClick={() => markMedicationTaken(med.id)} className="h-9 px-4 text-[14px] font-semibold shrink-0 rounded-xl">
+                    Take
+                  </Button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-ios-headline text-foreground">{med.name}</p>
-                  <p className="text-ios-subheadline text-muted-foreground mt-0.5">{med.dosage} · {med.time}</p>
-                </div>
-                <Button onClick={() => markMedicationTaken(med.id)} className="h-11 px-5 text-[15px] font-semibold shrink-0 rounded-xl">
-                  Take
-                </Button>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
 
-          {takenMeds.map((med) => (
-            <div key={med.id} className="ios-card opacity-50">
-              <div className="p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
-                  <Check className="w-6 h-6 text-success" />
+          {/* Taken meds grouped */}
+          {takenMeds.length > 0 && (
+            <div className="ios-card overflow-hidden divide-y divide-border/30 opacity-50">
+              {takenMeds.map((med) => (
+                <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  <Check className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-ios-headline text-foreground line-through">{med.name}</p>
+                    <p className="text-ios-footnote text-muted-foreground">Taken at {med.taken_at}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-ios-headline text-foreground">{med.name}</p>
-                  <p className="text-ios-footnote text-muted-foreground">Taken at {med.taken_at}</p>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
         <PatientIDCard open={showIDCard} onClose={() => setShowIDCard(false)} />
       </div>
@@ -149,17 +151,20 @@ export default function TodayScreen() {
 
         {/* Profile Row */}
         <div className="px-4 mt-4">
-          <button
-            onClick={() => setShowIDCard(true)}
-            className="w-full ios-card p-4 flex items-center gap-3 text-left touch-target"
-          >
-            <img src={patientAvatar} alt="Profile" className="w-11 h-11 object-cover shrink-0 rounded-full" />
-            <div className="flex-1">
-              <p className="text-ios-headline text-foreground">{patientName || 'Friend'}</p>
-              <p className="text-ios-footnote text-muted-foreground">My ID & Emergency Contacts</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
-          </button>
+          <div className="ios-card overflow-hidden">
+            <button
+              onClick={() => setShowIDCard(true)}
+              className="w-full flex items-center gap-3 px-4 text-left touch-target"
+              style={{ minHeight: 60 }}
+            >
+              <img src={patientAvatar} alt="Profile" className="w-11 h-11 object-cover shrink-0 rounded-full" />
+              <div className="flex-1">
+                <p className="text-ios-callout font-medium text-foreground">{patientName || 'Friend'}</p>
+                <p className="text-ios-footnote text-muted-foreground">My ID & Emergency Contacts</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
+            </button>
+          </div>
         </div>
 
         {/* Health Summary — Apple Health grouped list */}
@@ -176,7 +181,7 @@ export default function TodayScreen() {
                 <stat.Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div className="flex-1">
                   <p className="text-ios-callout font-medium text-foreground">{stat.label}</p>
-                  {stat.detail && <p className="text-ios-footnote text-muted-foreground">{stat.detail}</p>}
+                  <p className="text-ios-footnote text-muted-foreground">{stat.detail}</p>
                 </div>
                 <p className="text-ios-headline text-foreground">{stat.value}</p>
               </div>
@@ -195,44 +200,42 @@ export default function TodayScreen() {
           </div>
 
           {pendingMeds.length > 0 && (
-            <div className="px-4 space-y-2 mb-3">
-              {pendingMeds.map((med) => (
-                <div key={med.id} className="ios-card p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
-                      <Pill className="w-5 h-5 text-warning" />
+            <div className="px-4">
+              <div className="ios-card overflow-hidden divide-y divide-border/30">
+                {pendingMeds.map((med) => (
+                  <div key={med.id} className="px-4 py-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-ios-callout font-semibold text-foreground">{med.name}</p>
+                        <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-ios-callout font-semibold text-foreground">{med.name}</p>
-                      <p className="text-ios-footnote text-muted-foreground mt-0.5">{med.dosage} · {med.time}</p>
-                    </div>
+                    {med.instructions && (
+                      <p className="text-ios-caption text-muted-foreground/60 mb-2 pl-8">{med.instructions}</p>
+                    )}
+                    <Button
+                      onClick={() => markMedicationTaken(med.id)}
+                      className="w-full h-11 rounded-xl text-[15px] font-semibold gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      Mark as Taken
+                    </Button>
                   </div>
-                  {med.instructions && (
-                    <p className="text-ios-caption text-muted-foreground/60 mb-3">{med.instructions}</p>
-                  )}
-                  <Button
-                    onClick={() => markMedicationTaken(med.id)}
-                    className="w-full h-11 rounded-xl text-[15px] font-semibold gap-2"
-                  >
-                    <Check className="w-4 h-4" />
-                    Mark as Taken
-                  </Button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
           {takenMeds.length > 0 && (
-            <div className="px-4">
+            <div className="px-4 mt-2">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {takenMeds.map((med) => (
-                  <div key={med.id} className="flex items-center gap-3 p-3">
-                    <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
-                      <Check className="w-4 h-4 text-success" />
-                    </div>
+                  <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 48 }}>
+                    <Check className="w-5 h-5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-subheadline text-muted-foreground line-through">{med.name} · {med.dosage}</p>
-                      <p className="text-ios-caption2 text-success mt-0.5">Taken at {med.taken_at}</p>
+                      <p className="text-ios-caption2 text-muted-foreground">Taken at {med.taken_at}</p>
                     </div>
                   </div>
                 ))}
@@ -258,7 +261,7 @@ export default function TodayScreen() {
               {activities.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
                   {item.completed ? (
-                    <Check className="w-5 h-5 text-success shrink-0" />
+                    <Check className="w-5 h-5 text-muted-foreground shrink-0" />
                   ) : (
                     <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
                   )}
@@ -267,7 +270,7 @@ export default function TodayScreen() {
                     <p className="text-ios-footnote text-muted-foreground">{item.time}</p>
                   </div>
                   {item.completed && (
-                    <span className="text-ios-caption font-semibold text-success">Done</span>
+                    <span className="text-ios-caption font-semibold text-muted-foreground">Done</span>
                   )}
                 </div>
               ))}

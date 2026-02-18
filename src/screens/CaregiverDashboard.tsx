@@ -10,7 +10,7 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock
+  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -54,19 +54,18 @@ export default function CaregiverDashboard() {
 
         {/* Patient Status */}
         <div className="px-5 mt-1">
-          <div className="ios-card-elevated p-4 rounded-2xl">
-            <div className="flex items-center gap-3.5">
+          <div className="ios-card overflow-hidden">
+            <div className="flex items-center gap-3 px-4" style={{ minHeight: 64 }}>
               <div className="relative shrink-0">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-[26px]">👩‍🦳</div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-success border-2 border-card" />
+                <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
+                  <User className="w-5 h-5 text-muted-foreground" />
+                </div>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[16px] font-extrabold text-foreground">Margaret Smith</div>
-                <div className="text-[12px] text-muted-foreground font-medium">Active 2 min ago</div>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                    mode === 'full' ? 'bg-primary/10 text-primary' : mode === 'simplified' ? 'bg-warning/10 text-warning' : 'bg-lavender/10 text-lavender'
-                  }`}>
+                <div className="text-ios-callout font-semibold text-foreground">Margaret Smith</div>
+                <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
                   <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5">
@@ -74,9 +73,7 @@ export default function CaregiverDashboard() {
                   </span>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-success" />
-              </div>
+              <Shield className="w-5 h-5 text-muted-foreground shrink-0" />
             </div>
           </div>
 
@@ -86,7 +83,7 @@ export default function CaregiverDashboard() {
             <span>Enable Safety Tracking</span>
           </button>
 
-          <div className="mt-4 ios-card-elevated p-4 rounded-2xl">
+          <div className="mt-4 ios-card p-4">
             <CaregiverSupportEcosystem />
           </div>
         </div>
@@ -246,9 +243,9 @@ export default function CaregiverDashboard() {
   if (activeCaregiverTab === 'vitals') {
     
     const modeOptions = [
-      { id: 'full' as const, label: 'Independent', desc: 'Full navigation & features', icon: '🟢' },
-      { id: 'simplified' as const, label: 'Guided', desc: 'Simplified with key tabs', icon: '🟡' },
-      { id: 'essential' as const, label: 'Assisted', desc: 'Single-screen essentials', icon: '🔴' },
+      { id: 'full' as const, label: 'Independent', desc: 'Full navigation & features' },
+      { id: 'simplified' as const, label: 'Guided', desc: 'Simplified with key tabs' },
+      { id: 'essential' as const, label: 'Assisted', desc: 'Single-screen essentials' },
     ];
 
     return (
@@ -305,7 +302,9 @@ export default function CaregiverDashboard() {
                           : 'border-border/60 bg-card hover:border-primary/30'
                       }`}
                     >
-                      <span className="text-[22px]">{opt.icon}</span>
+                      <span className="text-[22px]">
+                        <div className={`w-4 h-4 rounded-full ${mode === opt.id ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+                      </span>
                       <div className="flex-1">
                         <p className={`text-[15px] font-bold ${mode === opt.id ? 'text-primary' : 'text-foreground'}`}>{opt.label}</p>
                         <p className="text-[12px] text-muted-foreground">{opt.desc}</p>
@@ -379,13 +378,14 @@ export default function CaregiverDashboard() {
             ))}
           </div>
           <h3 className="text-[16px] font-bold text-foreground mb-2 mt-5">Upcoming</h3>
-          <div className="ios-card-elevated p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/8 flex items-center justify-center shrink-0">
-              <span className="text-lg">🏥</span>
-            </div>
-            <div>
-              <div className="text-[14px] font-medium text-foreground">Doctor Visit</div>
-              <div className="text-[12px] text-muted-foreground">Tomorrow, 10:00 AM · Sarah</div>
+          <div className="ios-card overflow-hidden">
+            <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+              <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
+              <div className="flex-1">
+                <div className="text-ios-callout font-medium text-foreground">Doctor Visit</div>
+                <div className="text-ios-footnote text-muted-foreground">Tomorrow, 10:00 AM · Sarah</div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
             </div>
           </div>
 
@@ -394,14 +394,7 @@ export default function CaregiverDashboard() {
           <CaregiverMemorySender />
         </div>
 
-        {/* FAB - Plus icon to open manage widget */}
-        <button
-          onClick={() => setManageOpen(true)}
-          className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform"
-          aria-label="Add new item"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
+        {/* No FAB — iOS doesn't use floating action buttons */}
 
         <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
       </div>
@@ -756,7 +749,9 @@ export default function CaregiverDashboard() {
       {/* Profile */}
       <div className="px-5 mt-1">
         <div className="ios-card-elevated p-4 flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-[22px] shrink-0">👩</div>
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+            <User className="w-5 h-5 text-muted-foreground" />
+          </div>
           <div className="flex-1 min-w-0">
             <div className="text-[16px] font-bold text-foreground">Sarah Johnson</div>
             <div className="text-[12px] text-muted-foreground">Primary Caregiver (Daughter)</div>
@@ -800,7 +795,7 @@ export default function CaregiverDashboard() {
           ].map(member => (
             <div key={member.name} className="flex items-center gap-3 p-4">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-[18px]">{member.emoji}</span>
+                <User className="w-5 h-5 text-muted-foreground" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[14px] font-medium text-foreground">{member.name}</div>
