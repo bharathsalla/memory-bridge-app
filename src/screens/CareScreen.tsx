@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, ArrowUp, Mic } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, ArrowUp, Mic, User, Stethoscope, HeartPulse } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import CaregiverMemorySender from '@/components/CaregiverMemorySender';
 
@@ -26,11 +27,11 @@ const careTasks = [
 ];
 
 const careViewOptions = [
-  { id: 'husband', label: 'Husband', role: 'Primary Family' },
-  { id: 'daughter', label: 'Daughter (Sarah)', role: 'Primary Caregiver' },
-  { id: 'son', label: 'Son (John)', role: 'Family Member' },
-  { id: 'doctor', label: 'Dr. Smith', role: 'Physician' },
-  { id: 'nurse', label: 'Nurse Maria', role: 'Home Nurse' },
+  { id: 'husband', label: 'Husband', role: 'Primary Family', icon: User, color: iosColors.blue },
+  { id: 'daughter', label: 'Daughter (Sarah)', role: 'Primary Caregiver', icon: HeartPulse, color: iosColors.red },
+  { id: 'son', label: 'Son (John)', role: 'Family Member', icon: User, color: iosColors.green },
+  { id: 'doctor', label: 'Dr. Smith', role: 'Physician', icon: Stethoscope, color: iosColors.purple },
+  { id: 'nurse', label: 'Nurse Maria', role: 'Home Nurse', icon: HeartPulse, color: iosColors.orange },
 ];
 
 export default function CareScreen() {
@@ -232,7 +233,7 @@ export default function CareScreen() {
                 { title: 'Physical Therapy', date: 'Monday, 2:00 PM', type: 'Health' },
               ].map((apt) => (
                 <div key={apt.title} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                  <CalendarDays className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <IconBox Icon={CalendarDays} color={apt.type === 'Medical' ? iosColors.red : apt.type === 'Social' ? iosColors.blue : iosColors.green} />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">{apt.title}</p>
                     <p className="text-ios-footnote text-muted-foreground">{apt.date}</p>
@@ -311,11 +312,11 @@ export default function CareScreen() {
                     className="w-full flex items-center gap-3 px-5 text-left touch-target"
                     style={{ minHeight: 56 }}
                   >
-                    <Users className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-ios-callout font-medium text-foreground">{view.label}</p>
-                      <p className="text-ios-footnote text-muted-foreground">{view.role}</p>
-                    </div>
+                    <IconBox Icon={view.icon} color={view.color} />
+                     <div className="flex-1">
+                       <p className="text-ios-callout font-medium text-foreground">{view.label}</p>
+                       <p className="text-ios-footnote text-muted-foreground">{view.role}</p>
+                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
                   </button>
                 ))}

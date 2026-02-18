@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, Brain, Shield, Coffee, BookOpen, MessageCircle,
   ChevronRight, ChevronLeft, ExternalLink, Users, AlertTriangle,
-  Smile, Frown, Meh, ArrowRight, Check, X, Clock, Lightbulb, Loader2
+  Smile, Frown, Meh, ArrowRight, Check, X, Clock, Lightbulb, Loader2, Eye
 } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 
 type Module = null | 'checkin' | 'chatbot' | 'safebreak' | 'burnout' | 'education';
 type EducationSub = null | 'alzheimers' | 'lewy' | 'frontotemporal' | 'vascular' | 'community' | 'stages';
@@ -410,9 +411,9 @@ export default function CaregiverSupportEcosystem() {
                       <p className="text-[11px] text-primary font-bold uppercase tracking-wider mb-1">Do This Now</p>
                       <p className="text-[13px] text-foreground">{burnoutRecs.immediateAction}</p>
                     </div>
-                  )}
+                   )}
                   {burnoutRecs.resource && (
-                    <p className="text-[12px] text-muted-foreground">📌 Resource: {burnoutRecs.resource}</p>
+                    <p className="text-[12px] text-muted-foreground flex items-center gap-1"><BookOpen className="w-3 h-3" /> Resource: {burnoutRecs.resource}</p>
                   )}
                 </div>
               ) : (
@@ -494,11 +495,11 @@ export default function CaregiverSupportEcosystem() {
       );
     }
 
-    const dementiaTypes: Record<string, { title: string; icon: string; source: string; topics: string[] }> = {
-      alzheimers: { title: "Alzheimer's Disease", icon: '🧠', source: "Alzheimer's Association", topics: ['Early stage coping strategies', 'Mid-stage aggression management', 'Late stage comfort care', 'Memory preservation techniques'] },
-      lewy: { title: 'Lewy Body Dementia', icon: '🔬', source: 'Lewy Body Dementia Association', topics: ['Hallucination management', 'Medication sensitivity awareness', 'Sleep disturbance patterns', 'Movement symptom care'] },
-      frontotemporal: { title: 'Frontotemporal Dementia', icon: '🧩', source: 'Association for Frontotemporal Degeneration', topics: ['Personality change support', 'Impulse behavior management', 'Language difficulty coping', 'Social behavior changes'] },
-      vascular: { title: 'Vascular Dementia', icon: '❤️‍🩹', source: 'Stroke Association', topics: ['Stroke history relation', 'Sudden decline patterns', 'Prevention focus strategies', 'Cognitive rehabilitation'] },
+    const dementiaTypes: Record<string, { title: string; Icon: typeof Brain; source: string; topics: string[]; color: string }> = {
+      alzheimers: { title: "Alzheimer's Disease", Icon: Brain, source: "Alzheimer's Association", color: iosColors.purple, topics: ['Early stage coping strategies', 'Mid-stage aggression management', 'Late stage comfort care', 'Memory preservation techniques'] },
+      lewy: { title: 'Lewy Body Dementia', Icon: Eye, source: 'Lewy Body Dementia Association', color: iosColors.blue, topics: ['Hallucination management', 'Medication sensitivity awareness', 'Sleep disturbance patterns', 'Movement symptom care'] },
+      frontotemporal: { title: 'Frontotemporal Dementia', Icon: Brain, source: 'Association for Frontotemporal Degeneration', color: iosColors.orange, topics: ['Personality change support', 'Impulse behavior management', 'Language difficulty coping', 'Social behavior changes'] },
+      vascular: { title: 'Vascular Dementia', Icon: Heart, source: 'Stroke Association', color: iosColors.red, topics: ['Stroke history relation', 'Sudden decline patterns', 'Prevention focus strategies', 'Cognitive rehabilitation'] },
     };
 
     if (educationSub && dementiaTypes[educationSub]) {
@@ -507,8 +508,8 @@ export default function CaregiverSupportEcosystem() {
         <div className="space-y-4">
           <BackButton onClick={() => setEducationSub(null)} />
           <div className="text-center mb-2">
-            <div className="text-[32px] mb-1">{dt.icon}</div>
-            <h3 className="text-[18px] font-bold text-foreground">{dt.title}</h3>
+            <IconBox Icon={dt.Icon} color={dt.color} size={56} iconSize={28} />
+            <h3 className="text-[18px] font-bold text-foreground mt-2">{dt.title}</h3>
             <p className="text-[12px] text-muted-foreground mt-1">Source: {dt.source}</p>
           </div>
           <div className="ios-card-elevated p-4 space-y-2.5">
@@ -530,8 +531,8 @@ export default function CaregiverSupportEcosystem() {
       <div className="space-y-4">
         <BackButton onClick={() => setActiveModule(null)} />
         <div className="text-center mb-2">
-          <div className="text-[28px] mb-1">📚</div>
-          <h3 className="text-[18px] font-bold text-foreground">Education & Support</h3>
+          <div className="mx-auto w-fit"><IconBox Icon={BookOpen} color={iosColors.green} size={56} iconSize={28} /></div>
+          <h3 className="text-[18px] font-bold text-foreground mt-2">Education & Support</h3>
           <p className="text-[14px] text-muted-foreground mt-1">Learn, connect, and find trusted resources</p>
         </div>
 
@@ -543,10 +544,10 @@ export default function CaregiverSupportEcosystem() {
                 key={key}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setEducationSub(key as EducationSub)}
-                className="ios-card-elevated p-4 text-center"
+                className="ios-card-elevated p-4 text-center flex flex-col items-center"
               >
-                <div className="text-[24px] mb-1.5">{dt.icon}</div>
-                <div className="text-[12px] font-bold text-foreground leading-tight">{dt.title}</div>
+                <IconBox Icon={dt.Icon} color={dt.color} />
+                <div className="text-[12px] font-bold text-foreground leading-tight mt-2">{dt.title}</div>
               </motion.button>
             ))}
           </div>

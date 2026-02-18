@@ -1,25 +1,38 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Pill, Activity, Heart, Trash2, Edit3, Check, Clock } from 'lucide-react';
+import { X, Plus, Pill, Activity, Heart, Trash2, Edit3, Check, Clock, Thermometer, Footprints, Moon, Weight, Stethoscope, Utensils, Dumbbell, BookOpen, Music, ShowerHead, Hospital } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import {
   useMedications, useAddMedication, useUpdateMedication, useDeleteMedication,
   useActivities, useAddActivity, useUpdateActivity, useDeleteActivity,
   useVitals, useAddVital, useDeleteVital,
   DbMedication, DbActivity, DbVital,
 } from '@/hooks/useCareData';
+import type { LucideIcon } from 'lucide-react';
 
 type Tab = 'meds' | 'activities' | 'vitals';
 
-const VITAL_TYPES = [
-  { value: 'blood_pressure', label: 'Blood Pressure', unit: 'mmHg', icon: '🩺' },
-  { value: 'heart_rate', label: 'Heart Rate', unit: 'bpm', icon: '❤️' },
-  { value: 'weight', label: 'Weight', unit: 'kg', icon: '⚖️' },
-  { value: 'sleep', label: 'Sleep', unit: 'hours', icon: '😴' },
-  { value: 'steps', label: 'Steps', unit: 'steps', icon: '👟' },
-  { value: 'temperature', label: 'Temperature', unit: '°C', icon: '🌡️' },
+const VITAL_TYPES: { value: string; label: string; unit: string; Icon: LucideIcon; color: string }[] = [
+  { value: 'blood_pressure', label: 'Blood Pressure', unit: 'mmHg', Icon: Stethoscope, color: iosColors.red },
+  { value: 'heart_rate', label: 'Heart Rate', unit: 'bpm', Icon: Heart, color: iosColors.red },
+  { value: 'weight', label: 'Weight', unit: 'kg', Icon: Weight, color: iosColors.blue },
+  { value: 'sleep', label: 'Sleep', unit: 'hours', Icon: Moon, color: iosColors.purple },
+  { value: 'steps', label: 'Steps', unit: 'steps', Icon: Footprints, color: iosColors.green },
+  { value: 'temperature', label: 'Temperature', unit: '°C', Icon: Thermometer, color: iosColors.orange },
 ];
 
-const ACTIVITY_ICONS = ['💊', '🍳', '🚶', '🔔', '💪', '🧘', '🎵', '📖', '🛁', '🏥'];
+const ACTIVITY_ICON_OPTIONS: { Icon: LucideIcon; label: string; color: string }[] = [
+  { Icon: Pill, label: 'Medication', color: iosColors.orange },
+  { Icon: Utensils, label: 'Cooking', color: iosColors.green },
+  { Icon: Footprints, label: 'Walking', color: iosColors.blue },
+  { Icon: Activity, label: 'Activity', color: iosColors.red },
+  { Icon: Dumbbell, label: 'Exercise', color: iosColors.purple },
+  { Icon: Moon, label: 'Rest', color: iosColors.teal },
+  { Icon: Music, label: 'Music', color: iosColors.yellow },
+  { Icon: BookOpen, label: 'Reading', color: iosColors.blue },
+  { Icon: ShowerHead, label: 'Bathing', color: iosColors.teal },
+  { Icon: Hospital, label: 'Hospital', color: iosColors.red },
+];
 
 interface Props {
   open: boolean;
@@ -188,11 +201,13 @@ function MedsPanel() {
         )}
       </AnimatePresence>
 
-      {meds.map(med => (
+      {meds.map((med, idx) => (
         <div key={med.id} className="ios-card-elevated p-4 rounded-2xl flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${med.taken ? 'bg-success/10' : 'bg-primary/10'}`}>
-            {med.taken ? <Check className="w-5 h-5 text-success" /> : <Pill className="w-5 h-5 text-primary" />}
-          </div>
+          {med.taken ? (
+            <IconBox Icon={Check} color={iosColors.green} />
+          ) : (
+            <IconBox Icon={Pill} color={getColor(idx)} />
+          )}
           <div className="flex-1 min-w-0">
             <div className="text-[15px] font-semibold text-foreground">{med.name} {med.dosage}</div>
             <div className="text-[12px] text-muted-foreground flex items-center gap-1">
@@ -222,9 +237,9 @@ function ActivitiesPanel() {
   const deleteActivity = useDeleteActivity();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ description: '', time: '', icon: '📋', completed: false });
+  const [form, setForm] = useState({ description: '', time: '', icon: 'Pill', completed: false });
 
-  const resetForm = () => { setForm({ description: '', time: '', icon: '📋', completed: false }); setShowForm(false); setEditingId(null); };
+  const resetForm = () => { setForm({ description: '', time: '', icon: 'Pill', completed: false }); setShowForm(false); setEditingId(null); };
 
   const handleSubmit = () => {
     if (!form.description.trim() || !form.time.trim()) return;
@@ -279,15 +294,16 @@ function ActivitiesPanel() {
             <div>
               <div className="text-[12px] text-muted-foreground mb-2">Icon</div>
               <div className="flex gap-2 flex-wrap">
-                {ACTIVITY_ICONS.map(icon => (
+                {ACTIVITY_ICON_OPTIONS.map((opt, i) => (
                   <button
-                    key={icon}
-                    onClick={() => setForm(f => ({ ...f, icon }))}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-[20px] transition-all ${
-                      form.icon === icon ? 'bg-primary/15 ring-2 ring-primary' : 'bg-muted'
+                    key={opt.label}
+                    onClick={() => setForm(f => ({ ...f, icon: opt.label }))}
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                      form.icon === opt.label ? 'ring-2 ring-primary' : ''
                     }`}
+                    style={{ backgroundColor: opt.color }}
                   >
-                    {icon}
+                    <opt.Icon className="w-5 h-5 text-white" style={{ strokeWidth: 1.5 }} />
                   </button>
                 ))}
               </div>
@@ -306,11 +322,13 @@ function ActivitiesPanel() {
         )}
       </AnimatePresence>
 
-      {activities.map(act => (
+      {activities.map((act, idx) => (
         <div key={act.id} className="ios-card-elevated p-4 rounded-2xl flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0 ${act.completed ? 'bg-success/10' : 'bg-muted'}`}>
-            {act.icon}
-          </div>
+          {act.completed ? (
+            <IconBox Icon={Check} color={iosColors.green} />
+          ) : (
+            <IconBox Icon={ACTIVITY_ICON_OPTIONS.find(o => o.label === act.icon)?.Icon || Activity} color={getColor(idx)} />
+          )}
           <div className="flex-1 min-w-0">
             <div className={`text-[15px] font-medium ${act.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{act.description}</div>
             <div className="text-[12px] text-muted-foreground">{act.time}</div>
@@ -387,7 +405,7 @@ function VitalsPanel() {
                     form.type === vt.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <span>{vt.icon}</span>
+                  <vt.Icon className="w-3.5 h-3.5" />
                   {vt.label}
                 </button>
               ))}
@@ -426,8 +444,8 @@ function VitalsPanel() {
       <div className="grid grid-cols-2 gap-2.5">
         {latestByType.map(item => (
           <div key={item.value} className="ios-card-elevated p-3.5 rounded-2xl relative group">
-            <div className="text-[20px] mb-1">{item.icon}</div>
-            <div className="text-[18px] font-bold text-foreground">
+            <IconBox Icon={item.Icon} color={item.color} />
+            <div className="text-[18px] font-bold text-foreground mt-2">
               {item.vital ? `${item.vital.value}` : '—'}
             </div>
             <div className="text-[11px] text-muted-foreground">{item.label}</div>

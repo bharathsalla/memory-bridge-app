@@ -99,7 +99,7 @@ export default function TodayScreen() {
             <div className="ios-card overflow-hidden divide-y divide-border/30">
               {pendingMeds.map((med) => (
                 <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
-                  <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
+                   <IconBox Icon={Pill} color={iosColors.orange} />
                   <div className="flex-1 min-w-0">
                     <p className="text-ios-headline text-foreground">{med.name}</p>
                     <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
@@ -117,7 +117,7 @@ export default function TodayScreen() {
             <div className="ios-card overflow-hidden divide-y divide-border/30 opacity-50">
               {takenMeds.map((med) => (
                 <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                  <Check className="w-5 h-5 text-muted-foreground shrink-0" />
+                   <IconBox Icon={Check} color={iosColors.green} />
                   <div className="flex-1">
                     <p className="text-ios-headline text-foreground line-through">{med.name}</p>
                     <p className="text-ios-footnote text-muted-foreground">Taken at {med.taken_at}</p>
@@ -207,7 +207,7 @@ export default function TodayScreen() {
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {pendingMeds.map((med) => (
                   <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                    <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <IconBox Icon={Pill} color={iosColors.orange} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
                       <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
@@ -229,7 +229,7 @@ export default function TodayScreen() {
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {takenMeds.map((med) => (
                   <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 48 }}>
-                    <Check className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <IconBox Icon={Check} color={iosColors.green} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-subheadline text-muted-foreground line-through">{med.name} · {med.dosage}</p>
                       <p className="text-ios-caption2 text-muted-foreground">Taken at {med.taken_at}</p>

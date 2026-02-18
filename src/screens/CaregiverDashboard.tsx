@@ -697,12 +697,12 @@ export default function CaregiverDashboard() {
           <div className="ios-card-elevated divide-y divide-border/60">
             {[
               { text: 'Falls: 1 incident', detail: 'Feb 10 — Resolved', Icon: AlertTriangle },
-              { text: 'Missed Medications: 2', detail: 'Last 30 days', Icon: Pill },
-              { text: 'Confusion Episodes: 4', detail: 'Last 7 days — ↑ from 2', Icon: Brain },
-              { text: 'Alerts Triggered: 5', detail: 'Last 30 days', Icon: Bell },
+              { text: 'Missed Medications: 2', detail: 'Last 30 days', Icon: Pill, color: iosColors.orange },
+              { text: 'Confusion Episodes: 4', detail: 'Last 7 days — up from 2', Icon: Brain, color: iosColors.purple },
+              { text: 'Alerts Triggered: 5', detail: 'Last 30 days', Icon: Bell, color: iosColors.red },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3 p-4">
-                <item.Icon className="w-5 h-5 text-warning shrink-0" />
+                <IconBox Icon={item.Icon} color={item.color} />
                 <div className="flex-1">
                   <div className="text-[14px] font-medium text-foreground">{item.text}</div>
                   <div className="text-[11px] text-muted-foreground">{item.detail}</div>
@@ -722,9 +722,7 @@ export default function CaregiverDashboard() {
               { Icon: Share2, label: 'Share with doctor', desc: 'Secure, HIPAA-compliant link' },
             ].map(opt => (
               <button key={opt.label} className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/30 touch-target">
-                <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                  <opt.Icon className="w-5 h-5 text-primary" />
-                </div>
+                <IconBox Icon={opt.Icon} color={[iosColors.red, iosColors.blue, iosColors.green][['Email to family', 'Download PDF', 'Share with doctor'].indexOf(opt.label)] || iosColors.blue} />
                 <div className="flex-1">
                   <div className="text-[14px] font-medium text-foreground">{opt.label}</div>
                   <div className="text-[11px] text-muted-foreground">{opt.desc}</div>
@@ -750,9 +748,7 @@ export default function CaregiverDashboard() {
       {/* Profile */}
       <div className="px-5 mt-1">
         <div className="ios-card-elevated p-4 flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-            <User className="w-5 h-5 text-muted-foreground" />
-          </div>
+          <IconBox Icon={User} color={iosColors.blue} size={48} iconSize={24} />
           <div className="flex-1 min-w-0">
             <div className="text-[16px] font-bold text-foreground">Sarah Johnson</div>
             <div className="text-[12px] text-muted-foreground">Primary Caregiver (Daughter)</div>
@@ -836,9 +832,7 @@ export default function CaregiverDashboard() {
         <div className="ios-card-elevated divide-y divide-border/60">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
-                <Eye className="w-[18px] h-[18px] text-primary" />
-              </div>
+              <IconBox Icon={Eye} color={iosColors.blue} />
               <div>
                 <div className="text-[14px] font-medium text-foreground">Current Mode</div>
                 <div className="text-[12px] text-muted-foreground">{mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simplified' : 'Essential'}</div>
@@ -848,9 +842,7 @@ export default function CaregiverDashboard() {
           </div>
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
-                <Shield className="w-[18px] h-[18px] text-primary" />
-              </div>
+              <IconBox Icon={Shield} color={iosColors.red} />
               <div>
                 <div className="text-[14px] font-medium text-foreground">Emergency SOS</div>
                 <div className="text-[12px] text-muted-foreground">Primary: Sarah · Auto-call: 30s</div>
@@ -864,15 +856,13 @@ export default function CaregiverDashboard() {
       <div className="px-5 mt-5 mb-6">
         <div className="ios-card-elevated">
           <button className="w-full p-4 text-left flex items-center gap-3 active:bg-muted/30 touch-target">
-            <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
-              <FileText className="w-[18px] h-[18px] text-primary" />
-            </div>
+            <IconBox Icon={FileText} color={iosColors.teal} />
             <span className="text-[14px] font-medium text-foreground flex-1">Help & Support</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
         <button className="w-full ios-card mt-3 p-4 flex items-center gap-3 text-destructive touch-target">
-          <LogOut className="w-5 h-5" />
+          <IconBox Icon={LogOut} color="#FF3B30" />
           <span className="text-[14px] font-medium">Sign Out</span>
         </button>
         <div className="text-center mt-4 text-[11px] text-muted-foreground">MemoCare v1.0.0</div>

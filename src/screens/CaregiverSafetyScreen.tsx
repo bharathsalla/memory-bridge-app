@@ -4,27 +4,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, MapPin, Phone, AlertTriangle, ChevronLeft, ChevronRight,
   Watch, Smartphone, Search, Plus, Navigation, Clock, Circle,
-  Battery, Wifi, Check, X, History, Settings2, Bell
+  Battery, Wifi, Check, X, History, Settings2, Bell, Home
 } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 type SubPage = 'main' | 'connect-device' | 'location-history' | 'set-safe-area' | 'sos-alerts';
 
 const smartwatchBrands = [
-  { name: 'Apple Watch', logo: '⌚', models: ['Series 9', 'SE', 'Ultra 2'] },
-  { name: 'Samsung Galaxy Watch', logo: '⌚', models: ['Watch 6', 'Watch 5 Pro'] },
-  { name: 'Fitbit', logo: '⌚', models: ['Sense 2', 'Versa 4', 'Charge 6'] },
-  { name: 'Garmin', logo: '⌚', models: ['Venu 3', 'Forerunner 265'] },
-  { name: 'Amazfit', logo: '⌚', models: ['GTR 4', 'T-Rex Ultra'] },
-  { name: 'Huawei Watch', logo: '⌚', models: ['GT 4', 'Watch D2'] },
+  { name: 'Apple Watch', models: ['Series 9', 'SE', 'Ultra 2'] },
+  { name: 'Samsung Galaxy Watch', models: ['Watch 6', 'Watch 5 Pro'] },
+  { name: 'Fitbit', models: ['Sense 2', 'Versa 4', 'Charge 6'] },
+  { name: 'Garmin', models: ['Venu 3', 'Forerunner 265'] },
+  { name: 'Amazfit', models: ['GTR 4', 'T-Rex Ultra'] },
+  { name: 'Huawei Watch', models: ['GT 4', 'Watch D2'] },
 ];
 
 const gpsDeviceBrands = [
-  { name: 'Jiobit', logo: '📡', desc: 'Real-time GPS tracker with SIM' },
-  { name: 'AngelSense', logo: '📡', desc: 'GPS tracker for special needs' },
-  { name: 'Tracki', logo: '📡', desc: 'Mini GPS tracker with SIM' },
-  { name: 'Invoxia', logo: '📡', desc: 'GPS tracker, no subscription' },
-  { name: 'Tile Pro', logo: '📡', desc: 'Bluetooth + GPS network' },
-  { name: 'LandAirSea', logo: '📡', desc: 'Real-time GPS with magnet' },
+  { name: 'Jiobit', desc: 'Real-time GPS tracker with SIM' },
+  { name: 'AngelSense', desc: 'GPS tracker for special needs' },
+  { name: 'Tracki', desc: 'Mini GPS tracker with SIM' },
+  { name: 'Invoxia', desc: 'GPS tracker, no subscription' },
+  { name: 'Tile Pro', desc: 'Bluetooth + GPS network' },
+  { name: 'LandAirSea', desc: 'Real-time GPS with magnet' },
 ];
 
 const locationHistory = [
@@ -86,9 +87,7 @@ export default function CaregiverSafetyScreen() {
                 onClick={() => setConnectedWatch(brand.name)}
                 className={`w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left ${connectedWatch === brand.name ? 'ring-2 ring-success' : ''}`}
               >
-                <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center text-[24px] shrink-0">
-                  {brand.logo}
-                </div>
+                <IconBox Icon={Watch} color={iosColors.blue} size={48} iconSize={24} />
                 <div className="flex-1 min-w-0">
                   <div className="text-[15px] font-semibold text-foreground">{brand.name}</div>
                   <div className="text-[12px] text-muted-foreground">{brand.models.join(' · ')}</div>
@@ -118,9 +117,7 @@ export default function CaregiverSafetyScreen() {
                 onClick={() => setConnectedGPS(brand.name)}
                 className={`w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left ${connectedGPS === brand.name ? 'ring-2 ring-success' : ''}`}
               >
-                <div className="w-12 h-12 rounded-2xl bg-accent/8 flex items-center justify-center text-[24px] shrink-0">
-                  {brand.logo}
-                </div>
+                <IconBox Icon={Smartphone} color={iosColors.green} size={48} iconSize={24} />
                 <div className="flex-1 min-w-0">
                   <div className="text-[15px] font-semibold text-foreground">{brand.name}</div>
                   <div className="text-[12px] text-muted-foreground">{brand.desc}</div>
@@ -152,7 +149,7 @@ export default function CaregiverSafetyScreen() {
               onClick={() => setSubPage('main')}
               className="w-full py-4 rounded-2xl bg-success text-success-foreground font-bold text-[16px] text-center"
             >
-              ✓ Device Connected — Continue
+              Device Connected — Continue
             </motion.button>
           </div>
         )}
@@ -325,7 +322,7 @@ export default function CaregiverSafetyScreen() {
                     <AlertTriangle className="w-6 h-6 text-destructive-foreground" />
                   </div>
                   <div>
-                    <div className="text-[18px] font-bold text-destructive">🚨 SOS Triggered!</div>
+                    <div className="text-[18px] font-bold text-destructive">SOS Triggered!</div>
                     <div className="text-[13px] text-foreground">Patient needs immediate help</div>
                   </div>
                 </div>
@@ -374,7 +371,7 @@ export default function CaregiverSafetyScreen() {
                     </div>
                   </div>
                   <span className={`text-[11px] font-semibold ${sos.resolved ? 'text-success' : 'text-destructive'}`}>
-                    {sos.resolved ? 'Resolved' : '⚠ Active'}
+                    {sos.resolved ? 'Resolved' : 'Active'}
                   </span>
                 </div>
               ))}
@@ -433,7 +430,7 @@ export default function CaregiverSafetyScreen() {
                 <AlertTriangle className="w-5 h-5 text-destructive-foreground" />
               </div>
               <div className="flex-1">
-                <div className="text-[16px] font-bold text-destructive">🚨 SOS Active!</div>
+                <div className="text-[16px] font-bold text-destructive">SOS Active!</div>
                 <div className="text-[13px] text-foreground">Tap to view details</div>
               </div>
               <ChevronRight className="w-5 h-5 text-destructive" />
@@ -529,7 +526,7 @@ export default function CaregiverSafetyScreen() {
               <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
                 <span className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-primary" /> Patient</span>
                 <span className="flex items-center gap-1"><div className={`w-2.5 h-2.5 rounded-full ${patientSafe ? 'bg-success' : 'bg-destructive'}`} /> Safe Zone</span>
-                <span className="flex items-center gap-1">🏠 Home</span>
+                <span className="flex items-center gap-1"><Home className="w-3 h-3" /> Home</span>
               </div>
             </div>
           </div>

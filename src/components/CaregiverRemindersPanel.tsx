@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic } from 'lucide-react';
+import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic, Smile, Edit3, ArrowUpFromLine, AlertCircle, UserCheck, ClipboardList } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { useSendCaregiverReminder, useReminderLogs, useLearnedPatterns, useAnalyzePatterns } from '@/hooks/useReminders';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import VoiceReminderFlow from './VoiceReminderFlow';
 
 const reminderTypes = [
-  { value: 'medication', label: '💊 Medication', defaultMessage: 'Time to take your medication' },
-  { value: 'meal', label: '🍽️ Meal Time', defaultMessage: 'Time for a meal' },
-  { value: 'exercise', label: '🚶 Exercise', defaultMessage: 'Time for a walk' },
-  { value: 'check_in', label: '😊 Check-In', defaultMessage: 'How are you feeling?' },
-  { value: 'custom', label: '✏️ Custom', defaultMessage: '' },
+  { value: 'medication', label: 'Medication', Icon: Pill, color: iosColors.orange, defaultMessage: 'Time to take your medication' },
+  { value: 'meal', label: 'Meal Time', Icon: UtensilsCrossed, color: iosColors.green, defaultMessage: 'Time for a meal' },
+  { value: 'exercise', label: 'Exercise', Icon: Footprints, color: iosColors.blue, defaultMessage: 'Time for a walk' },
+  { value: 'check_in', label: 'Check-In', Icon: Smile, color: iosColors.purple, defaultMessage: 'How are you feeling?' },
+  { value: 'custom', label: 'Custom', Icon: Edit3, color: iosColors.teal, defaultMessage: '' },
 ];
 
 export default function CaregiverRemindersPanel() {
@@ -100,12 +101,13 @@ export default function CaregiverRemindersPanel() {
               <button
                 key={t.value}
                 onClick={() => setType(t.value)}
-                className={`px-3 py-2 rounded-xl text-[13px] font-semibold border-2 transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-semibold border-2 transition-all ${
                   type === t.value
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border bg-card text-muted-foreground'
                 }`}
               >
+                <t.Icon className="w-3.5 h-3.5" />
                 {t.label}
               </button>
             ))}
@@ -165,9 +167,14 @@ export default function CaregiverRemindersPanel() {
           ) : (
             <div className="space-y-2">
               {logs.map((log: any, i: number) => {
-                const eventEmoji: Record<string, string> = {
-                  sent: '📤', completed: '✅', snoozed: '⏰', missed: '❌', caregiver_triggered: '👨‍⚕️',
+                const eventIcons: Record<string, { Icon: typeof Send; color: string }> = {
+                  sent: { Icon: ArrowUpFromLine, color: iosColors.blue },
+                  completed: { Icon: Check, color: iosColors.green },
+                  snoozed: { Icon: Clock, color: iosColors.orange },
+                  missed: { Icon: AlertCircle, color: iosColors.red },
+                  caregiver_triggered: { Icon: UserCheck, color: iosColors.purple },
                 };
+                const evt = eventIcons[log.event_type] || { Icon: ClipboardList, color: iosColors.teal };
                 return (
                   <motion.div
                     key={log.id}
@@ -176,7 +183,7 @@ export default function CaregiverRemindersPanel() {
                     transition={{ delay: i * 0.03 }}
                     className="ios-card-elevated flex items-center gap-3 p-3"
                   >
-                    <span className="text-[18px]">{eventEmoji[log.event_type] || '📋'}</span>
+                    <IconBox Icon={evt.Icon} color={evt.color} />
                     <div className="flex-1 min-w-0">
                       <div className="text-[13px] font-semibold text-foreground capitalize">{log.event_type?.replace('_', ' ')}</div>
                       <div className="text-[11px] text-muted-foreground">
