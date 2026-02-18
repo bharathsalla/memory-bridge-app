@@ -3,40 +3,15 @@ import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
 import { motion } from 'framer-motion';
-import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Volume2, Mic } from 'lucide-react';
+import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Sun, Activity } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 
-const medImages: Record<string, string> = {
-  'Lisinopril': 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&h=200&fit=crop&q=80',
-  'Metformin': 'https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=200&h=200&fit=crop&q=80',
-  'Aspirin': 'https://images.unsplash.com/photo-1626716493137-b67fe9501e76?w=200&h=200&fit=crop&q=80',
-  'Donepezil': 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=200&h=200&fit=crop&q=80',
-  'Memantine': 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=200&h=200&fit=crop&q=80',
-  'Amlodipine': 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop&q=80',
-  'Omeprazole': 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=200&h=200&fit=crop&q=80',
-};
-const defaultMedImg = 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&h=200&fit=crop&q=80';
-
-// Medication color accents for visual differentiation
-const medColors: Record<string, string> = {
-  'Lisinopril': 'bg-blue-50 border-blue-200',
-  'Metformin': 'bg-amber-50 border-amber-200',
-  'Aspirin': 'bg-rose-50 border-rose-200',
-  'Donepezil': 'bg-violet-50 border-violet-200',
-  'Memantine': 'bg-emerald-50 border-emerald-200',
-  'Amlodipine': 'bg-cyan-50 border-cyan-200',
-  'Omeprazole': 'bg-orange-50 border-orange-200',
-};
-const defaultMedColor = 'bg-muted/30 border-border';
-
 export default function TodayScreen() {
-  const { mode, patientName, currentMood, toggleCaregiverView, voiceReminders, acknowledgeVoiceReminder } = useApp();
+  const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
@@ -58,6 +33,7 @@ export default function TodayScreen() {
   const takenMeds = medications.filter((m) => m.taken);
   const medProgress = medications.length ? Math.round((takenMeds.length / medications.length) * 100) : 0;
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
   // ── Essential Mode ──
   if (mode === 'essential') {
@@ -65,38 +41,33 @@ export default function TodayScreen() {
       <div className="h-full flex flex-col items-center justify-center px-6 text-center bg-background relative overflow-hidden">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 w-full relative z-10">
           <div>
-            <img src={patientAvatar} alt="Profile" className="w-32 h-32 rounded-full mx-auto mb-5 object-cover ring-4 ring-primary/20 shadow-lg" />
+            <img src={patientAvatar} alt="Profile" className="w-32 h-32 mx-auto mb-5 object-cover ring-4 ring-primary/20 shadow-lg" />
             <h1 className="text-[48px] font-extrabold text-foreground leading-none">{greeting()}</h1>
             <p className="text-[28px] text-primary mt-3 font-bold">{patientName || 'Friend'}</p>
           </div>
 
-          <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 rounded-2xl text-[22px] font-bold gap-3">
+          <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 text-[22px] font-bold gap-3">
             <User className="w-8 h-8" />
             View Me
           </Button>
 
           {pendingMeds.length > 0 ? (
-            <Card className="border border-primary/20 shadow-lg overflow-hidden">
-              <CardContent className="p-8 flex flex-col items-center gap-4">
-                <img src={medImages[pendingMeds[0].name] || defaultMedImg} alt={pendingMeds[0].name}
-                  className="w-24 h-24 rounded-2xl object-cover border-2 border-border" onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
-                <h2 className="text-[28px] font-extrabold text-foreground">Take Your Medicine</h2>
-                <p className="text-[20px] text-muted-foreground font-semibold">{pendingMeds[0].name} {pendingMeds[0].dosage}</p>
-                <Button onClick={() => markMedicationTaken(pendingMeds[0].id)} size="lg" className="w-full h-16 rounded-2xl text-[20px] font-bold">
-                  Mark as Taken
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="border border-primary/20 shadow-lg overflow-hidden bg-card p-8 flex flex-col items-center gap-4">
+              <Pill className="w-16 h-16 text-primary" />
+              <h2 className="text-[28px] font-extrabold text-foreground">Take Your Medicine</h2>
+              <p className="text-[20px] text-muted-foreground font-semibold">{pendingMeds[0].name} {pendingMeds[0].dosage}</p>
+              <Button onClick={() => markMedicationTaken(pendingMeds[0].id)} size="lg" className="w-full h-16 text-[20px] font-bold">
+                Mark as Taken
+              </Button>
+            </div>
           ) : (
-            <Card className="border border-success/20 bg-success/5">
-              <CardContent className="p-8 flex flex-col items-center gap-3">
-                <Check className="w-16 h-16 text-success" />
-                <span className="text-[28px] font-extrabold text-success">All done for now</span>
-              </CardContent>
-            </Card>
+            <div className="border border-success/20 bg-success/5 p-8 flex flex-col items-center gap-3">
+              <Check className="w-16 h-16 text-success" />
+              <span className="text-[28px] font-extrabold text-success">All done for now</span>
+            </div>
           )}
 
-          <Button variant="destructive" size="lg" className="w-full h-[72px] rounded-2xl text-[26px] font-extrabold sos-pulse">
+          <Button variant="destructive" size="lg" className="w-full h-[72px] text-[26px] font-extrabold sos-pulse">
             Emergency Call
           </Button>
         </motion.div>
@@ -110,10 +81,9 @@ export default function TodayScreen() {
     return (
       <div className="h-full overflow-y-auto bg-background pb-6 relative">
         <div className="relative z-10">
-          {/* Header */}
-          <div className="bg-primary px-5 py-6 rounded-b-2xl">
+          <div className="bg-primary px-5 py-6">
             <div className="flex items-center gap-4">
-              <img src={patientAvatar} alt="Profile" className="w-16 h-16 rounded-2xl object-cover shrink-0 ring-2 ring-primary-foreground/20" />
+              <img src={patientAvatar} alt="Profile" className="w-16 h-16 object-cover shrink-0 ring-2 ring-primary-foreground/20" />
               <div>
                 <p className="text-[16px] text-primary-foreground/80 font-semibold">{greeting()}</p>
                 <h1 className="text-[28px] font-bold text-primary-foreground leading-tight">{patientName || 'Friend'}</h1>
@@ -122,54 +92,54 @@ export default function TodayScreen() {
           </div>
 
           <div className="px-5 mt-5 space-y-4">
-            <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 rounded-2xl text-[20px] font-bold gap-3">
+            <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 text-[20px] font-bold gap-3">
               <User className="w-7 h-7" />
               View Me
             </Button>
 
             {pendingMeds.map((med) => (
-              <Card key={med.id} className="border border-border shadow-sm">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <img src={medImages[med.name] || defaultMedImg} alt={med.name}
-                    className="w-18 h-18 rounded-2xl object-cover shrink-0 border border-border" style={{ width: 72, height: 72 }}
-                    onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
+              <div key={med.id} className="border border-border shadow-sm bg-card">
+                <div className="p-5 flex items-center gap-4">
+                  <div className="w-14 h-14 bg-primary/8 flex items-center justify-center shrink-0">
+                    <Pill className="w-7 h-7 text-primary" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[20px] font-bold text-foreground">{med.name}</p>
                     <p className="text-[16px] text-muted-foreground mt-1 font-medium">{med.dosage} · {med.time}</p>
                   </div>
-                  <Button onClick={() => markMedicationTaken(med.id)} size="lg" className="h-12 px-6 rounded-xl text-[17px] font-bold shrink-0">
+                  <Button onClick={() => markMedicationTaken(med.id)} size="lg" className="h-12 px-6 text-[17px] font-bold shrink-0">
                     Take
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
 
             {takenMeds.map((med) => (
-              <Card key={med.id} className="border border-border opacity-50">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <img src={medImages[med.name] || defaultMedImg} alt={med.name}
-                    className="w-18 h-18 rounded-2xl object-cover shrink-0 grayscale" style={{ width: 72, height: 72 }}
-                    onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
+              <div key={med.id} className="border border-border opacity-50 bg-card">
+                <div className="p-5 flex items-center gap-4">
+                  <div className="w-14 h-14 bg-muted/50 flex items-center justify-center shrink-0">
+                    <Pill className="w-7 h-7 text-muted-foreground" />
+                  </div>
                   <div className="flex-1">
                     <p className="text-[20px] font-bold text-foreground">{med.name}</p>
                     <p className="text-[16px] text-muted-foreground font-medium">Taken at {med.taken_at}</p>
                   </div>
                   <Check className="w-7 h-7 text-success shrink-0" />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
 
-            <Card className="border border-border">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
+            <div className="border border-border bg-card">
+              <div className="p-5 flex items-center gap-4">
+                <div className="w-14 h-14 bg-primary/8 flex items-center justify-center shrink-0">
                   <span className="text-[32px]">{currentMood.emoji}</span>
                 </div>
                 <div>
                   <p className="text-[20px] font-bold text-foreground">Feeling {currentMood.label}</p>
                   <p className="text-[16px] text-muted-foreground font-medium">{currentMood.time}</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
         <PatientIDCard open={showIDCard} onClose={() => setShowIDCard(false)} />
@@ -177,176 +147,106 @@ export default function TodayScreen() {
     );
   }
 
-  // ── Full Mode ──
+  // ── Full Mode — Redesigned ──
   return (
     <div className="h-full relative">
       <div className="h-full overflow-y-auto bg-background pb-24 relative">
         <div className="relative z-10">
-          {/* Green header */}
-          <div className="bg-primary px-5 py-5 rounded-b-2xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <img src={patientAvatar} alt="Profile" className="w-14 h-14 rounded-2xl object-cover shrink-0 ring-2 ring-primary-foreground/20 shadow-md" />
+          {/* Compact Header */}
+          <div className="bg-primary px-5 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 ring-2 ring-primary-foreground/20 shadow-md" />
                 <div>
-                  <p className="text-[15px] text-primary-foreground/70 font-semibold">{greeting()}</p>
-                  <h1 className="text-[24px] font-bold text-primary-foreground leading-tight">{patientName || 'Friend'}</h1>
-                  <p className="text-[13px] text-primary-foreground/60 mt-0.5">{dateStr}</p>
+                  <p className="text-[13px] text-primary-foreground/70 font-semibold">{greeting()}</p>
+                  <h1 className="text-[20px] font-bold text-primary-foreground leading-tight">{patientName || 'Friend'}</h1>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2">
                 <ModeBadge />
-                <button onClick={toggleCaregiverView} className="w-10 h-10 rounded-xl bg-primary-foreground/15 flex items-center justify-center touch-target" aria-label="Open caregiver view">
-                  <User className="w-5 h-5 text-primary-foreground" />
+                <button onClick={toggleCaregiverView} className="w-9 h-9 bg-primary-foreground/15 flex items-center justify-center touch-target" aria-label="Open caregiver view">
+                  <User className="w-4.5 h-4.5 text-primary-foreground" />
                 </button>
               </div>
             </div>
+            {/* Date & Time strip */}
+            <div className="flex items-center gap-3 mt-3 text-primary-foreground/60">
+              <span className="text-[13px] font-medium">{dateStr}</span>
+              <span className="text-[13px] font-bold text-primary-foreground/80">·</span>
+              <span className="text-[13px] font-medium">{timeStr}</span>
+            </div>
           </div>
 
-          {/* Quick Stats Grid */}
-          <div className="px-5 mt-5">
-            <div className="grid grid-cols-2 gap-3">
+          {/* Quick Stats — Compact horizontal strip */}
+          <div className="px-4 mt-4">
+            <div className="flex gap-2">
               {[
-                { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, iconColor: 'text-primary' },
-                { label: 'Mood', value: currentMood.label, extra: currentMood.emoji, Icon: null, iconColor: '' },
-                { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, iconColor: 'text-primary' },
-                { label: 'Meds', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, iconColor: 'text-primary' },
+                { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints },
+                { label: 'Mood', value: currentMood.emoji, Icon: null },
+                { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon },
+                { label: 'Meds', value: `${takenMeds.length}/${medications.length}`, Icon: Pill },
               ].map((stat) => (
-                <Card key={stat.label} className="border border-border shadow-sm">
-                  <CardContent className="p-4 flex flex-col items-center gap-2 py-5">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center">
-                      {stat.Icon ? <stat.Icon className={`w-6 h-6 ${stat.iconColor}`} /> : <span className="text-[24px] leading-none">{stat.extra}</span>}
-                    </div>
-                    <span className="text-[20px] font-bold text-foreground">{stat.value}</span>
-                    <span className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider">{stat.label}</span>
-                  </CardContent>
-                </Card>
+                <div key={stat.label} className="flex-1 bg-card border border-border p-3 flex flex-col items-center gap-1">
+                  {stat.Icon ? (
+                    <stat.Icon className="w-4 h-4 text-primary" />
+                  ) : (
+                    <span className="text-[16px] leading-none">{stat.value}</span>
+                  )}
+                  {stat.Icon && <span className="text-[15px] font-bold text-foreground">{stat.value}</span>}
+                  <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{stat.label}</span>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* View Me */}
-          <div className="px-5 mt-5">
-            <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-14 rounded-2xl text-[18px] font-bold gap-3">
-              <User className="w-6 h-6" />
-              View Me — My ID & Contacts
-              <ChevronRight className="w-5 h-5 opacity-60 ml-auto" />
-            </Button>
+          {/* View Me — compact */}
+          <div className="px-4 mt-3">
+            <button onClick={() => setShowIDCard(true)} className="w-full flex items-center gap-3 p-3 bg-primary/8 border border-primary/15 active:bg-primary/12 transition-colors touch-target">
+              <div className="w-9 h-9 bg-primary/15 flex items-center justify-center shrink-0">
+                <User className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-[15px] font-bold text-foreground flex-1 text-left">My ID & Emergency Contacts</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
+            </button>
           </div>
 
-          {/* Medications — Bigger cards */}
-
-          {/* Medications — Bigger cards */}
-          <div className="px-5 mt-6">
+          {/* Medications — Clean list style */}
+          <div className="px-4 mt-5">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-[20px] font-bold text-foreground">Medications</h2>
-              <Badge variant="secondary" className="text-[14px] font-semibold bg-primary/10 text-primary border-primary/20 px-3 py-1">
+              <h2 className="text-[17px] font-bold text-foreground">Medications</h2>
+              <Badge variant="secondary" className="text-[12px] font-semibold bg-primary/10 text-primary border-primary/20 px-2 py-0.5">
                 {takenMeds.length}/{medications.length}
               </Badge>
             </div>
-            <Progress value={medProgress} className="h-2.5 mb-4 rounded-full" />
+            <Progress value={medProgress} className="h-1.5 mb-3" />
 
+            {/* Pending medications */}
             {pendingMeds.length > 0 && (
-              <div className="space-y-4 mb-4">
+              <div className="space-y-2 mb-3">
                 {pendingMeds.map((med, i) => (
-                  <motion.div key={med.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                    <Card className={`border-2 shadow-lg overflow-hidden ${medColors[med.name] || defaultMedColor}`}>
-                      <CardContent className="p-0">
-                        <div className="p-5 flex items-start gap-5">
-                          <div className="relative shrink-0">
-                            <img src={medImages[med.name] || defaultMedImg} alt={med.name}
-                              className="w-[88px] h-[88px] rounded-2xl object-cover shadow-md ring-2 ring-white/60"
-                              onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
-                            <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-warning flex items-center justify-center shadow-md ring-2 ring-white">
-                              <Clock className="w-4 h-4 text-warning-foreground" />
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0 pt-0.5">
-                            <p className="text-[20px] font-extrabold text-foreground leading-tight">{med.name}</p>
-                            <p className="text-[16px] text-muted-foreground font-bold mt-1.5">{med.dosage}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge variant="outline" className="text-[13px] font-semibold border-muted-foreground/20 text-muted-foreground gap-1 px-2.5 py-0.5">
-                                <Clock className="w-3 h-3" /> {med.time}
-                              </Badge>
-                            </div>
-                            {med.instructions && (
-                              <p className="text-[14px] text-muted-foreground/70 mt-2 italic leading-snug">{med.instructions}</p>
-                            )}
-                          </div>
+                  <motion.div key={med.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                    <div className="bg-card border border-border shadow-sm overflow-hidden">
+                      <div className="p-3.5 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-warning/10 flex items-center justify-center shrink-0">
+                          <Pill className="w-5 h-5 text-warning" />
                         </div>
-                        <div className="px-5 pb-5">
-                          <Button onClick={() => markMedicationTaken(med.id)} size="lg" className="w-full h-14 rounded-2xl text-[18px] font-bold gap-2 shadow-sm">
-                            <Check className="w-6 h-6" />
-                            Mark as Taken
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {/* Voice Reminders as Medication Cards */}
-            {voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed').length > 0 && (
-              <div className="space-y-4 mb-4">
-                <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                  <Mic className="w-3.5 h-3.5" /> Voice Reminders
-                </p>
-                {voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed').map((vr, i) => (
-                  <motion.div key={vr.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                    <Card className="border-2 shadow-lg overflow-hidden bg-violet-50 border-violet-200">
-                      <CardContent className="p-0">
-                        <div className="p-5 flex items-start gap-5">
-                          <div className="relative shrink-0">
-                            <div className="w-[88px] h-[88px] rounded-2xl bg-violet-100 flex items-center justify-center shadow-md ring-2 ring-white/60">
-                              <Volume2 className="w-10 h-10 text-violet-500" />
-                            </div>
-                            <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-md ring-2 ring-white">
-                              <Mic className="w-4 h-4 text-white" />
-                            </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[15px] font-bold text-foreground leading-tight">{med.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[13px] text-muted-foreground font-medium">{med.dosage}</span>
+                            <span className="text-[13px] text-muted-foreground/40">·</span>
+                            <span className="text-[13px] text-muted-foreground font-medium flex items-center gap-0.5">
+                              <Clock className="w-3 h-3" /> {med.time}
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0 pt-0.5">
-                            <p className="text-[20px] font-extrabold text-foreground leading-tight">{vr.medication}</p>
-                            <p className="text-[16px] text-muted-foreground font-bold mt-1.5">From {vr.caregiverName}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge variant="outline" className="text-[13px] font-semibold border-violet-300 text-violet-600 gap-1 px-2.5 py-0.5">
-                                <Clock className="w-3 h-3" /> {vr.time}
-                              </Badge>
-                              <Badge variant="outline" className="text-[13px] font-semibold border-violet-300 text-violet-600 gap-1 px-2.5 py-0.5">
-                                {vr.frequency}
-                              </Badge>
-                            </div>
-                            <p className="text-[14px] text-muted-foreground/70 mt-2 italic leading-snug">"{vr.patientMessage}"</p>
-                          </div>
+                          {med.instructions && (
+                            <p className="text-[11px] text-muted-foreground/60 mt-1 italic">{med.instructions}</p>
+                          )}
                         </div>
-                        <div className="px-5 pb-5">
-                          <Button onClick={() => acknowledgeVoiceReminder(vr.id)} size="lg" className="w-full h-14 rounded-2xl text-[18px] font-bold gap-2 shadow-sm bg-violet-600 hover:bg-violet-700 text-white">
-                            <Check className="w-6 h-6" />
-                            Mark as Taken
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {/* Taken voice reminders */}
-            {voiceReminders.filter(r => r.status === 'taken').length > 0 && (
-              <div className="space-y-2 mb-4">
-                {voiceReminders.filter(r => r.status === 'taken').map((vr, i) => (
-                  <motion.div key={vr.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
-                      <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center grayscale opacity-50 shrink-0">
-                        <Volume2 className="w-6 h-6 text-violet-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[15px] font-semibold text-muted-foreground line-through">{vr.medication} · {vr.time}</p>
-                        <p className="text-[13px] text-muted-foreground/60 mt-0.5">Voice reminder from {vr.caregiverName}</p>
-                      </div>
-                      <div className="w-9 h-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-                        <Check className="w-5 h-5 text-success" />
+                        <Button onClick={() => markMedicationTaken(med.id)} size="sm" className="h-10 px-4 text-[13px] font-bold shrink-0 gap-1">
+                          <Check className="w-4 h-4" />
+                          Take
+                        </Button>
                       </div>
                     </div>
                   </motion.div>
@@ -354,72 +254,59 @@ export default function TodayScreen() {
               </div>
             )}
 
+            {/* Taken medications — compact */}
             {takenMeds.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider mb-2">Completed</p>
-                {takenMeds.map((med, i) => (
-                  <motion.div key={med.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
-                      <img src={medImages[med.name] || defaultMedImg} alt={med.name}
-                        className="w-12 h-12 rounded-xl object-cover grayscale opacity-50 shrink-0"
-                        onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[15px] font-semibold text-muted-foreground line-through">{med.name} · {med.dosage}</p>
-                        <p className="text-[13px] text-muted-foreground/60 mt-0.5">Taken at {med.taken_at}</p>
-                      </div>
-                      <div className="w-9 h-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-                        <Check className="w-5 h-5 text-success" />
-                      </div>
+              <div className="space-y-1.5">
+                <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider mb-1">Completed</p>
+                {takenMeds.map((med) => (
+                  <div key={med.id} className="flex items-center gap-3 p-2.5 bg-muted/20 border border-border/40">
+                    <div className="w-8 h-8 bg-success/10 flex items-center justify-center shrink-0">
+                      <Check className="w-4 h-4 text-success" />
                     </div>
-                  </motion.div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-muted-foreground line-through">{med.name} · {med.dosage}</p>
+                      <p className="text-[11px] text-muted-foreground/50 mt-0.5">Taken at {med.taken_at}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
 
             {medications.length === 0 && (
-              <Card className="border border-border">
-                <CardContent className="p-8 flex flex-col items-center gap-2">
-                  <Pill className="w-10 h-10 text-muted-foreground/30" />
-                  <p className="text-[16px] text-muted-foreground font-medium">No medications scheduled</p>
-                </CardContent>
-              </Card>
+              <div className="border border-border bg-card p-6 flex flex-col items-center gap-2">
+                <Pill className="w-8 h-8 text-muted-foreground/30" />
+                <p className="text-[14px] text-muted-foreground font-medium">No medications scheduled</p>
+              </div>
             )}
           </div>
 
-          {/* Today's Activity — Revamped Timeline */}
-          <div className="px-5 mt-6 mb-6">
-            <h2 className="text-[20px] font-bold text-foreground mb-4">Today's Activity</h2>
+          {/* Today's Activity — Compact Timeline */}
+          <div className="px-4 mt-5 mb-6">
+            <h2 className="text-[17px] font-bold text-foreground mb-3">Today's Activity</h2>
             <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-[22px] top-4 bottom-4 w-[2px] bg-border" />
-              <div className="space-y-1">
+              <div className="absolute left-[17px] top-3 bottom-3 w-[2px] bg-border" />
+              <div className="space-y-0.5">
                 {activities.map((item, i) => (
-                  <motion.div key={item.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
-                    <div className="flex items-start gap-4 py-3 relative">
-                      <div className={`relative z-10 w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-[20px] border-2 shadow-sm ${
+                  <motion.div key={item.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
+                    <div className="flex items-center gap-3 py-2.5 relative">
+                      <div className={`relative z-10 w-9 h-9 flex items-center justify-center shrink-0 text-[16px] border-2 shadow-sm ${
                         item.completed
                           ? 'bg-success/10 border-success/30'
                           : 'bg-card border-border'
                       }`}>
-                        {item.completed ? <Check className="w-5 h-5 text-success" /> : <span>{item.icon}</span>}
+                        {item.completed ? <Check className="w-4 h-4 text-success" /> : <span className="text-[14px]">{item.icon}</span>}
                       </div>
-                      <Card className={`flex-1 border shadow-sm ${item.completed ? 'border-success/20 bg-success/[0.03]' : 'border-border'}`}>
-                        <CardContent className="p-3.5">
-                          <div className="flex items-center justify-between">
-                            <p className={`text-[16px] font-semibold leading-snug ${item.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
-                              {item.description}
-                            </p>
-                            {item.completed && (
-                              <Badge variant="secondary" className="text-[11px] font-bold bg-success/10 text-success border-success/20 ml-2 shrink-0">
-                                Done
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-[13px] text-muted-foreground mt-1 font-medium flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {item.time}
-                          </p>
-                        </CardContent>
-                      </Card>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[14px] font-semibold leading-snug ${item.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {item.description}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground/60 mt-0.5 font-medium">{item.time}</p>
+                      </div>
+                      {item.completed && (
+                        <Badge variant="secondary" className="text-[10px] font-bold bg-success/10 text-success border-success/20 shrink-0 px-1.5 py-0">
+                          ✓
+                        </Badge>
+                      )}
                     </div>
                   </motion.div>
                 ))}

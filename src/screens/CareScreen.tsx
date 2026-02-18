@@ -85,8 +85,8 @@ export default function CareScreen() {
       </div>
 
       {/* Tabs — using shadcn Tabs with proper spacing */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <div className="px-5 pt-4 pb-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="px-5 pt-4 pb-2 shrink-0">
           <div className="overflow-x-auto">
             <TabsList className="h-12 rounded-xl bg-muted/50 p-1 inline-flex min-w-max w-full">
               <TabsTrigger value="chat" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
@@ -176,7 +176,7 @@ export default function CareScreen() {
         </TabsContent>
 
         {/* Health - Crisis Prevention */}
-        <TabsContent value="health" className="flex-1 flex flex-col min-h-0 mt-0 overflow-y-auto">
+        <TabsContent value="health" className="flex-1 flex flex-col min-h-0 mt-0 overflow-y-auto pb-4">
           <CrisisPreventionEngine />
         </TabsContent>
 
