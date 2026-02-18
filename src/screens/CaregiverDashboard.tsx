@@ -55,25 +55,25 @@ export default function CaregiverDashboard() {
 
         {/* Patient Status — Enhanced Profile Card */}
         <div className="px-5 mt-1">
-          <div className="ios-card overflow-hidden" style={{ background: 'hsl(var(--success) / 0.06)' }}>
-            <div className="flex items-center gap-3 px-4 py-4" style={{ minHeight: 76 }}>
+          <div className="ios-card overflow-hidden bg-primary">
+            <div className="flex items-center gap-3 px-4 py-5" style={{ minHeight: 84 }}>
               <div className="relative shrink-0">
-                <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover ring-2 ring-success/20" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
+                <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover ring-2 ring-white/30" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-primary" style={{ backgroundColor: '#34C759' }} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-ios-headline font-semibold text-foreground">Margaret Smith</div>
-                <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
+                <div className="text-ios-headline font-semibold text-primary-foreground">Margaret Smith</div>
+                <div className="text-ios-footnote text-primary-foreground/70">Active 2 min ago</div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-primary-foreground">
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
-                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5">
+                  <span className="text-[11px] text-primary-foreground/70 font-medium flex items-center gap-0.5">
                     <MapPin className="w-3 h-3" /> Home
                   </span>
                 </div>
               </div>
-              <Shield className="w-5 h-5 text-muted-foreground shrink-0" />
+              <Shield className="w-5 h-5 text-primary-foreground/60 shrink-0" />
             </div>
           </div>
 
@@ -101,7 +101,7 @@ export default function CaregiverDashboard() {
                   <AlertTriangle className="w-5 h-5 text-destructive-foreground" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-[16px] font-bold text-destructive">🚨 SOS Triggered!</div>
+                  <div className="text-[16px] font-bold text-destructive">SOS Triggered!</div>
                   <div className="text-[12px] text-foreground flex items-center gap-1 mt-0.5">
                     <MapPin className="w-3 h-3" /> {sosTriggeredLocation || patientLocation}
                   </div>

@@ -141,45 +141,47 @@ export default function TodayScreen() {
             <p className="text-ios-footnote text-muted-foreground font-medium">{dateStr}</p>
             <div className="flex items-center gap-2">
               <ModeBadge />
-              <button onClick={toggleCaregiverView} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target" aria-label="Open caregiver view">
-                <User className="w-4 h-4 text-muted-foreground" />
+              <button onClick={toggleCaregiverView} className="w-9 h-9 rounded-full overflow-hidden touch-target" aria-label="Open caregiver view">
+                <img src={patientAvatar} alt="Profile" className="w-9 h-9 object-cover rounded-full" />
               </button>
             </div>
           </div>
           <h1 className="text-ios-large-title text-foreground">{greeting()}</h1>
         </div>
 
-        {/* Profile Row — Green tint */}
+        {/* Profile Row — Primary Green */}
         <div className="px-4 mt-3">
-          <div className="rounded-2xl overflow-hidden" style={{ background: 'hsl(var(--success) / 0.08)' }}>
+          <div className="rounded-2xl overflow-hidden bg-primary">
             <button
               onClick={() => setShowIDCard(true)}
               className="w-full flex items-center gap-3 px-4 text-left touch-target"
               style={{ minHeight: 64 }}
             >
-              <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full ring-2 ring-success/20" />
+              <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full ring-2 ring-white/30" />
               <div className="flex-1">
-                <p className="text-ios-callout font-semibold text-foreground">{patientName || 'Friend'}</p>
-                <p className="text-ios-footnote text-muted-foreground">My ID & Emergency Contacts</p>
+                <p className="text-ios-callout font-semibold text-primary-foreground">{patientName || 'Friend'}</p>
+                <p className="text-ios-footnote text-primary-foreground/70">My ID & Emergency Contacts</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
+              <ChevronRight className="w-5 h-5 text-primary-foreground/40" />
             </button>
           </div>
         </div>
 
-        {/* Health Summary — 2x2 Card Grid */}
+        {/* Health Summary — 2x2 Card Grid with iOS Colors */}
         <div className="mt-4">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
           <div className="mx-4 grid grid-cols-2 gap-2.5">
             {[
-              { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Goal: 5,000' },
-              { label: 'Sleep', value: `${sleepHours} hrs`, Icon: Moon, detail: 'Last night' },
-              { label: 'Mood', value: currentMood.label, Icon: Heart, detail: currentMood.time },
-              { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}%` },
+              { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Goal: 5,000', color: '#34C759', bgColor: 'rgba(52, 199, 89, 0.12)' },
+              { label: 'Sleep', value: `${sleepHours} hrs`, Icon: Moon, detail: 'Last night', color: '#AF52DE', bgColor: 'rgba(175, 82, 222, 0.12)' },
+              { label: 'Mood', value: currentMood.label, Icon: Heart, detail: currentMood.time, color: '#FF3B30', bgColor: 'rgba(255, 59, 48, 0.12)' },
+              { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}%`, color: '#FF9500', bgColor: 'rgba(255, 149, 0, 0.12)' },
             ].map((stat) => (
               <div key={stat.label} className="ios-card p-3.5 flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <stat.Icon className="w-5 h-5 text-muted-foreground" />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.bgColor }}>
+                    <stat.Icon className="w-4.5 h-4.5" style={{ width: 18, height: 18, color: stat.color }} />
+                  </div>
                   <span className="text-ios-footnote text-muted-foreground">{stat.detail}</span>
                 </div>
                 <p className="text-[22px] font-bold text-foreground leading-tight">{stat.value}</p>
