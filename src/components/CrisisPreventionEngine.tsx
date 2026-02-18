@@ -254,7 +254,7 @@ export default function CrisisPreventionEngine() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg">
       {/* Header */}
-      <div className="pt-3 pb-2 px-[12px] py-[13px]">
+      <div className="pt-3 pb-1 px-[12px] py-[13px]">
         <div className="flex items-center gap-3 mb-3">
           <IconBox Icon={Shield} color={iosColors.red} />
           <div className="flex-1">
@@ -271,7 +271,7 @@ export default function CrisisPreventionEngine() {
         </div>
 
         {/* iOS Segmented Tab Bar */}
-        <div className="pb-1">
+        <div className="pb-0">
           <SegmentedControl
             value={activeTab}
             onChange={(v) => setActiveTab(v as CrisisTab)}
