@@ -82,7 +82,9 @@ export default function CareScreen() {
             onClick={() => setViewModalOpen(true)}
             className="flex items-center gap-1.5 h-9 px-3 rounded-full text-ios-footnote font-semibold bg-primary text-primary-foreground"
           >
-            <img src={patientAvatar} alt="Profile" className="w-[22px] h-[22px] rounded-full object-cover ring-1 ring-white/30" />
+            <div className="w-[22px] h-[22px] rounded-[5px] bg-white/20 flex items-center justify-center">
+              <Users className="w-3.5 h-3.5 text-primary-foreground" style={{ strokeWidth: 1.5 }} />
+            </div>
             Dashboard
           </button>
         </div>
@@ -288,13 +290,13 @@ export default function CareScreen() {
               className="bg-card rounded-2xl w-full max-w-sm overflow-hidden border border-border"
               onClick={e => e.stopPropagation()}
             >
-              <div className="p-5 pb-3 pt-5 flex items-center justify-between">
+              <div className="p-5 pb-3 flex items-center justify-between">
                 <h3 className="text-ios-title2 text-foreground">Choose Dashboard View</h3>
                 <button onClick={() => setViewModalOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center touch-target">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
-              <div className="divide-y divide-border/30 pb-3">
+              <div className="divide-y divide-border/30">
                 {careViewOptions.map(view => (
                   <button
                     key={view.id}

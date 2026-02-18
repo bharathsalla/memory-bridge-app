@@ -74,7 +74,7 @@ export default function RemindersScreen() {
           <p className="text-ios-subheadline text-muted-foreground mt-1">{scheduled.length} scheduled</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target">
-          <Plus className="w-5 h-5 text-foreground" />
+          <Plus className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
 

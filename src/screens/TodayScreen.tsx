@@ -136,36 +136,34 @@ export default function TodayScreen() {
   return (
     <div className="h-full relative">
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* iOS Large Navigation Title — with bg card */}
+        {/* iOS Large Navigation Title */}
         <div className="px-4 pt-4 pb-1">
-          <div className="ios-card p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-ios-footnote text-muted-foreground font-medium">{dateStr}</p>
-              <div className="flex items-center gap-2">
-                <ModeBadge />
-                <button onClick={toggleCaregiverView} className="w-9 h-9 rounded-full overflow-hidden touch-target" aria-label="Open caregiver view">
-                  <img src={patientAvatar} alt="Profile" className="w-9 h-9 object-cover rounded-full" />
-                </button>
-              </div>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-ios-footnote text-muted-foreground font-medium">{dateStr}</p>
+            <div className="flex items-center gap-2">
+              <ModeBadge />
+              <button onClick={toggleCaregiverView} className="w-9 h-9 rounded-full overflow-hidden touch-target" aria-label="Open caregiver view">
+                <img src={patientAvatar} alt="Profile" className="w-9 h-9 object-cover rounded-full" />
+              </button>
             </div>
-            <h1 className="text-ios-large-title text-foreground">{greeting()}, {patientName || 'Friend'}</h1>
           </div>
+          <h1 className="text-ios-large-title text-foreground">{greeting()}</h1>
         </div>
 
-        {/* Profile Row — iOS Card */}
+        {/* Profile Row — Primary Green */}
         <div className="px-4 mt-3">
-          <div className="ios-card overflow-hidden">
+          <div className="rounded-2xl overflow-hidden bg-primary">
             <button
               onClick={() => setShowIDCard(true)}
               className="w-full flex items-center gap-3 px-4 text-left touch-target"
               style={{ minHeight: 64 }}
             >
-              <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full" />
+              <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full ring-2 ring-white/30" />
               <div className="flex-1">
-                <p className="text-ios-callout font-semibold text-foreground">{patientName || 'Friend'}</p>
-                <p className="text-ios-footnote text-muted-foreground">My ID & Emergency Contacts</p>
+                <p className="text-ios-callout font-semibold text-primary-foreground">{patientName || 'Friend'}</p>
+                <p className="text-ios-footnote text-primary-foreground/70">My ID & Emergency Contacts</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
+              <ChevronRight className="w-5 h-5 text-primary-foreground/40" />
             </button>
           </div>
         </div>

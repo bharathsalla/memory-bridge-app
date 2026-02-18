@@ -285,31 +285,22 @@ export default function CaregiverDashboard() {
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header */}
         <div className="px-5 pt-4 pb-2">
-          <div className="ios-card p-4">
-            <h1 className="text-ios-large-title text-foreground">Good Morning, Sarah</h1>
-            <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
-          </div>
+          <h1 className="text-ios-large-title text-foreground">Vitals</h1>
+          <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
 
         {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
 
-        {/* Patient Mode Switch — iOS card style */}
+        {/* Patient Mode Switch Button — below content */}
         <div className="px-5 py-4">
-          <div className="ios-card overflow-hidden">
-            <button
-              onClick={() => setModeModalOpen(true)}
-              className="w-full flex items-center gap-3 px-4 text-left touch-target"
-              style={{ minHeight: 60 }}
-            >
-              <IconBox Icon={Settings2} color={iosColors.blue} />
-              <div className="flex-1">
-                <p className="text-ios-callout font-medium text-foreground">Patient View</p>
-                <p className="text-ios-footnote text-muted-foreground">{mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
-            </button>
-          </div>
+          <Button
+            className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-sm"
+            onClick={() => setModeModalOpen(true)}
+          >
+            <Settings2 className="w-5 h-5 mr-2" />
+            Patient View: {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
+          </Button>
         </div>
 
         {/* Mode Modal */}
@@ -378,26 +369,18 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-4 pb-2 flex items-center justify-between">
-          <div>
-            <h1 className="text-ios-large-title text-foreground">Tasks</h1>
-            <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
-          </div>
-          <button className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target">
-            <Plus className="w-5 h-5 text-foreground" />
-          </button>
+        <div className="px-5 pt-4 pb-2">
+          <h1 className="text-ios-large-title text-foreground">Tasks</h1>
+          <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
         </div>
         <div className="px-5 mt-3">
-          <SegmentedControl
-            value="all"
-            onChange={() => {}}
-            items={[
-              { value: 'all', label: 'All' },
-              { value: 'today', label: 'Today' },
-              { value: 'week', label: 'This Week' },
-              { value: 'mine', label: 'Mine' },
-            ]}
-          />
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
+            {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
+              <button key={f} className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${i === 0 ? 'bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'text-muted-foreground'}`}>
+                {f}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="px-5 mt-3">
           <h3 className="text-[16px] font-bold text-foreground mb-2">Today</h3>
