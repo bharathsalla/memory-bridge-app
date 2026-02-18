@@ -59,63 +59,64 @@ export default function CaregiverDashboard() {
 
         {/* Patient Status — Enhanced Profile Card */}
         <div className="px-5 mt-1">
-          <div className="ios-card overflow-hidden">
+          <div className="rounded-2xl overflow-hidden bg-primary">
             <div className="flex items-center gap-3 px-4 py-5" style={{ minHeight: 84 }}>
               <div className="relative shrink-0">
-                <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card" style={{ backgroundColor: '#34C759' }} />
+                <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover ring-2 ring-white/30" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-primary" style={{ backgroundColor: '#fff' }} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-ios-headline font-semibold text-foreground">Margaret Smith</div>
-                <div className="text-ios-footnote text-muted-foreground">Active 2 min ago</div>
+                <div className="text-ios-headline font-semibold text-primary-foreground">Margaret Smith</div>
+                <div className="text-ios-footnote text-primary-foreground/70">Active 2 min ago</div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-primary-foreground">
                     {mode === 'full' ? 'Full' : mode === 'simplified' ? 'Simple' : 'Essential'}
                   </span>
-                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5">
+                  <span className="text-[11px] text-primary-foreground/70 font-medium flex items-center gap-0.5">
                     <MapPin className="w-3 h-3" /> Home
                   </span>
                 </div>
               </div>
-              <Shield className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+              <Shield className="w-5 h-5 text-primary-foreground/30 shrink-0" />
             </div>
             {/* Caregiver Details */}
-            <div className="px-4 pb-4 pt-1 border-t border-border/30 grid grid-cols-2 gap-2">
+            <div className="px-4 pb-4 pt-1 border-t border-primary-foreground/15 grid grid-cols-2 gap-2">
               <div className="flex items-center gap-2">
-                <User className="w-3.5 h-3.5 text-muted-foreground" />
+                <User className="w-3.5 h-3.5 text-primary-foreground/60" />
                 <div>
-                  <div className="text-[10px] text-muted-foreground">Caregiver</div>
-                  <div className="text-[12px] font-semibold text-foreground">Sarah Johnson</div>
+                  <div className="text-[10px] text-primary-foreground/60">Caregiver</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Sarah Johnson</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Heart className="w-3.5 h-3.5 text-muted-foreground" />
+                <Heart className="w-3.5 h-3.5 text-primary-foreground/60" />
                 <div>
-                  <div className="text-[10px] text-muted-foreground">Relationship</div>
-                  <div className="text-[12px] font-semibold text-foreground">Daughter</div>
+                  <div className="text-[10px] text-primary-foreground/60">Relationship</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Daughter</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+                <Phone className="w-3.5 h-3.5 text-primary-foreground/60" />
                 <div>
-                  <div className="text-[10px] text-muted-foreground">Contact</div>
-                  <div className="text-[12px] font-semibold text-foreground">+1 555-0123</div>
+                  <div className="text-[10px] text-primary-foreground/60">Contact</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">+1 555-0123</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+                <Activity className="w-3.5 h-3.5 text-primary-foreground/60" />
                 <div>
-                  <div className="text-[10px] text-muted-foreground">Care Status</div>
-                  <div className="text-[12px] font-semibold text-foreground">Active</div>
+                  <div className="text-[10px] text-primary-foreground/60">Care Status</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Active</div>
                 </div>
               </div>
             </div>
           </div>
 
           <button onClick={() => setActiveCaregiverTab('safety')}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-[15px] transition-colors">
-            <Shield className="w-5 h-5" />
-            <span>Enable Safety Tracking</span>
+            className="mt-3 w-full ios-card flex items-center gap-3 px-4 py-3.5 text-left">
+            <IconBox Icon={Shield} color={iosColors.green} />
+            <span className="text-[15px] font-bold text-foreground flex-1">Enable Safety Tracking</span>
+            <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
           </button>
 
           <div className="mt-4 ios-card p-4">
