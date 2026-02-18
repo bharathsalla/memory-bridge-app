@@ -359,9 +359,9 @@ export default function CaregiverDashboard() {
           </div>
         </div>
         <div className="px-5 mt-3">
-          <div className="flex gap-2">
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
             {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
-              <button key={f} className={`px-4 h-8 rounded-full text-[12px] font-semibold touch-target ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button key={f} className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${i === 0 ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}>
                 {f}
               </button>
             ))}
@@ -517,12 +517,12 @@ export default function CaregiverDashboard() {
           </div>
         </div>
         <div className="px-5 mt-3">
-          <div className="flex gap-2">
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
             {(['7', '30', '90'] as const).map(r => (
               <button
                 key={r}
                 onClick={() => setReportRange(r)}
-                className={`px-4 h-8 rounded-full text-[12px] font-semibold touch-target ${reportRange === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${reportRange === r ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
               >
                 {r} days
               </button>

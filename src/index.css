@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -69,7 +69,7 @@
 
   body {
     @apply bg-black text-foreground antialiased;
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
@@ -86,7 +86,7 @@
 
   h1, h2, h3, h4, h5, h6,
   .font-display {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   * {
@@ -151,27 +151,27 @@
 
   .text-ios-title {
     @apply text-[32px] font-extrabold leading-tight tracking-tight;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-title1 {
     @apply text-[26px] font-bold leading-tight;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-title2 {
     @apply text-[21px] font-bold leading-snug;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-title3 {
     @apply text-[19px] font-bold;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-headline {
     @apply text-[17px] font-semibold;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-body {

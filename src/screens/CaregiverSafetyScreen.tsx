@@ -54,7 +54,7 @@ export default function CaregiverSafetyScreen() {
     const filteredGPS = gpsDeviceBrands.filter(b => b.name.toLowerCase().includes(deviceSearch.toLowerCase()));
 
     return (
-      <div className="h-full overflow-y-auto bg-background pb-6">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         <div className="px-5 pt-4 pb-3 flex items-center gap-3">
           <button onClick={() => setSubPage('main')} className="touch-target"><ChevronLeft className="w-6 h-6 text-primary" /></button>
           <h1 className="text-[20px] font-bold text-foreground">Connect Device</h1>
@@ -162,7 +162,7 @@ export default function CaregiverSafetyScreen() {
 
   if (subPage === 'location-history') {
     return (
-      <div className="h-full overflow-y-auto bg-background pb-6">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         <div className="px-5 pt-4 pb-3 flex items-center gap-3">
           <button onClick={() => setSubPage('main')} className="touch-target"><ChevronLeft className="w-6 h-6 text-primary" /></button>
           <h1 className="text-[20px] font-bold text-foreground">Location History</h1>
@@ -170,14 +170,14 @@ export default function CaregiverSafetyScreen() {
 
         {/* Date Selector */}
         <div className="px-5 mb-4">
-          <div className="flex gap-2">
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
             {(['today', 'yesterday', 'custom'] as const).map(d => (
               <button
                 key={d}
                 onClick={() => setHistoryDate(d)}
-                className={`px-4 py-2 rounded-xl text-[13px] font-semibold ${historyDate === d ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                className={`flex-1 py-2 rounded-lg text-[13px] font-bold transition-all ${historyDate === d ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
               >
-                {d === 'today' ? 'Today' : d === 'yesterday' ? 'Yesterday' : 'Custom Date'}
+                {d === 'today' ? 'Today' : d === 'yesterday' ? 'Yesterday' : 'Custom'}
               </button>
             ))}
           </div>
@@ -234,7 +234,7 @@ export default function CaregiverSafetyScreen() {
 
   if (subPage === 'set-safe-area') {
     return (
-      <div className="h-full overflow-y-auto bg-background pb-6">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         <div className="px-5 pt-4 pb-3 flex items-center gap-3">
           <button onClick={() => setSubPage('main')} className="touch-target"><ChevronLeft className="w-6 h-6 text-primary" /></button>
           <h1 className="text-[20px] font-bold text-foreground">Set Safe Area</h1>
@@ -304,7 +304,7 @@ export default function CaregiverSafetyScreen() {
 
   if (subPage === 'sos-alerts') {
     return (
-      <div className="h-full overflow-y-auto bg-background pb-6">
+      <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         <div className="px-5 pt-4 pb-3 flex items-center gap-3">
           <button onClick={() => setSubPage('main')} className="touch-target"><ChevronLeft className="w-6 h-6 text-primary" /></button>
           <h1 className="text-[20px] font-bold text-foreground">SOS Alerts</h1>
@@ -412,9 +412,19 @@ export default function CaregiverSafetyScreen() {
 
   // MAIN page
   return (
-    <div className="h-full overflow-y-auto bg-background pb-6">
-      <div className="px-5 pt-4 pb-3">
-        <h1 className="text-[22px] font-bold text-foreground">Safety Tracking</h1>
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Safety Tracking</h1>
+            <p className="text-[13px] text-primary-foreground/60 font-medium">Monitor & protect</p>
+          </div>
+        </div>
       </div>
 
       {/* Active SOS Banner */}
