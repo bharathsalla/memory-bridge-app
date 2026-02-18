@@ -57,7 +57,7 @@ export default function CaregiverDashboard() {
 
         {/* Patient Status — Enhanced Profile Card */}
         <div className="px-5 mt-1">
-          <div className="ios-card overflow-hidden bg-primary">
+          <div className="overflow-hidden bg-primary" style={{ borderRadius: 12 }}>
             <div className="flex items-center gap-3 px-4 py-5" style={{ minHeight: 84 }}>
               <div className="relative shrink-0">
                 <img src={patientAvatar} alt="Margaret" className="w-14 h-14 rounded-full object-cover ring-2 ring-white/30" />
