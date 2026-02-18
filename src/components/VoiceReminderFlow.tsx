@@ -53,8 +53,11 @@ export default function VoiceReminderFlow() {
   const [liveTranscript, setLiveTranscript] = useState('');
   const [extracted, setExtracted] = useState<ExtractedSchedule | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Recording timer
   useEffect(() => {
@@ -74,13 +77,35 @@ export default function VoiceReminderFlow() {
     return () => clearInterval(interval);
   }, []);
 
-  const startRecording = () => {
+  const startRecording = async () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ title: 'Speech not supported', description: 'Use Chrome or Safari for voice recording.', variant: 'destructive' });
       return;
     }
 
+    // Start MediaRecorder for actual audio capture
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+    } catch (err) {
+      toast({ title: 'Microphone access denied', description: 'Please allow microphone access.', variant: 'destructive' });
+      return;
+    }
+
+    // Start SpeechRecognition for transcript
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -109,9 +134,7 @@ export default function VoiceReminderFlow() {
       }
     };
 
-    recognition.onend = () => {
-      // Will be manually stopped
-    };
+    recognition.onend = () => {};
 
     recognitionRef.current = recognition;
     recognition.start();
@@ -121,12 +144,17 @@ export default function VoiceReminderFlow() {
     setTranscript('');
     setLiveTranscript('');
     setExtracted(null);
+    setAudioUrl(null);
   };
 
   const stopRecording = async () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
     }
     setIsRecording(false);
 
@@ -176,6 +204,7 @@ export default function VoiceReminderFlow() {
       patientMessage: extracted.patientMessage,
       caregiverName: 'Anitha',
       transcript: transcript,
+      audioUrl: audioUrl || undefined,
     });
     setRecordingStep('confirmed');
     toast({ title: '✅ Reminder scheduled!', description: `${extracted.medication} at ${extracted.time}` });

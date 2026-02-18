@@ -48,6 +48,7 @@ export interface VoiceReminder {
   createdAt: string;
   status: 'active' | 'taken' | 'snoozed' | 'missed';
   snoozedUntil?: string;
+  audioUrl?: string;
 }
 
 interface AppState {
