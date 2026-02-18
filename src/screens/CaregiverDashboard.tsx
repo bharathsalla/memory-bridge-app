@@ -4,6 +4,7 @@ import patientAvatar from '@/assets/patient-avatar.jpg';
 import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSimulator, PersistentNotificationSimulator } from '@/components/NativeFeatureSimulators';
 import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
+import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSupportEcosystem from '@/components/CaregiverSupportEcosystem';
 import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
 import CaregiverMemorySender from '@/components/CaregiverMemorySender';
@@ -12,7 +13,7 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User, Sparkles
+  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User, Sparkles, X
 } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export default function CaregiverDashboard() {
   const [reportRange, setReportRange] = useState<'7' | '30' | '90'>('7');
   const [manageOpen, setManageOpen] = useState(false);
   const [modeModalOpen, setModeModalOpen] = useState(false);
+  const [remindersOpen, setRemindersOpen] = useState(false);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -395,8 +397,18 @@ export default function CaregiverDashboard() {
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
         {/* iOS Large Title Header */}
         <div className="px-5 pt-4 pb-2">
-          <h1 className="text-ios-large-title text-foreground">Tasks</h1>
-          <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-ios-large-title text-foreground">Tasks</h1>
+              <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
+            </div>
+            <button
+              onClick={() => setRemindersOpen(true)}
+              className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"
+            >
+              <Bell className="w-5 h-5 text-primary" />
+            </button>
+          </div>
         </div>
         <div className="px-5 mt-3">
           <div className="flex bg-muted rounded-xl p-1 gap-1">
@@ -455,6 +467,45 @@ export default function CaregiverDashboard() {
         {/* No FAB — iOS doesn't use floating action buttons */}
 
         <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
+
+        {/* Reminders Panel Overlay */}
+        <AnimatePresence>
+          {remindersOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex flex-col bg-foreground/40 backdrop-blur-sm"
+              onClick={() => setRemindersOpen(false)}
+            >
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                className="mt-12 flex-1 bg-background rounded-t-3xl overflow-hidden flex flex-col"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Handle & Header */}
+                <div className="pt-2 pb-1 flex flex-col items-center">
+                  <div className="w-10 h-1 rounded-full bg-muted-foreground/30 mb-2" />
+                </div>
+                <div className="flex items-center justify-between px-5 pb-3">
+                  <h2 className="text-[20px] font-bold text-foreground">Reminders</h2>
+                  <button
+                    onClick={() => setRemindersOpen(false)}
+                    className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <CaregiverRemindersPanel />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
