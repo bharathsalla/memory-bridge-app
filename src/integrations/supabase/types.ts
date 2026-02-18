@@ -168,10 +168,16 @@ export type Database = {
           engagement_score: number | null
           id: string
           is_favorite: boolean | null
+          location: string | null
           mood: string | null
+          photo_url: string | null
+          shared_at: string | null
+          shared_by: string | null
+          shared_message: string | null
           title: string
           type: string
           updated_at: string
+          viewed_by_patient: boolean | null
           voice_transcript: string | null
         }
         Insert: {
@@ -183,10 +189,16 @@ export type Database = {
           engagement_score?: number | null
           id?: string
           is_favorite?: boolean | null
+          location?: string | null
           mood?: string | null
+          photo_url?: string | null
+          shared_at?: string | null
+          shared_by?: string | null
+          shared_message?: string | null
           title: string
           type?: string
           updated_at?: string
+          viewed_by_patient?: boolean | null
           voice_transcript?: string | null
         }
         Update: {
@@ -198,10 +210,16 @@ export type Database = {
           engagement_score?: number | null
           id?: string
           is_favorite?: boolean | null
+          location?: string | null
           mood?: string | null
+          photo_url?: string | null
+          shared_at?: string | null
+          shared_by?: string | null
+          shared_message?: string | null
           title?: string
           type?: string
           updated_at?: string
+          viewed_by_patient?: boolean | null
           voice_transcript?: string | null
         }
         Relationships: []

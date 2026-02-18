@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Realistic memory images
 import familyDinner from '@/assets/memories/family-dinner.jpg';
@@ -105,29 +107,6 @@ const aiCuratedMemories = [
   },
 ];
 
-const caregiverMemories = [
-  {
-    id: 'cg-1',
-    image: parkPicnic,
-    title: 'Remember our park visit?',
-    subtitle: 'Sent by Sarah',
-    date: '2 hours ago',
-    message: 'Mom, look at this beautiful day we had! Emma still talks about the butterflies we saw 🦋',
-    sender: 'Sarah',
-    seen: true,
-  },
-  {
-    id: 'cg-2',
-    image: familyDinner,
-    title: 'Last week\'s dinner',
-    subtitle: 'Sent by John',
-    date: 'Yesterday',
-    message: 'Hi Mom! Remember how much you loved the biryani? We\'re making it again this weekend! 🍛',
-    sender: 'John',
-    seen: false,
-  },
-];
-
 const categories = [
   { id: 'all', label: 'For You', icon: <Sparkles className="w-4 h-4" /> },
   { id: 'family', label: 'Family', icon: <Users className="w-4 h-4" /> },
@@ -146,6 +125,22 @@ export default function MemoriesScreen() {
   const [slideshowIndex, setSlideshowIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [aiSyncing, setAiSyncing] = useState(false);
+
+  // Fetch caregiver-shared memories from DB
+  const queryClient = useQueryClient();
+  const { data: caregiverMemories = [] } = useQuery({
+    queryKey: ['shared-memories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('memories')
+        .select('*')
+        .not('shared_by', 'is', null)
+        .order('shared_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 5000, // poll every 5s for live sync
+  });
 
   const filteredMemories = activeCategory === 'all'
     ? aiCuratedMemories
@@ -332,7 +327,7 @@ export default function MemoriesScreen() {
               }`}
             >
               <UserCheck className="w-4 h-4" /> From Caregiver
-              {caregiverMemories.some(m => !m.seen) && (
+              {caregiverMemories.some((m: any) => !m.viewed_by_patient) && (
                 <span className="w-2 h-2 rounded-full bg-secondary absolute top-1.5 right-4" />
               )}
             </button>
@@ -563,23 +558,34 @@ export default function MemoriesScreen() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {caregiverMemories.map((mem, i) => (
+                  {caregiverMemories.map((mem: any, i: number) => (
                     <motion.div key={mem.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                       <div className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
-                        <img src={mem.image} alt={mem.title} className="w-full h-44 object-cover" />
+                        {mem.photo_url && (
+                          <img src={mem.photo_url} alt={mem.title} className="w-full h-44 object-cover" />
+                        )}
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                               <UserCheck className="w-3.5 h-3.5 text-primary" />
                             </div>
-                            <span className="text-[13px] font-bold text-primary">{mem.sender}</span>
-                            <span className="text-[11px] text-muted-foreground font-medium ml-auto">{mem.date}</span>
-                            {!mem.seen && (
+                            <span className="text-[13px] font-bold text-primary">{mem.shared_by}</span>
+                            <span className="text-[11px] text-muted-foreground font-medium ml-auto">
+                              {mem.shared_at ? new Date(mem.shared_at).toLocaleDateString() : ''}
+                            </span>
+                            {!mem.viewed_by_patient && (
                               <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
                             )}
                           </div>
                           <p className="text-[16px] font-bold text-foreground">{mem.title}</p>
-                          <p className="text-[14px] text-foreground/70 mt-1.5 leading-relaxed">{mem.message}</p>
+                          {mem.shared_message && (
+                            <p className="text-[14px] text-foreground/70 mt-1.5 leading-relaxed">{mem.shared_message}</p>
+                          )}
+                          {mem.location && (
+                            <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> {mem.location}
+                            </p>
+                          )}
                           <div className="flex gap-2 mt-3">
                             <Button size="sm" variant="outline" className="flex-1 h-9 rounded-xl text-[12px] font-bold">
                               <Heart className="w-3.5 h-3.5 mr-1" /> Love it
