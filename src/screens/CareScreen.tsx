@@ -106,7 +106,7 @@ export default function CareScreen() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <div className="px-4 pt-3 pb-1.5 shrink-0">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
             {[
               { value: 'chat', icon: <MessageCircle className="w-4 h-4" />, label: 'Chat' },
               { value: 'tasks', icon: <CheckSquare className="w-4 h-4" />, label: 'Tasks' },
@@ -116,10 +116,10 @@ export default function CareScreen() {
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
-                className={`flex items-center gap-2 px-5 h-11 rounded-xl text-[14px] font-bold shrink-0 transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-bold transition-all ${
                   activeTab === tab.value
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
+                    ? 'bg-card text-primary shadow-sm'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {tab.icon}

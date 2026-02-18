@@ -11,9 +11,12 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
 
   return (
     <div className="h-full w-full flex items-center justify-center bg-primary-foreground">
-      {/* iPhone 14/15 Pro outer shell */}
-      <div className="relative w-[393px] h-[852px] max-h-[100dvh] rounded-[55px] overflow-hidden flex flex-col"
+      {/* iPhone 14/15 Pro outer shell — exact logical resolution 393×852 */}
+      <div className="relative rounded-[55px] overflow-hidden flex flex-col"
         style={{
+          width: 393,
+          height: 852,
+          maxHeight: '100dvh',
           background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
           boxShadow: '0 0 0 3px #2a2a4a, 0 0 0 6px #0d0d1a, 0 30px 90px rgba(15, 52, 96, 0.5), inset 0 1px 1px rgba(255,255,255,0.05)',
         }}

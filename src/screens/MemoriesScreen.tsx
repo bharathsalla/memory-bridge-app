@@ -288,15 +288,20 @@ export default function MemoriesScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
-        {/* Header */}
-        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 rounded-b-[28px] relative overflow-hidden">
+        {/* Gradient Header — standardized like all other pages */}
+        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-[22px] font-extrabold text-primary-foreground font-display">Memories</h1>
-              <p className="text-[13px] text-primary-foreground/60 font-medium mt-0.5">
-                {aiCuratedMemories.length} memories · AI curated daily
-              </p>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+                <Heart className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Memories</h1>
+                <p className="text-[13px] text-primary-foreground/60 font-medium">
+                  {aiCuratedMemories.length} memories · AI curated daily
+                </p>
+              </div>
             </div>
             <button
               onClick={simulateSync}
@@ -305,15 +310,17 @@ export default function MemoriesScreen() {
               <RefreshCw className={`w-4.5 h-4.5 text-primary-foreground ${aiSyncing ? 'animate-spin' : ''}`} />
             </button>
           </div>
+        </div>
 
-          {/* Source Toggle: AI / Caregiver */}
-          <div className="mt-4 flex bg-primary-foreground/10 rounded-xl p-1 gap-1">
+        {/* Source Toggle — below header */}
+        <div className="mx-4 mt-3">
+          <div className="flex bg-muted rounded-xl p-1 gap-1">
             <button
               onClick={() => setActiveSource('ai')}
               className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-[14px] font-bold transition-all ${
                 activeSource === 'ai'
-                  ? 'bg-primary-foreground text-primary shadow-sm'
-                  : 'text-primary-foreground/70'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-muted-foreground'
               }`}
             >
               <Brain className="w-4 h-4" /> AI Curated
@@ -322,8 +329,8 @@ export default function MemoriesScreen() {
               onClick={() => setActiveSource('caregiver')}
               className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-[14px] font-bold transition-all relative ${
                 activeSource === 'caregiver'
-                  ? 'bg-primary-foreground text-primary shadow-sm'
-                  : 'text-primary-foreground/70'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-muted-foreground'
               }`}
             >
               <UserCheck className="w-4 h-4" /> From Caregiver
@@ -382,15 +389,15 @@ export default function MemoriesScreen() {
 
             {/* Category Pills */}
             <div className="px-5 mt-4">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              <div className="flex bg-muted rounded-xl p-1 gap-1 overflow-x-auto scrollbar-hide">
                 {categories.map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-2 px-4 h-10 shrink-0 rounded-xl text-[13px] font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 h-9 shrink-0 rounded-lg text-[12px] font-bold transition-all ${
                       activeCategory === cat.id
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-card border border-border/60 text-foreground hover:bg-muted/50'
+                        ? 'bg-card text-primary shadow-sm'
+                        : 'text-muted-foreground'
                     }`}
                   >
                     {cat.icon}
