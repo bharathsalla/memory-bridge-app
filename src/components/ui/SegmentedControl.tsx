@@ -35,7 +35,7 @@ export default function SegmentedControl({ items, value, onChange, scrollable }:
             <button
               key={item.value}
               onClick={() => onChange(item.value)}
-              className={`flex-1 flex items-center justify-center gap-1 h-[32px] rounded-[7px] text-[13px] font-medium transition-all relative whitespace-nowrap ${
+              className={`flex-1 flex items-center justify-center gap-1.5 h-[36px] rounded-[7px] text-[13px] font-semibold transition-all relative whitespace-nowrap ${
                 scrollable ? 'px-3 flex-none' : ''
               } ${
                 active
