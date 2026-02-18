@@ -254,7 +254,7 @@ export default function CrisisPreventionEngine() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg">
       {/* Header */}
-      <div className="px-4 pt-3 pb-2">
+      <div className="pt-3 pb-2 px-[12px] py-[13px]">
         <div className="flex items-center gap-3 mb-3">
           <IconBox Icon={Shield} color={iosColors.red} />
           <div className="flex-1">
