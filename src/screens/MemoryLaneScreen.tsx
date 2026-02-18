@@ -205,23 +205,15 @@ export default function MemoryLaneScreen() {
 
   return (
     <div className="h-full flex flex-col ios-grouped-bg relative">
-      {/* Gradient Header — Care-style */}
-      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-        <div className="flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-              <Clock className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Memory Lane</h1>
-              <p className="text-[13px] text-primary-foreground/60 font-medium">{dateStr}</p>
-            </div>
-          </div>
-          <Button onClick={() => setShowAdd(true)} size="sm" className="h-10 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-primary-foreground/25">
-            <Plus className="w-4 h-4" /> Add
-          </Button>
+      {/* iOS Large Title */}
+      <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+        <div>
+          <h1 className="text-ios-large-title text-foreground">Timeline</h1>
+          <p className="text-ios-subheadline text-muted-foreground mt-1">{dateStr}</p>
         </div>
+        <Button onClick={() => setShowAdd(true)} size="sm" className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-1">
+          <Plus className="w-4 h-4" /> Add
+        </Button>
       </div>
 
       {/* Content */}

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,14 +6,15 @@
 
 @layer base {
   :root {
-    --background: 160 20% 97%;
-    --foreground: 200 25% 10%;
+    /* iOS 17 System Colors — Apple HIG */
+    --background: 240 6% 97%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 200 25% 10%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 200 25% 10%;
+    --popover-foreground: 0 0% 0%;
 
     --primary: 168 42% 40%;
     --primary-foreground: 0 0% 100%;
@@ -21,8 +22,8 @@
     --secondary: 168 30% 52%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 165 14% 93%;
-    --muted-foreground: 168 12% 42%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 4% 46%;
 
     --accent: 175 38% 36%;
     --accent-foreground: 0 0% 100%;
@@ -42,23 +43,25 @@
     --lavender: 168 30% 48%;
     --lavender-foreground: 0 0% 100%;
 
-    --border: 165 12% 88%;
-    --input: 165 12% 88%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
     --ring: 168 42% 40%;
 
-    --radius-sm: 10px;
-    --radius-md: 14px;
-    --radius-lg: 18px;
-    --radius-xl: 22px;
-    --radius-2xl: 26px;
-    --radius-3xl: 34px;
+    /* iOS Radius System */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-3xl: 32px;
 
-    --surface: 160 14% 95%;
+    --surface: 240 6% 97%;
 
-    --shadow-soft: 0 2px 20px rgba(50, 120, 110, 0.05);
-    --shadow-card: 0 1px 4px rgba(50, 120, 110, 0.04), 0 8px 28px rgba(50, 120, 110, 0.06);
-    --shadow-elevated: 0 4px 16px rgba(50, 120, 110, 0.07), 0 16px 48px rgba(50, 120, 110, 0.08);
-    --shadow-glow: 0 0 24px rgba(50, 120, 110, 0.12);
+    /* iOS Shadow System — subtle elevation */
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-elevated: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 16px rgba(0, 0, 0, 0.08);
   }
 }
 
@@ -69,7 +72,8 @@
 
   body {
     @apply bg-black text-foreground antialiased;
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    /* SF Pro system font stack */
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
@@ -86,7 +90,8 @@
 
   h1, h2, h3, h4, h5, h6,
   .font-display {
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    letter-spacing: -0.01em;
   }
 
   * {
@@ -99,30 +104,35 @@
 }
 
 @layer utilities {
+  /* iOS Grouped Background — exact Apple #F2F2F7 */
+  .ios-grouped-bg {
+    background-color: hsl(var(--background));
+  }
+
+  /* iOS Inset Grouped Card — Apple Health style */
   .ios-card {
-    @apply bg-card rounded-2xl;
+    @apply bg-card;
+    border-radius: 12px;
     box-shadow: var(--shadow-card);
   }
 
   .ios-card-elevated {
-    @apply bg-card rounded-2xl;
+    @apply bg-card;
+    border-radius: 12px;
     box-shadow: var(--shadow-elevated);
   }
 
   .ios-card-glass {
-    @apply rounded-2xl border border-border/20;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: var(--shadow-card);
   }
 
-  .ios-grouped-bg {
-    background-color: hsl(var(--surface));
-  }
-
   .ios-inset-grouped {
-    @apply bg-card mx-4 rounded-2xl;
+    @apply bg-card mx-4;
+    border-radius: 12px;
     box-shadow: var(--shadow-card);
   }
 
@@ -134,6 +144,7 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  /* 44pt minimum tap targets — Apple HIG */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
@@ -149,33 +160,29 @@
     min-width: 60px;
   }
 
-  .text-ios-title {
-    @apply text-[32px] font-extrabold leading-tight tracking-tight;
-    font-family: 'Roboto', sans-serif;
+  /* iOS Typography Hierarchy — SF Pro sizing */
+  .text-ios-large-title {
+    @apply text-[34px] font-bold leading-tight tracking-tight;
   }
 
   .text-ios-title1 {
-    @apply text-[26px] font-bold leading-tight;
-    font-family: 'Roboto', sans-serif;
+    @apply text-[28px] font-bold leading-tight;
   }
 
   .text-ios-title2 {
-    @apply text-[21px] font-bold leading-snug;
-    font-family: 'Roboto', sans-serif;
+    @apply text-[22px] font-bold leading-snug;
   }
 
   .text-ios-title3 {
-    @apply text-[19px] font-bold;
-    font-family: 'Roboto', sans-serif;
+    @apply text-[20px] font-semibold;
   }
 
   .text-ios-headline {
     @apply text-[17px] font-semibold;
-    font-family: 'Roboto', sans-serif;
   }
 
   .text-ios-body {
-    @apply text-[16px] leading-relaxed;
+    @apply text-[17px] leading-relaxed;
   }
 
   .text-ios-callout {
@@ -194,7 +201,12 @@
     @apply text-[12px];
   }
 
-  .simplified .text-ios-title {
+  .text-ios-caption2 {
+    @apply text-[11px];
+  }
+
+  /* Accessibility modes */
+  .simplified .text-ios-large-title {
     @apply text-[40px];
   }
   .simplified .text-ios-body {
@@ -204,13 +216,14 @@
     @apply text-[16px];
   }
 
-  .essential .text-ios-title {
+  .essential .text-ios-large-title {
     @apply text-[48px];
   }
   .essential .text-ios-body {
     @apply text-[24px];
   }
 
+  /* iOS SOS Pulse */
   .sos-pulse {
     animation: sosPulse 2s ease-in-out infinite;
   }
@@ -238,40 +251,33 @@
     50% { transform: scale(1.15); opacity: 0.8; }
   }
 
+  /* Gentle backgrounds — Apple Health inspired */
   .warm-gradient {
     background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--surface)) 100%);
   }
 
   .warm-glow {
-    background: radial-gradient(ellipse at top, hsl(var(--primary) / 0.05) 0%, transparent 60%);
-  }
-
-  .rose-glow {
-    background: radial-gradient(ellipse at bottom right, hsl(var(--secondary) / 0.06) 0%, transparent 50%);
-  }
-
-  .lavender-shimmer {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.03) 0%,
-      hsl(var(--secondary) / 0.03) 50%,
-      hsl(var(--accent) / 0.03) 100%
-    );
+    background: radial-gradient(ellipse at top, hsl(var(--primary) / 0.04) 0%, transparent 60%);
   }
 
   .gradient-primary {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   }
 
-  .gradient-rose {
-    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
-  }
-
-  .gradient-lavender {
-    background: linear-gradient(135deg, hsl(var(--lavender)) 0%, hsl(var(--primary)) 100%);
-  }
-
   .gradient-success {
     background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(160 50% 45%) 100%);
+  }
+
+  /* iOS Blur overlay */
+  .ios-blur {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .ios-blur-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
 }

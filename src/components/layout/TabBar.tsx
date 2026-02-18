@@ -29,24 +29,50 @@ export default function TabBar() {
 
   if (mode === 'essential' && !isCaregiverView) return null;
 
+  const renderTab = (
+    tab: { id: string; label: string; icon: typeof Home },
+    active: boolean,
+    onClick: () => void,
+    layoutId: string
+  ) => {
+    const Icon = tab.icon;
+    return (
+      <button
+        key={tab.id}
+        onClick={onClick}
+        className="flex flex-col items-center gap-0.5 py-1 px-2 relative touch-target"
+        aria-label={tab.label}
+        aria-current={active ? 'page' : undefined}
+      >
+        {active && (
+          <motion.div
+            layoutId={layoutId}
+            className="absolute -top-1 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-primary"
+            transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+          />
+        )}
+        <Icon
+          className={`w-[22px] h-[22px] transition-colors ${active ? 'text-primary' : 'text-muted-foreground/50'}`}
+          strokeWidth={active ? 2.2 : 1.6}
+        />
+        <span
+          className={`text-[10px] transition-colors ${
+            active ? 'text-primary font-semibold' : 'text-muted-foreground/50 font-medium'
+          }`}
+        >
+          {tab.label}
+        </span>
+      </button>
+    );
+  };
+
   if (isCaregiverView) {
     return (
-      <div className="bg-card/95 backdrop-blur-2xl border-t border-border/8 shrink-0">
-        <div className="flex items-center justify-around px-1 pt-2 pb-1.5">
-          {caregiverTabs.map(tab => {
-            const active = activeCaregiverTab === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button key={tab.id} onClick={() => setActiveCaregiverTab(tab.id)}
-                className="flex flex-col items-center gap-1 py-1.5 px-3 touch-target relative" aria-label={tab.label} aria-current={active ? 'page' : undefined}>
-                {active && (
-                  <motion.div layoutId="cg-tab-bg" className="absolute inset-0 rounded-2xl bg-primary/6" transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }} />
-                )}
-                <Icon className={`w-[22px] h-[22px] relative z-10 transition-colors ${active ? 'text-primary' : 'text-muted-foreground/60'}`} strokeWidth={active ? 2.2 : 1.8} />
-                <span className={`text-[11px] relative z-10 transition-colors font-display ${active ? 'text-primary font-bold' : 'text-muted-foreground/60 font-medium'}`}>{tab.label}</span>
-              </button>
-            );
-          })}
+      <div className="ios-blur border-t border-border/30 shrink-0">
+        <div className="flex items-center justify-around px-1 pt-1 pb-1">
+          {caregiverTabs.map(tab =>
+            renderTab(tab, activeCaregiverTab === tab.id, () => setActiveCaregiverTab(tab.id), 'cg-indicator')
+          )}
         </div>
       </div>
     );
@@ -56,23 +82,16 @@ export default function TabBar() {
   const isSimplified = mode === 'simplified';
 
   return (
-    <div className="bg-card/95 backdrop-blur-2xl border-t border-border/8 shrink-0">
-      <div className="flex items-center justify-around px-2 pt-2.5 pb-1.5">
-        {tabs.map(tab => {
-          const active = activePatientTab === tab.id;
-          const Icon = tab.icon;
-          return (
-            <button key={tab.id} onClick={() => setActivePatientTab(tab.id)}
-              className={`flex flex-col items-center gap-1 py-1.5 px-3 relative ${isSimplified ? 'touch-target-xl' : 'touch-target'}`}
-              aria-label={tab.label} aria-current={active ? 'page' : undefined}>
-              {active && (
-                <motion.div layoutId="patient-tab-bg" className="absolute inset-0 rounded-2xl bg-primary/6" transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }} />
-              )}
-              <Icon className={`relative z-10 transition-colors ${isSimplified ? 'w-7 h-7' : 'w-[22px] h-[22px]'} ${active ? 'text-primary' : 'text-muted-foreground/60'}`} strokeWidth={active ? 2.2 : 1.8} />
-              <span className={`relative z-10 transition-colors font-display ${isSimplified ? 'text-[14px]' : 'text-[11px]'} ${active ? 'text-primary font-bold' : 'text-muted-foreground/60 font-medium'}`}>{tab.label}</span>
-            </button>
-          );
-        })}
+    <div className="ios-blur border-t border-border/30 shrink-0">
+      <div className="flex items-center justify-around px-2 pt-1 pb-1">
+        {tabs.map(tab =>
+          renderTab(
+            tab,
+            activePatientTab === tab.id,
+            () => setActivePatientTab(tab.id),
+            'patient-indicator'
+          )
+        )}
       </div>
     </div>
   );

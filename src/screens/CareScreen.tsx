@@ -79,28 +79,21 @@ export default function CareScreen() {
 
   return (
     <div className="h-full flex flex-col ios-grouped-bg relative overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 py-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-              <Heart className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Circle</h1>
-              <p className="text-[13px] text-primary-foreground/60 font-medium">3 members online</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setViewModalOpen(true)}
-            variant="outline"
-            size="sm"
-            className="h-10 px-3 rounded-xl text-[13px] font-semibold border-primary-foreground/25 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 gap-2"
-          >
-            <img src={patientAvatar} alt="" className="w-6 h-6 rounded-lg object-cover" />
-            Dashboard
-          </Button>
+      {/* iOS Large Title Header */}
+      <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
+        <div>
+          <h1 className="text-ios-large-title text-foreground">Care Circle</h1>
+          <p className="text-ios-subheadline text-muted-foreground mt-0.5">3 members online</p>
         </div>
+        <Button
+          onClick={() => setViewModalOpen(true)}
+          variant="outline"
+          size="sm"
+          className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-2"
+        >
+          <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+          Dashboard
+        </Button>
       </div>
 
       {/* Tabs */}
