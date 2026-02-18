@@ -1,8 +1,15 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Phone, MapPin, Users, MessageSquare, Clock, Heart, X, Send, Sparkles, Loader2, Camera, Mic, BookOpen } from 'lucide-react';
+import { Plus, Phone, MapPin, Users, MessageSquare, Clock, Heart, X, Send, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export interface MemoryEntry {
   id: string;
@@ -164,7 +171,7 @@ export default function MemoryLaneScreen() {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <Loader2 className="w-9 h-9 text-primary animate-spin" />
       </div>
     );
   }
@@ -172,46 +179,47 @@ export default function MemoryLaneScreen() {
   return (
     <div className="h-full flex flex-col bg-background relative">
       {/* Green header banner */}
-      <div className="bg-primary px-5 py-5">
-        <h1 className="text-[22px] font-bold text-primary-foreground">{greeting}</h1>
-        <p className="text-[14px] text-primary-foreground/80 mt-0.5">Today is {dateStr}</p>
+      <div className="bg-primary px-5 py-6 rounded-b-2xl">
+        <h1 className="text-[24px] font-bold text-primary-foreground">{greeting}</h1>
+        <p className="text-[16px] text-primary-foreground/80 mt-1">Today is {dateStr}</p>
       </div>
 
       {/* My Day title + Add button */}
-      <div className="flex items-center justify-between px-5 py-4">
-        <h2 className="text-[22px] font-bold text-foreground">My Day</h2>
-        <button
+      <div className="flex items-center justify-between px-5 py-5">
+        <h2 className="text-[24px] font-bold text-foreground">My Day</h2>
+        <Button
           onClick={() => setShowAdd(true)}
-          className="h-11 px-5 rounded-xl bg-primary text-primary-foreground text-[15px] font-semibold flex items-center gap-2 active:scale-95 transition-transform touch-target"
+          size="lg"
+          className="h-12 px-6 rounded-xl text-[16px] font-semibold gap-2"
         >
-          <Plus className="w-4 h-4" /> Add Activity
-        </button>
+          <Plus className="w-5 h-5" /> Add Activity
+        </Button>
       </div>
 
       {/* Timeline */}
       <div className="flex-1 overflow-y-auto px-5 pb-24">
         {memories.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-              <Clock className="w-7 h-7 text-primary" />
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+              <Clock className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-[18px] font-bold text-foreground mb-1">No activities yet</h3>
-            <p className="text-[15px] text-muted-foreground text-center">
-              Tap "Add Activity" to log your first moment.
+            <h3 className="text-[20px] font-bold text-foreground mb-2">No activities yet</h3>
+            <p className="text-[17px] text-muted-foreground text-center leading-relaxed">
+              Tap "Add Activity" to log your first moment of the day.
             </p>
           </div>
         )}
 
         {Object.entries(groupedByDate).map(([date, entries]) => (
-          <div key={date} className="mb-6">
+          <div key={date} className="mb-7">
             {date !== 'Today' && (
-              <p className="text-[13px] font-semibold text-primary uppercase tracking-wider mb-3">{date}</p>
+              <p className="text-[15px] font-semibold text-primary uppercase tracking-wider mb-4">{date}</p>
             )}
 
             {/* Timeline entries */}
             <div className="relative">
               {/* Vertical line */}
-              <div className="absolute left-[18px] top-6 bottom-6 w-[2px] bg-border/60" />
+              <div className="absolute left-[19px] top-8 bottom-8 w-[2px] bg-border" />
 
               <div className="space-y-5">
                 {entries.map((memory, i) => {
@@ -227,32 +235,38 @@ export default function MemoryLaneScreen() {
                       className="w-full flex gap-4 text-left"
                     >
                       {/* Colored circle icon */}
-                      <div className={`w-[38px] h-[38px] rounded-full ${cat.color} flex items-center justify-center shrink-0 z-10 shadow-sm`}>
-                        <IconComp className="w-[18px] h-[18px] text-white" />
+                      <div className={`w-[40px] h-[40px] rounded-full ${cat.color} flex items-center justify-center shrink-0 z-10 shadow-md`}>
+                        <IconComp className="w-[20px] h-[20px] text-white" />
                       </div>
 
-                      {/* Card */}
-                      <div className="flex-1 bg-card rounded-2xl border border-border/40 p-4 shadow-sm active:scale-[0.98] transition-transform">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span className="text-[13px] font-medium">{memory.time}</span>
-                        </div>
-                        <h3 className="text-[17px] font-bold text-foreground leading-snug">{memory.title}</h3>
-                        {memory.description && (
-                          <p className="text-[14px] text-muted-foreground mt-1.5 leading-relaxed line-clamp-3">
-                            {memory.description}
-                          </p>
-                        )}
-                        {/* Subtle indicators */}
-                        <div className="flex items-center gap-2 mt-2">
-                          {memory.cognitiveAnswer && (
-                            <span className="text-[11px] font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">Recalled</span>
+                      {/* Card with grey outline */}
+                      <Card className="flex-1 border border-border shadow-sm active:scale-[0.98] transition-transform cursor-pointer hover:shadow-md">
+                        <CardContent className="p-5">
+                          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                            <Clock className="w-4 h-4" />
+                            <span className="text-[15px] font-medium">{memory.time}</span>
+                          </div>
+                          <h3 className="text-[19px] font-bold text-foreground leading-snug">{memory.title}</h3>
+                          {memory.description && (
+                            <p className="text-[16px] text-muted-foreground mt-2 leading-relaxed line-clamp-3">
+                              {memory.description}
+                            </p>
                           )}
-                          {memory.isFavorite && (
-                            <Heart className="w-3.5 h-3.5 text-destructive fill-destructive" />
+                          {/* Subtle indicators */}
+                          {(memory.cognitiveAnswer || memory.isFavorite) && (
+                            <div className="flex items-center gap-2 mt-3">
+                              {memory.cognitiveAnswer && (
+                                <Badge variant="secondary" className="text-[13px] bg-success/10 text-success border-success/20 font-semibold">
+                                  Recalled
+                                </Badge>
+                              )}
+                              {memory.isFavorite && (
+                                <Heart className="w-4 h-4 text-destructive fill-destructive" />
+                              )}
+                            </div>
                           )}
-                        </div>
-                      </div>
+                        </CardContent>
+                      </Card>
                     </motion.button>
                   );
                 })}
@@ -262,140 +276,148 @@ export default function MemoryLaneScreen() {
         ))}
       </div>
 
-      {/* Add Activity Bottom Sheet */}
-      <AnimatePresence>
-        {showAdd && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 bg-black/30" onClick={() => setShowAdd(false)}>
-            <motion.div
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-2xl p-5 pb-8 max-h-[85%] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-5" />
+      {/* Add Activity Sheet using shadcn Sheet */}
+      <Sheet open={showAdd} onOpenChange={(open) => { if (!open) { setShowAdd(false); setSelectedCategory(''); setNewTitle(''); setNewDescription(''); } }}>
+        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-8 max-h-[88%] overflow-y-auto">
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-[22px] font-bold text-foreground text-left">What did you do?</SheetTitle>
+          </SheetHeader>
 
-              {/* Category selector */}
-              <h3 className="text-[18px] font-bold text-foreground mb-4">What did you do?</h3>
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                {activityCategories.map(cat => {
-                  const Icon = cat.icon;
-                  const isSelected = selectedCategory === cat.type;
-                  return (
-                    <button
-                      key={cat.type}
-                      onClick={() => setSelectedCategory(cat.type)}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all touch-target ${
-                        isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border/40 bg-card'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className={`text-[15px] font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>{cat.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Input fields */}
-              <input
-                type="text"
-                placeholder="What happened? (e.g. Called my son)"
-                value={newTitle}
-                onChange={e => setNewTitle(e.target.value)}
-                className="w-full h-12 rounded-xl bg-muted/40 border border-border/30 px-4 text-[15px] text-foreground placeholder:text-muted-foreground mb-3 outline-none focus:ring-2 focus:ring-primary/30 touch-target"
-              />
-              <textarea
-                placeholder="Any details you want to remember..."
-                value={newDescription}
-                onChange={e => setNewDescription(e.target.value)}
-                rows={3}
-                className="w-full rounded-xl bg-muted/40 border border-border/30 p-4 text-[15px] text-foreground placeholder:text-muted-foreground mb-5 outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-              />
-
-              {/* Save / Cancel */}
-              <div className="flex gap-3">
+          {/* Category grid */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {activityCategories.map(cat => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.type;
+              return (
                 <button
-                  onClick={saveActivity}
-                  disabled={saving || !newTitle.trim()}
-                  className="flex-[2] h-12 rounded-xl bg-primary text-primary-foreground text-[16px] font-bold flex items-center justify-center gap-2 disabled:opacity-40 active:scale-95 transition-transform touch-target"
+                  key={cat.type}
+                  onClick={() => setSelectedCategory(cat.type)}
+                  className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition-all touch-target ${
+                    isSelected
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border bg-card'
+                  }`}
                 >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Save ✓
+                  <Icon className={`w-6 h-6 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`text-[16px] font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>{cat.label}</span>
                 </button>
-                <button
-                  onClick={() => { setShowAdd(false); setSelectedCategory(''); setNewTitle(''); setNewDescription(''); }}
-                  className="flex-1 h-12 rounded-xl border border-border/40 text-muted-foreground text-[16px] font-semibold touch-target"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              );
+            })}
+          </div>
 
-      {/* Memory Detail Sheet */}
-      <AnimatePresence>
-        {selectedMemory && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 bg-black/30 flex items-end" onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }}>
-            <motion.div
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-              className="bg-card w-full rounded-t-2xl shadow-xl"
-              onClick={e => e.stopPropagation()}
+          <Separator className="mb-5" />
+
+          {/* Input fields using shadcn */}
+          <Input
+            placeholder="What happened? (e.g. Called my son)"
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            className="h-14 rounded-xl text-[17px] mb-3 border-border"
+          />
+          <Textarea
+            placeholder="Any details you want to remember..."
+            value={newDescription}
+            onChange={e => setNewDescription(e.target.value)}
+            rows={3}
+            className="rounded-xl text-[17px] mb-6 border-border resize-none"
+          />
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <Button
+              onClick={saveActivity}
+              disabled={saving || !newTitle.trim()}
+              size="lg"
+              className="flex-[2] h-14 rounded-xl text-[18px] font-bold gap-2"
             >
-              <div className="flex justify-between items-center px-5 pt-4 pb-2">
-                <p className="text-[13px] font-semibold text-muted-foreground">{selectedMemory.date} · {selectedMemory.time}</p>
-                <button onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }} className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center touch-target">
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+              Save ✓
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => { setShowAdd(false); setSelectedCategory(''); setNewTitle(''); setNewDescription(''); }}
+              size="lg"
+              className="flex-1 h-14 rounded-xl text-[18px] font-semibold"
+            >
+              Cancel
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-              <div className="px-5 pb-2">
-                <h3 className="text-[20px] font-bold text-foreground">{selectedMemory.title}</h3>
-                {selectedMemory.description && (
-                  <p className="text-[15px] text-muted-foreground mt-2 leading-relaxed">{selectedMemory.description}</p>
-                )}
-              </div>
+      {/* Memory Detail Sheet using shadcn */}
+      <Sheet open={!!selectedMemory} onOpenChange={(open) => { if (!open) { setSelectedMemory(null); setShowCognitivePrompt(false); } }}>
+        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-8 max-h-[80%] overflow-y-auto">
+          {selectedMemory && (
+            <>
+              <SheetHeader className="pb-2">
+                <p className="text-[15px] font-medium text-muted-foreground text-left">{selectedMemory.date} · {selectedMemory.time}</p>
+                <SheetTitle className="text-[22px] font-bold text-foreground text-left">{selectedMemory.title}</SheetTitle>
+              </SheetHeader>
+
+              {selectedMemory.description && (
+                <p className="text-[17px] text-muted-foreground mt-2 leading-relaxed">{selectedMemory.description}</p>
+              )}
 
               {/* Cognitive Recall */}
               {selectedMemory.cognitivePrompt && (
-                <div className="mx-5 mt-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                  <p className="text-[13px] font-semibold text-primary mb-1.5 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> Recall Exercise
-                  </p>
-                  <p className="text-[15px] font-medium text-foreground">{selectedMemory.cognitivePrompt}</p>
-                  {selectedMemory.cognitiveAnswer ? (
-                    <p className="mt-2 text-[14px] text-success font-medium">✓ {selectedMemory.cognitiveAnswer}</p>
-                  ) : !showCognitivePrompt ? (
-                    <button onClick={() => setShowCognitivePrompt(true)} className="mt-2 text-[14px] font-semibold text-primary touch-target">Try to recall →</button>
-                  ) : (
-                    <div className="mt-2 flex gap-2">
-                      <input type="text" value={cognitiveInput} onChange={e => setCognitiveInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && answerCognitivePrompt()} placeholder="Your answer..." className="flex-1 h-10 rounded-lg bg-card px-3 text-[15px] text-foreground outline-none focus:ring-2 focus:ring-primary/30 touch-target" autoFocus />
-                      <button onClick={answerCognitivePrompt} className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center touch-target"><Send className="w-4 h-4" /></button>
-                    </div>
-                  )}
-                </div>
+                <Card className="mt-4 border border-primary/15 bg-primary/5">
+                  <CardContent className="p-4">
+                    <p className="text-[15px] font-semibold text-primary mb-2 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" /> Recall Exercise
+                    </p>
+                    <p className="text-[17px] font-medium text-foreground">{selectedMemory.cognitivePrompt}</p>
+                    {selectedMemory.cognitiveAnswer ? (
+                      <p className="mt-3 text-[16px] text-success font-semibold">✓ {selectedMemory.cognitiveAnswer}</p>
+                    ) : !showCognitivePrompt ? (
+                      <Button variant="link" onClick={() => setShowCognitivePrompt(true)} className="mt-2 text-[16px] font-semibold text-primary p-0 h-auto touch-target">
+                        Try to recall →
+                      </Button>
+                    ) : (
+                      <div className="mt-3 flex gap-2">
+                        <Input
+                          value={cognitiveInput}
+                          onChange={e => setCognitiveInput(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && answerCognitivePrompt()}
+                          placeholder="Your answer..."
+                          className="h-12 rounded-xl text-[16px] touch-target"
+                          autoFocus
+                        />
+                        <Button onClick={answerCognitivePrompt} size="icon" className="h-12 w-12 rounded-xl shrink-0 touch-target">
+                          <Send className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
 
+              <Separator className="my-4" />
+
               {/* Actions */}
-              <div className="px-5 py-4 flex gap-3">
-                <button
+              <div className="flex gap-3">
+                <Button
+                  variant={selectedMemory.isFavorite ? 'destructive' : 'outline'}
                   onClick={() => { toggleFavorite(selectedMemory.id); setSelectedMemory(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null); }}
-                  className={`flex-1 h-11 rounded-xl text-[15px] font-semibold flex items-center justify-center gap-2 touch-target transition-colors ${
-                    selectedMemory.isFavorite ? 'bg-destructive/10 text-destructive' : 'bg-muted/40 text-muted-foreground'
-                  }`}
+                  size="lg"
+                  className="flex-1 h-13 rounded-xl text-[17px] font-semibold gap-2"
                 >
-                  <Heart className={`w-4 h-4 ${selectedMemory.isFavorite ? 'fill-destructive' : ''}`} />
+                  <Heart className={`w-5 h-5 ${selectedMemory.isFavorite ? 'fill-white' : ''}`} />
                   {selectedMemory.isFavorite ? 'Saved' : 'Save'}
-                </button>
-                <button onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }} className="flex-1 h-11 rounded-xl bg-muted/40 text-muted-foreground text-[15px] font-semibold touch-target">Close</button>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setSelectedMemory(null); setShowCognitivePrompt(false); }}
+                  size="lg"
+                  className="flex-1 h-13 rounded-xl text-[17px] font-semibold"
+                >
+                  Close
+                </Button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
