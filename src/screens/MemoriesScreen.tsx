@@ -286,7 +286,7 @@ export default function MemoriesScreen() {
 
   // ── Full Mode — Main View ──
   return (
-    <div className="h-full overflow-y-auto bg-background pb-6 relative">
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
         {/* Header */}
         <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 rounded-b-[28px] relative overflow-hidden">

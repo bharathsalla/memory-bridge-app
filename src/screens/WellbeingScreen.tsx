@@ -24,8 +24,7 @@ export default function WellbeingScreen() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto bg-background pb-6 relative">
-      <div className="absolute inset-0 warm-glow" />
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
         <div className="px-5 pt-5 pb-4">
           <h1 className="text-[26px] font-extrabold text-foreground font-display">💜 My Wellbeing</h1>
