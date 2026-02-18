@@ -19,6 +19,7 @@ import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
 import PatientReminderPopup from '@/components/PatientReminderPopup';
+import { Bell, Phone, RotateCcw, X } from 'lucide-react';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -42,21 +43,56 @@ const cgNavTitles: Record<string, string> = {
 };
 
 const Index = () => {
-  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation } = useApp();
+  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation, voiceReminders } = useApp();
   const [showReminders, setShowReminders] = React.useState(true);
   const [sosNotification, setSOSNotification] = React.useState(false);
+  const [reminderAlert, setReminderAlert] = React.useState<{ medication: string; time: string; caregiverName: string } | null>(null);
   const prevSOSRef = useRef(false);
+  const prevActiveCountRef = useRef(0);
 
   // Show mobile notification when SOS is triggered (for caregiver view)
   useEffect(() => {
     if (isSOSActive && !prevSOSRef.current) {
       setSOSNotification(true);
-      // Auto-dismiss after 8 seconds
       const timer = setTimeout(() => setSOSNotification(false), 8000);
       return () => clearTimeout(timer);
     }
     prevSOSRef.current = isSOSActive;
   }, [isSOSActive]);
+
+  // Alert caregiver when a new voice reminder becomes active (syncs both views)
+  useEffect(() => {
+    const activeCount = voiceReminders.filter(r => r.status === 'active').length;
+    if (activeCount > prevActiveCountRef.current && isCaregiverView) {
+      const newest = voiceReminders.filter(r => r.status === 'active').slice(-1)[0];
+      if (newest) {
+        setReminderAlert({ medication: newest.medication, time: newest.time, caregiverName: newest.caregiverName });
+        const timer = setTimeout(() => setReminderAlert(null), 10000);
+        return () => clearTimeout(timer);
+      }
+    }
+    prevActiveCountRef.current = activeCount;
+  }, [voiceReminders, isCaregiverView]);
+
+  // Caregiver alert when patient hasn't responded (check every 10s)
+  useEffect(() => {
+    if (!isCaregiverView) return;
+    const interval = setInterval(() => {
+      const pending = voiceReminders.find(r => r.status === 'active');
+      if (pending) {
+        const elapsed = Date.now() - new Date(pending.createdAt).getTime();
+        // Alert after 90 seconds of no response
+        if (elapsed > 90000) {
+          setReminderAlert({
+            medication: pending.medication,
+            time: pending.time,
+            caregiverName: pending.caregiverName,
+          });
+        }
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [isCaregiverView, voiceReminders]);
 
   // Don't show reminders when switching to caregiver view
   useEffect(() => {
@@ -101,6 +137,53 @@ const Index = () => {
                 >
                   ✕
                 </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Caregiver Reminder Alert Banner */}
+        <AnimatePresence>
+          {reminderAlert && isCaregiverView && (
+            <motion.div
+              initial={{ opacity: 0, y: -60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -60 }}
+              transition={{ type: 'spring', damping: 20 }}
+              className="absolute top-0 left-0 right-0 z-[60] bg-warning text-warning-foreground p-3 shadow-2xl"
+              onClick={() => {
+                setReminderAlert(null);
+                setActiveCaregiverTab('reminders');
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-warning-foreground/20 flex items-center justify-center animate-pulse shrink-0">
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[14px] font-bold">⚠ Medication Reminder Pending!</div>
+                  <div className="text-[12px] opacity-90">
+                    💊 {reminderAlert.medication} at {reminderAlert.time} — Patient hasn't responded
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveCaregiverTab('reminders');
+                      setReminderAlert(null);
+                    }}
+                    className="w-8 h-8 rounded-full bg-warning-foreground/20 flex items-center justify-center"
+                  >
+                    <Phone className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setReminderAlert(null); }}
+                    className="w-8 h-8 rounded-full bg-warning-foreground/20 flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
