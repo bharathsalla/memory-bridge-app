@@ -286,52 +286,6 @@ export default function CrisisPreventionEngine() {
             ]}
           />
         </div>
-
-        {/* Patient Mode Switcher */}
-        <button
-          onClick={() => setShowModeSwitcher(!showModeSwitcher)}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 mt-1"
-        >
-          <div className="flex items-center gap-2">
-            <Settings2 className="w-4 h-4 text-primary" />
-            <span className="text-[12px] font-bold text-foreground">Patient View</span>
-          </div>
-          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-            mode === 'full' ? 'bg-primary/10 text-primary' : mode === 'simplified' ? 'bg-warning/10 text-warning' : 'bg-destructive/10 text-destructive'
-          }`}>
-            {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
-          </span>
-        </button>
-
-        <AnimatePresence>
-          {showModeSwitcher && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="flex gap-2 mt-2">
-                {([
-                  { key: 'full' as const, label: 'Independent', desc: 'Full features', color: 'border-primary text-primary bg-primary/5' },
-                  { key: 'simplified' as const, label: 'Guided', desc: 'Simpler UI', color: 'border-warning text-warning bg-warning/5' },
-                  { key: 'essential' as const, label: 'Assisted', desc: 'Minimal', color: 'border-destructive text-destructive bg-destructive/5' },
-                ]).map(opt => (
-                  <button
-                    key={opt.key}
-                    onClick={() => { setMode(opt.key); setShowModeSwitcher(false); }}
-                    className={`flex-1 p-3 rounded-xl border-2 text-center transition-all ${
-                      mode === opt.key ? opt.color : 'border-border/50 text-muted-foreground bg-card'
-                    }`}
-                  >
-                    <div className="text-[13px] font-bold">{opt.label}</div>
-                    <div className="text-[10px] opacity-70 mt-0.5">{opt.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Content */}
