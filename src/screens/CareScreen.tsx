@@ -80,7 +80,7 @@ export default function CareScreen() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg relative overflow-hidden">
       {/* iOS Large Title Header */}
-      <div className="px-4 pt-14 pb-1 shrink-0">
+      <div className="px-4 pt-4 pb-1 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-ios-large-title text-foreground">Care Circle</h1>
           <Button

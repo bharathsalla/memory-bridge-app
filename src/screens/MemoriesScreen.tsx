@@ -289,7 +289,7 @@ export default function MemoriesScreen() {
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
         {/* iOS Large Title */}
-        <div className="px-4 pt-14 pb-1">
+        <div className="px-4 pt-4 pb-1">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-large-title text-foreground">Memories</h1>
             <button

@@ -27,7 +27,7 @@ export default function WellbeingScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       {/* iOS Large Title */}
-      <div className="px-4 pt-14 pb-1">
+      <div className="px-4 pt-4 pb-1">
         <h1 className="text-ios-large-title text-foreground">Wellbeing</h1>
         <p className="text-ios-subheadline text-muted-foreground mt-1">Track your health & mood</p>
       </div>
@@ -140,10 +140,8 @@ export default function WellbeingScreen() {
           ].map(item => {
             const Icon = item.icon;
             return (
-              <button key={item.label} className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/20 transition-colors touch-target">
-                <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-primary" />
-                </div>
+              <button key={item.label} className="w-full flex items-center gap-3 px-4 text-left active:bg-muted/20 transition-colors touch-target" style={{ minHeight: 56 }}>
+                <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <span className="text-ios-callout text-foreground flex-1">{item.label}</span>
                 {item.detail && <span className="text-ios-subheadline text-muted-foreground">{item.detail}</span>}
                 <ChevronRight className="w-5 h-5 text-muted-foreground/30" />

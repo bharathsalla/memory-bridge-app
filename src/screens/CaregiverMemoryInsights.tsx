@@ -89,7 +89,7 @@ export default function CaregiverMemoryInsights() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
       {/* iOS Large Title Header */}
-      <div className="px-5 pt-14 pb-2">
+      <div className="px-5 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <h1 className="text-ios-large-title text-foreground">Insights</h1>
           <button onClick={() => fetchInsights(true)} disabled={refreshing} className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">

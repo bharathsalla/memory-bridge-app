@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Shield, MapPin, Phone, AlertTriangle, Activity, Check } from 'lucide-react';
+import { Shield, MapPin, Phone, AlertTriangle, Activity, Check, ChevronRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -47,7 +47,7 @@ export default function SafetyScreen() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
         {/* Large title */}
-        <div className="px-4 pt-14 pb-1">
+        <div className="px-4 pt-4 pb-1">
           <h1 className="text-ios-large-title text-foreground">Safety</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">Everything looks good</p>
         </div>
@@ -98,22 +98,22 @@ export default function SafetyScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       {/* iOS Large Title */}
-      <div className="px-4 pt-14 pb-1">
+      <div className="px-4 pt-4 pb-1">
         <h1 className="text-ios-large-title text-foreground">Safety</h1>
         <p className="text-ios-subheadline text-muted-foreground mt-1">All systems normal</p>
       </div>
 
       <div className="px-4 space-y-3">
         {/* Status Card */}
-        <div className="ios-card p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-            <Check className="w-5 h-5 text-success" />
+        <div className="ios-card overflow-hidden divide-y divide-border/30">
+          <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+            <Check className="w-5 h-5 text-success shrink-0" />
+            <div className="flex-1">
+              <div className="text-ios-callout font-medium text-foreground">All Systems Normal</div>
+              <div className="text-ios-footnote text-muted-foreground">Last checked 2 min ago</div>
+            </div>
+            <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
           </div>
-          <div className="flex-1">
-            <div className="text-ios-callout font-semibold text-foreground">All Systems Normal</div>
-            <div className="text-ios-footnote text-muted-foreground mt-0.5">Last checked 2 min ago</div>
-          </div>
-          <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
         </div>
 
         {/* Location Card */}
@@ -135,37 +135,34 @@ export default function SafetyScreen() {
         </div>
 
         {/* Fall Detection */}
-        <div className="ios-card p-4">
-          <div className="flex items-center gap-3">
-            <Activity className="w-5 h-5 text-primary" />
-            <span className="text-ios-callout font-semibold text-foreground flex-1">Fall Detection</span>
-            <span className="text-ios-caption font-semibold text-success bg-success/8 px-2 py-0.5 rounded-full">Active</span>
+        <div className="ios-card overflow-hidden">
+          <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+            <Activity className="w-5 h-5 text-muted-foreground shrink-0" />
+            <span className="text-ios-callout font-medium text-foreground flex-1">Fall Detection</span>
+            <span className="text-ios-caption font-semibold text-success">Active</span>
+            <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
           </div>
-          <div className="text-ios-footnote text-muted-foreground mt-2">No incidents in the last 30 days</div>
+          <div className="px-4 pb-3 pl-12 text-ios-footnote text-muted-foreground">No incidents in the last 30 days</div>
         </div>
 
         {/* Emergency Contacts */}
-        <div className="ios-card overflow-hidden">
-          <div className="flex items-center gap-3 p-4 pb-2">
-            <Phone className="w-5 h-5 text-primary" />
+        <div className="ios-card overflow-hidden divide-y divide-border/30">
+          <div className="flex items-center gap-3 px-4" style={{ minHeight: 44 }}>
+            <Phone className="w-5 h-5 text-muted-foreground" />
             <span className="text-ios-headline text-foreground">Emergency Contacts</span>
           </div>
           {[
-            { name: 'Sarah Johnson', role: 'Primary Caregiver', emoji: '👩' },
-            { name: 'John Johnson', role: 'Son', emoji: '👨' },
-            { name: 'Dr. Smith', role: 'Doctor', emoji: '👨‍⚕️' },
+            { name: 'Sarah Johnson', role: 'Primary Caregiver' },
+            { name: 'John Johnson', role: 'Son' },
+            { name: 'Dr. Smith', role: 'Doctor' },
           ].map(contact => (
-            <div key={contact.name} className="flex items-center gap-3 px-4 py-3 border-t border-border/30">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-[18px]">{contact.emoji}</span>
-              </div>
+            <div key={contact.name} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+              <User className="w-5 h-5 text-muted-foreground shrink-0" />
               <div className="flex-1">
-                <div className="text-ios-subheadline font-semibold text-foreground">{contact.name}</div>
+                <div className="text-ios-callout font-medium text-foreground">{contact.name}</div>
                 <div className="text-ios-footnote text-muted-foreground">{contact.role}</div>
               </div>
-              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full bg-success/8" aria-label={`Call ${contact.name}`}>
-                <Phone className="w-4 h-4 text-success" />
-              </Button>
+              <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
             </div>
           ))}
         </div>
