@@ -193,8 +193,14 @@ const Index = () => {
         {!(mode === 'essential' && !isCaregiverView) && (
           <NavBar
             title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
-            showBack={isCaregiverView}
-            onBack={toggleCaregiverView}
+            showBack={isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety')}
+            onBack={() => {
+              if (isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety')) {
+                setActiveCaregiverTab('dashboard');
+              } else {
+                toggleCaregiverView();
+              }
+            }}
             showReminderBell={!isCaregiverView}
             onReminderClick={() => {
               if (isCaregiverView) {
@@ -203,7 +209,7 @@ const Index = () => {
                 setShowReminders(prev => !prev);
               }
             }}
-            showCaregiverExtras={isCaregiverView}
+            showCaregiverExtras={isCaregiverView && activeCaregiverTab !== 'reminders'}
           />
         )}
 

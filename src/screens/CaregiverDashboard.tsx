@@ -74,14 +74,8 @@ export default function CaregiverDashboard() {
             </div>
           </div>
 
-          <button onClick={() => setActiveCaregiverTab('settings')}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-[15px] transition-colors">
-            <Settings2 className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
-
           <button onClick={() => setActiveCaregiverTab('safety')}
-            className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-success text-success-foreground font-bold text-[15px] transition-colors">
+            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-[15px] transition-colors">
             <Shield className="w-5 h-5" />
             <span>Enable Safety Tracking</span>
           </button>

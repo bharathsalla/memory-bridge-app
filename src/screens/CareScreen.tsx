@@ -51,7 +51,7 @@ export default function CareScreen() {
     });
   };
 
-  const selectView = (viewId: string) => {
+  const selectView = (_viewId: string) => {
     setViewModalOpen(false);
     toggleCaregiverView();
   };
