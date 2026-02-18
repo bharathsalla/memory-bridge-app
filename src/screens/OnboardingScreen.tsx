@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, CheckCircle } from 'lucide-react';
+import { Smartphone, Hand, Users, Mic, Monitor, Brain, Sparkles, CheckCircle } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
@@ -78,7 +78,7 @@ export default function OnboardingScreen() {
             className="w-32 h-32 mb-8 rounded-3xl shadow-lg ring-4 ring-primary/10 bg-gradient-to-br from-primary to-accent flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary-foreground/5" />
                 <Brain className="w-16 h-16 text-primary-foreground relative z-10" strokeWidth={1.5} />
-                
+                <Sparkles className="w-6 h-6 text-primary-foreground/60 absolute top-3 right-3" />
               </motion.div>
               <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">Welcome to<br />MemoCare</h1>
               <p className="text-[16px] text-muted-foreground max-w-[280px] leading-relaxed">
@@ -86,7 +86,7 @@ export default function OnboardingScreen() {
               </p>
               <div className="mt-auto mb-8 w-full space-y-3">
                 <button onClick={next} className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg flex items-center justify-center gap-2">
-                  <Heart className="w-5 h-5" />
+                  
                   Get Started
                 </button>
                 <button onClick={() => {setSelectedMode('full');setStep('personalize');}} className="w-full h-12 text-primary text-[16px] font-semibold rounded-2xl">
