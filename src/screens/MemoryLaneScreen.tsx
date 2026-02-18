@@ -204,7 +204,7 @@ export default function MemoryLaneScreen() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background relative overflow-hidden">
+    <div className="h-full flex flex-col bg-background relative">
       {/* Header */}
       <div className="bg-primary px-5 py-5 rounded-b-2xl">
         <div className="flex items-center justify-between">
