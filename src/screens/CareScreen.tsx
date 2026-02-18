@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Paperclip, Shield, ArrowUp } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Paperclip, ArrowUp } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
-import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -107,7 +107,6 @@ export default function CareScreen() {
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {[
               { value: 'chat', icon: <MessageCircle className="w-4 h-4" />, label: 'Chat' },
-              { value: 'health', icon: <Shield className="w-4 h-4" />, label: 'Health' },
               { value: 'tasks', icon: <CheckSquare className="w-4 h-4" />, label: 'Tasks' },
               { value: 'calendar', icon: <CalendarDays className="w-4 h-4" />, label: 'Events' },
               { value: 'team', icon: <Users className="w-4 h-4" />, label: 'Team' },
@@ -210,11 +209,6 @@ export default function CareScreen() {
               </div>
             </div>
           </div>
-        </TabsContent>
-
-        {/* Health */}
-        <TabsContent value="health" className="flex-1 min-h-0 mt-0 overflow-y-auto pb-4">
-          <CrisisPreventionEngine />
         </TabsContent>
 
         {/* Tasks */}
