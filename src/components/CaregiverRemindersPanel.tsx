@@ -71,7 +71,6 @@ export default function CaregiverRemindersPanel() {
             { id: 'voice' as const, label: 'Voice', icon: Mic },
             { id: 'send' as const, label: 'Send', icon: Bell },
             { id: 'logs' as const, label: 'Activity', icon: Clock },
-            { id: 'patterns' as const, label: 'ML', icon: Brain },
           ].map(tab => (
             <button
               key={tab.id}

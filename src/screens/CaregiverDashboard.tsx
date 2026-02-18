@@ -255,22 +255,19 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto bg-background pb-6">
-        {/* Crisis Prevention Engine */}
-        <CrisisPreventionEngine />
-
-        {/* Patient Mode Switch Button */}
-        <div className="px-5 pt-4 pb-2">
+        {/* Patient Mode Switch Button — under tab bar */}
+        <div className="px-5 pt-4 pb-3">
           <Button
             className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-md"
             onClick={() => setModeModalOpen(true)}
           >
             <Settings2 className="w-5 h-5 mr-2" />
-            Change Patient View Mode
+            Patient View: {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
           </Button>
-          <p className="text-center text-[13px] text-muted-foreground mt-2">
-            Current: <span className="font-bold text-foreground">{mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}</span>
-          </p>
         </div>
+
+        {/* Crisis Prevention Engine */}
+        <CrisisPreventionEngine />
 
         {/* Mode Modal */}
         <AnimatePresence>
