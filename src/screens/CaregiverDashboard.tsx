@@ -128,79 +128,79 @@ export default function CaregiverDashboard() {
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="px-5 mt-4">
-          <div className="grid grid-cols-4 gap-2">
+        {/* Quick Actions — iOS grouped list */}
+        <div className="mt-6">
+          <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Quick Actions</p>
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {[
-              { icon: MapPin, label: 'Location', bg: 'bg-primary/8', color: 'text-primary' },
-              { icon: MessageCircle, label: 'Message', bg: 'bg-sage/8', color: 'text-sage' },
-              { icon: Bell, label: 'Reminder', bg: 'bg-accent/8', color: 'text-accent' },
-              { icon: Phone, label: 'Call', bg: 'bg-destructive/8', color: 'text-destructive' },
+              { icon: MapPin, label: 'Location', detail: 'Home · Safe zone' },
+              { icon: MessageCircle, label: 'Send Message', detail: 'Care circle chat' },
+              { icon: Bell, label: 'Send Reminder', detail: 'Medication, meals, etc.' },
+              { icon: Phone, label: 'Call Patient', detail: 'Direct call' },
             ].map(action => {
               const Icon = action.icon;
               return (
-                <motion.button
-                  key={action.label}
-                  whileTap={{ scale: 0.92 }}
-                  className="ios-card p-3 flex flex-col items-center gap-2 touch-target"
-                >
-                  <div className={`w-10 h-10 rounded-xl ${action.bg} flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${action.color}`} />
+                <button key={action.label} className="w-full flex items-center gap-3 p-4 text-left touch-target">
+                  <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-[11px] font-medium text-foreground">{action.label}</span>
-                </motion.button>
+                  <div className="flex-1">
+                    <p className="text-ios-callout font-medium text-foreground">{action.label}</p>
+                    <p className="text-ios-footnote text-muted-foreground">{action.detail}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+                </button>
               );
             })}
           </div>
         </div>
 
         {/* Activity Timeline */}
-        <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">📋 Today's Activity</h2>
-          <div className="ios-card-elevated p-4">
-            {activities.map((item, i) => (
-              <div key={item.id} className="flex items-start gap-3 pb-3 last:pb-0">
-                <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${item.completed ? 'bg-success/10' : 'bg-warning/10'}`}>
-                    {item.icon}
-                  </div>
-                  {i < activities.length - 1 && <div className="w-px h-5 bg-border/60 mt-1" />}
+        <div className="mt-6">
+          <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+            {activities.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 p-4">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shrink-0 ${item.completed ? 'bg-success/10' : 'bg-warning/10'}`}>
+                  {item.icon}
                 </div>
-                <div className="flex-1 pt-0.5">
-                  <div className="text-[14px] font-medium text-foreground">{item.description}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{item.time}</div>
+                <div className="flex-1">
+                  <div className="text-ios-callout font-medium text-foreground">{item.description}</div>
+                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{item.time}</div>
                 </div>
                 {item.completed ? (
-                  <Check className="w-4 h-4 text-success mt-1 shrink-0" />
+                  <span className="text-ios-caption font-semibold text-success">Done</span>
                 ) : (
-                  <span className="text-warning text-[11px] font-medium mt-1">Pending</span>
+                  <span className="text-ios-caption font-medium text-warning">Pending</span>
                 )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Health Metrics */}
-        <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">📊 Health Snapshot</h2>
-          <div className="flex gap-2.5 overflow-x-auto pb-1">
+        {/* Health Metrics — Apple Health grouped list */}
+        <div className="mt-6">
+          <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Snapshot</p>
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {[
-              { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up', color: 'text-lavender', bg: 'bg-lavender/8' },
-              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down', color: 'text-sage', bg: 'bg-sage/8' },
-              { label: 'Mood', value: currentMood.emoji, Icon: Heart, trend: 'stable', color: 'text-accent', bg: 'bg-accent/8' },
-              { label: 'Meds', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up', color: 'text-primary', bg: 'bg-primary/8' },
+              { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up' },
+              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down' },
+              { label: 'Mood', value: currentMood.emoji, Icon: Heart, trend: 'stable' },
+              { label: 'Medications', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up' },
             ].map(metric => {
               const Icon = metric.Icon;
               return (
-                <div key={metric.label} className="ios-card-elevated min-w-[120px] p-3 shrink-0">
-                  <div className={`w-8 h-8 rounded-lg ${metric.bg} flex items-center justify-center mb-2`}>
-                    <Icon className={`w-4 h-4 ${metric.color}`} />
+                <div key={metric.label} className="flex items-center gap-3 p-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-primary" />
                   </div>
-                  <div className="text-[20px] font-bold text-foreground">{metric.value}</div>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[11px] text-muted-foreground">{metric.label}</span>
-                    {metric.trend === 'up' && <TrendingUp className="w-3 h-3 text-success" />}
-                    {metric.trend === 'down' && <TrendingDown className="w-3 h-3 text-destructive" />}
+                  <div className="flex-1">
+                    <p className="text-ios-callout font-medium text-foreground">{metric.label}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-ios-headline text-foreground">{metric.value}</span>
+                    {metric.trend === 'up' && <TrendingUp className="w-4 h-4 text-success" />}
+                    {metric.trend === 'down' && <TrendingDown className="w-4 h-4 text-destructive" />}
                   </div>
                 </div>
               );
@@ -208,37 +208,34 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        {/* Alerts */}
-        <div className="px-5 mt-5">
-          <h2 className="text-[18px] font-extrabold text-foreground mb-3 font-display">⚠️ Alerts</h2>
-          <div className="ios-card-elevated divide-y divide-border/60">
-            {/* Dynamic SOS history alerts */}
+        {/* Alerts — Apple Health grouped list */}
+        <div className="mt-6 mb-6">
+          <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Alerts</p>
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (
               <div key={sos.id} className="flex items-center gap-3 p-4">
-                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${sos.resolved ? 'bg-warning' : 'bg-destructive animate-pulse'}`} />
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${sos.resolved ? 'bg-warning' : 'bg-destructive'}`} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-medium text-foreground">
-                    {sos.resolved ? `🆘 SOS resolved — ${sos.location}` : `🚨 SOS Active — ${sos.location}`}
+                  <div className="text-ios-callout font-medium text-foreground">
+                    {sos.resolved ? `SOS resolved — ${sos.location}` : `SOS Active — ${sos.location}`}
                   </div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{sos.timestamp}</div>
+                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{sos.timestamp}</div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
               </div>
             ))}
             {[
-              { text: 'Medication taken late (15 min)', time: '2 hours ago', level: 'warn' },
-              { text: 'Mode switch suggested', time: 'Yesterday', level: 'info' },
-              { text: 'Fall detected, resolved', time: 'Feb 10', level: 'critical' },
+              { text: 'Medication taken late (15 min)', time: '2 hours ago' },
+              { text: 'Mode switch suggested', time: 'Yesterday' },
+              { text: 'Fall detected, resolved', time: 'Feb 10' },
             ].map((alert, i) => (
               <div key={i} className="flex items-center gap-3 p-4">
-                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                  alert.level === 'critical' ? 'bg-destructive' : alert.level === 'warn' ? 'bg-warning' : 'bg-primary'
-                }`} />
+                <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-warning" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-medium text-foreground">{alert.text}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{alert.time}</div>
+                  <div className="text-ios-callout font-medium text-foreground">{alert.text}</div>
+                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{alert.time}</div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
               </div>
             ))}
           </div>

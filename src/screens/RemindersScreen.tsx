@@ -66,7 +66,7 @@ export default function RemindersScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-24 relative">
       {/* iOS Large Title */}
-      <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+      <div className="px-4 pt-14 pb-1 flex items-center justify-between">
         <div>
           <h1 className="text-ios-large-title text-foreground">Reminders</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">{scheduled.length} scheduled</p>

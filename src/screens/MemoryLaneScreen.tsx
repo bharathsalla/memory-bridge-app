@@ -206,7 +206,7 @@ export default function MemoryLaneScreen() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg relative">
       {/* iOS Large Title */}
-      <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+      <div className="px-4 pt-14 pb-1 flex items-center justify-between">
         <div>
           <h1 className="text-ios-large-title text-foreground">Timeline</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">{dateStr}</p>

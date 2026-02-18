@@ -47,7 +47,7 @@ export default function SafetyScreen() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
         {/* Large title */}
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-14 pb-1">
           <h1 className="text-ios-large-title text-foreground">Safety</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">Everything looks good</p>
         </div>
@@ -98,7 +98,7 @@ export default function SafetyScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       {/* iOS Large Title */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-14 pb-1">
         <h1 className="text-ios-large-title text-foreground">Safety</h1>
         <p className="text-ios-subheadline text-muted-foreground mt-1">All systems normal</p>
       </div>

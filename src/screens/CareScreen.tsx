@@ -80,20 +80,20 @@ export default function CareScreen() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg relative overflow-hidden">
       {/* iOS Large Title Header */}
-      <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
-        <div>
+      <div className="px-4 pt-14 pb-1 shrink-0">
+        <div className="flex items-center justify-between">
           <h1 className="text-ios-large-title text-foreground">Care Circle</h1>
-          <p className="text-ios-subheadline text-muted-foreground mt-0.5">3 members online</p>
+          <Button
+            onClick={() => setViewModalOpen(true)}
+            variant="ghost"
+            size="sm"
+            className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-2"
+          >
+            <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+            Dashboard
+          </Button>
         </div>
-        <Button
-          onClick={() => setViewModalOpen(true)}
-          variant="outline"
-          size="sm"
-          className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-2"
-        >
-          <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
-          Dashboard
-        </Button>
+        <p className="text-ios-subheadline text-muted-foreground mt-1">3 members online</p>
       </div>
 
       {/* Tabs */}
@@ -325,18 +325,7 @@ export default function CareScreen() {
         </TabsContent>
       </Tabs>
 
-      {/* FAB */}
-      {showFab && (
-        <motion.button
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          onClick={() => setManageOpen(true)}
-          className="absolute bottom-6 right-5 w-14 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform touch-target"
-          aria-label="Add new item"
-        >
-          <Plus className="w-6 h-6" />
-        </motion.button>
-      )}
+      {/* No FAB — iOS doesn't use floating action buttons */}
 
       <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
 
