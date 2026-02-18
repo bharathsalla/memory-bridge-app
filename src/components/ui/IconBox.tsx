@@ -18,7 +18,7 @@ export default function IconBox({ Icon, color, size = 44, iconSize = 20 }: IconB
       style={{
         width: size,
         height: size,
-        borderRadius: 4,
+        borderRadius: 8,
         backgroundColor: color,
       }}
     >

@@ -4,6 +4,7 @@ import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
+import peopleGrid from '@/assets/onboarding-people-grid.jpg';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
 
@@ -109,38 +110,41 @@ export default function OnboardingScreen() {
           transition={{ duration: 0.3 }}
           className="flex-1 flex flex-col relative z-10"
         >
-          {/* ── Welcome ── full primary green, edge-to-edge */}
+          {/* ── Welcome ── white bg with people grid */}
           {step === 'welcome' && (
-            <div
-              className="flex-1 flex flex-col"
-              style={{ background: 'linear-gradient(170deg, hsl(168 42% 46%) 0%, hsl(168 42% 34%) 60%, hsl(168 50% 26%) 100%)' }}
-            >
-              {/* Radial highlight */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 30%, hsla(168,50%,60%,0.35), transparent)' }}
-              />
-
-              {/* Progress dots on green */}
+            <div className="flex-1 flex flex-col bg-white">
+              {/* Progress dots */}
               <div className="flex justify-center gap-2.5 pt-14 pb-4 relative z-20">
                 {steps.map((s) => (
                   <div
                     key={s}
                     className={`h-[5px] rounded-full transition-all duration-500 ${
-                      s === step ? 'w-10 bg-white/80' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-white/40' : 'w-[5px] bg-white/20'
+                      s === step ? 'w-10 bg-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
                     }`}
                   />
                 ))}
               </div>
 
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-8 relative z-10">
-                <MemoCareLogo />
+              {/* People grid image */}
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-6 relative z-10">
+                <motion.div
+                  initial={{ scale: 0.85, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, type: 'spring', bounce: 0.3, duration: 0.8 }}
+                  className="w-[280px] h-[200px] rounded-2xl overflow-hidden mb-8 shadow-lg"
+                >
+                  <img
+                    src={peopleGrid}
+                    alt="Diverse patients and caregivers"
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
 
                 <motion.h1
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-[34px] font-extrabold text-white mb-4 leading-[1.1] font-display tracking-tight"
+                  transition={{ delay: 0.35, duration: 0.5 }}
+                  className="text-[34px] font-extrabold text-foreground mb-4 leading-[1.1] font-display tracking-tight"
                 >
                   Welcome to
                   <br />
@@ -150,8 +154,8 @@ export default function OnboardingScreen() {
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.55, duration: 0.5 }}
-                  className="text-[16px] text-white/65 max-w-[280px] leading-relaxed"
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="text-[16px] text-muted-foreground max-w-[280px] leading-relaxed"
                 >
                   Supporting you every step of the way, with care and kindness.
                 </motion.p>
@@ -162,28 +166,23 @@ export default function OnboardingScreen() {
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7, duration: 0.4 }}
+                  transition={{ delay: 0.65, duration: 0.4 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={next}
-                  className="w-full h-[58px] bg-white rounded shadow-xl flex items-center justify-between pl-8 pr-2 active:opacity-90 transition-all"
+                  className="w-full h-[58px] bg-primary rounded-2xl shadow-lg flex items-center justify-center gap-3 active:opacity-90 transition-all"
                 >
-                  <span className="text-[18px] font-bold" style={{ color: 'hsl(168 42% 36%)' }}>
+                  <span className="text-[18px] font-bold text-primary-foreground">
                     Get Started
                   </span>
-                  <div
-                    className="w-12 h-12 rounded flex items-center justify-center"
-                    style={{ background: 'hsl(168 42% 36%)' }}
-                  >
-                    <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
                 </motion.button>
 
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.85 }}
+                  transition={{ delay: 0.8 }}
                   onClick={() => { setSelectedMode('full'); setStep('personalize'); }}
-                  className="w-full h-12 text-white/70 text-[16px] font-semibold rounded-2xl active:text-white/90 transition-colors"
+                  className="w-full h-12 text-muted-foreground text-[16px] font-semibold rounded-2xl active:text-foreground transition-colors"
                 >
                   I'm a caregiver
                 </motion.button>
