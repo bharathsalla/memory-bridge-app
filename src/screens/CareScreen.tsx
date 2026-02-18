@@ -102,7 +102,7 @@ export default function CareScreen() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <div className="px-4 pt-3 pb-1.5 shrink-0">
           <TabsList className="h-10 rounded-xl bg-muted/40 p-0.5 w-full grid grid-cols-5">
             <TabsTrigger value="chat" className="h-9 rounded-lg text-[12px] font-semibold gap-1 data-[state=active]:shadow-sm">
@@ -129,7 +129,7 @@ export default function CareScreen() {
         </div>
 
         {/* Chat — ChatGPT-style */}
-        <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0">
+        <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0 data-[state=inactive]:hidden">
           <div className="flex-1 overflow-y-auto px-4 pt-3 pb-3">
             {/* Date pill */}
             <div className="flex justify-center mb-4">
@@ -213,12 +213,12 @@ export default function CareScreen() {
         </TabsContent>
 
         {/* Health */}
-        <TabsContent value="health" className="flex-1 flex flex-col min-h-0 mt-0 overflow-y-auto pb-4">
+        <TabsContent value="health" className="flex-1 min-h-0 mt-0 overflow-y-auto pb-4">
           <CrisisPreventionEngine />
         </TabsContent>
 
         {/* Tasks */}
-        <TabsContent value="tasks" className="flex-1 overflow-y-auto mt-0">
+        <TabsContent value="tasks" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[19px] font-extrabold text-foreground">Today's Tasks</h2>
@@ -261,7 +261,7 @@ export default function CareScreen() {
         </TabsContent>
 
         {/* Calendar */}
-        <TabsContent value="calendar" className="flex-1 overflow-y-auto mt-0">
+        <TabsContent value="calendar" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
             <h2 className="text-[19px] font-extrabold text-foreground mb-4">Upcoming Events</h2>
             <div className="space-y-3">
@@ -293,7 +293,7 @@ export default function CareScreen() {
         </TabsContent>
 
         {/* Team */}
-        <TabsContent value="team" className="flex-1 overflow-y-auto mt-0">
+        <TabsContent value="team" className="flex-1 min-h-0 overflow-y-auto mt-0">
           <div className="px-5 pt-4 pb-24">
             <h2 className="text-[19px] font-extrabold text-foreground mb-4">Care Team</h2>
             <div className="space-y-3">
