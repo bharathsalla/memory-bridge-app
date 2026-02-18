@@ -182,7 +182,7 @@ export default function TodayScreen() {
           </div>
 
           {/* Stats Grid — 2 columns, generous sizing */}
-          <div className="px-5 -mt-5 relative z-20">
+          <div className="px-5 mt-4">
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: 'Steps Today', value: stepCount.toLocaleString(), Icon: Footprints, color: 'text-primary', bg: 'bg-primary/10', sub: 'Goal: 5,000' },
@@ -217,20 +217,15 @@ export default function TodayScreen() {
 
           {/* View Me Card */}
           <div className="px-5 mt-5">
-            <motion.button
-              whileTap={{ scale: 0.98 }}
+            <Button
               onClick={() => setShowIDCard(true)}
-              className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/60 shadow-sm active:shadow-none transition-all touch-target"
+              size="lg"
+              className="w-full h-14 rounded-2xl text-[16px] font-bold gap-3 shadow-sm"
             >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                <User className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1 text-left">
-                <span className="text-[16px] font-bold text-foreground">My ID & Emergency Contacts</span>
-                <p className="text-[13px] text-muted-foreground mt-0.5">Tap to view your details</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/40" />
-            </motion.button>
+              <User className="w-6 h-6" />
+              My ID & Emergency Contacts
+              <ChevronRight className="w-5 h-5 ml-auto opacity-60" />
+            </Button>
           </div>
 
           {/* Medications Section */}
@@ -248,39 +243,31 @@ export default function TodayScreen() {
               <div className="space-y-3 mb-4">
                 {pendingMeds.map((med, i) => (
                   <motion.div key={med.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                    <div className="bg-card rounded-2xl border-2 border-warning/30 shadow-md overflow-hidden">
-                      <div className="p-5">
-                        <div className="flex items-start gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-warning/10 flex items-center justify-center shrink-0">
-                            <Pill className="w-7 h-7 text-warning" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-[18px] font-extrabold text-foreground leading-tight">{med.name}</p>
-                              <Badge variant="outline" className="text-[10px] font-bold border-warning/30 text-warning px-1.5 py-0 rounded-md">
-                                Pending
-                              </Badge>
-                            </div>
-                            <p className="text-[15px] text-muted-foreground font-semibold mt-1">{med.dosage}</p>
-                            <div className="flex items-center gap-1.5 mt-2">
-                              <Clock className="w-4 h-4 text-muted-foreground/60" />
-                              <span className="text-[14px] text-muted-foreground font-medium">{med.time}</span>
-                            </div>
-                            {med.instructions && (
-                              <p className="text-[13px] text-muted-foreground/60 mt-2 italic leading-relaxed">{med.instructions}</p>
-                            )}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => markMedicationTaken(med.id)}
-                          size="lg"
-                          className="w-full h-14 rounded-2xl text-[17px] font-bold gap-2 mt-4 shadow-sm"
-                        >
-                          <Check className="w-6 h-6" />
-                          Mark as Taken
-                        </Button>
-                      </div>
-                    </div>
+                    <div className="bg-gradient-to-br from-card to-warning/5 rounded-2xl border border-warning/25 shadow-lg overflow-hidden">
+                       <div className="p-5">
+                         <div className="flex items-center gap-4">
+                           <div className="w-14 h-14 rounded-2xl bg-warning/15 flex items-center justify-center shrink-0 shadow-sm">
+                             <Pill className="w-7 h-7 text-warning" />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                             <p className="text-[18px] font-extrabold text-foreground leading-tight">{med.name}</p>
+                             <p className="text-[14px] text-muted-foreground font-semibold mt-0.5">{med.dosage}</p>
+                             <p className="text-[13px] text-muted-foreground/70 mt-1 flex items-center gap-1.5 font-medium">
+                               <Clock className="w-3.5 h-3.5" /> {med.time}
+                               {med.instructions && <span className="ml-1">· {med.instructions}</span>}
+                             </p>
+                           </div>
+                         </div>
+                         <Button
+                           onClick={() => markMedicationTaken(med.id)}
+                           size="lg"
+                           className="w-full h-13 rounded-2xl text-[16px] font-bold gap-2 mt-4"
+                         >
+                           <Check className="w-5 h-5" />
+                           Mark as Taken
+                         </Button>
+                       </div>
+                     </div>
                   </motion.div>
                 ))}
               </div>
