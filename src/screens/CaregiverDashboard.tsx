@@ -13,6 +13,7 @@ import {
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
   Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User
 } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -130,15 +131,15 @@ export default function CaregiverDashboard() {
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Quick Actions</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {[
-              { icon: MapPin, label: 'Location', detail: 'Home · Safe zone' },
-              { icon: MessageCircle, label: 'Send Message', detail: 'Care circle chat' },
-              { icon: Bell, label: 'Send Reminder', detail: 'Medication, meals, etc.' },
-              { icon: Phone, label: 'Call Patient', detail: 'Direct call' },
+              { icon: MapPin, label: 'Location', detail: 'Home · Safe zone', color: iosColors.teal },
+              { icon: MessageCircle, label: 'Send Message', detail: 'Care circle chat', color: iosColors.blue },
+              { icon: Bell, label: 'Send Reminder', detail: 'Medication, meals, etc.', color: iosColors.orange },
+              { icon: Phone, label: 'Call Patient', detail: 'Direct call', color: iosColors.green },
             ].map(action => {
               const Icon = action.icon;
               return (
-                <button key={action.label} className="w-full flex items-center gap-3 px-4 text-left touch-target" style={{ minHeight: 56 }}>
-                  <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
+                <button key={action.label} className="w-full flex items-center gap-3 px-4 text-left touch-target" style={{ minHeight: 60 }}>
+                  <IconBox Icon={Icon} color={action.color} />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">{action.label}</p>
                     <p className="text-ios-footnote text-muted-foreground">{action.detail}</p>
@@ -154,12 +155,12 @@ export default function CaregiverDashboard() {
         <div className="mt-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-            {activities.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+            {activities.map((item, idx) => (
+              <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
                 {item.completed ? (
-                  <Check className="w-5 h-5 text-success shrink-0" />
+                  <IconBox Icon={Check} color={iosColors.green} />
                 ) : (
-                  <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <IconBox Icon={Clock} color={getColor(idx)} />
                 )}
                 <div className="flex-1">
                   <div className="text-ios-callout font-medium text-foreground">{item.description}</div>
@@ -180,15 +181,15 @@ export default function CaregiverDashboard() {
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Snapshot</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {[
-              { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up' },
-              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down' },
-              { label: 'Mood', value: currentMood.label, Icon: Heart, trend: 'stable' },
-              { label: 'Medications', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up' },
+              { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up', color: iosColors.purple },
+              { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down', color: iosColors.green },
+              { label: 'Mood', value: currentMood.label, Icon: Heart, trend: 'stable', color: iosColors.red },
+              { label: 'Medications', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up', color: iosColors.orange },
             ].map(metric => {
               const Icon = metric.Icon;
               return (
-                <div key={metric.label} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                  <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
+                <div key={metric.label} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+                  <IconBox Icon={Icon} color={metric.color} />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">{metric.label}</p>
                   </div>
@@ -789,14 +790,12 @@ export default function CaregiverDashboard() {
         <h2 className="text-ios-title3 text-foreground mb-3">Care Team</h2>
         <div className="ios-card-elevated divide-y divide-border/60">
           {[
-            { name: 'Sarah Johnson', role: 'Primary', access: 'Full access', emoji: '👩' },
-            { name: 'John Johnson', role: 'Son', access: 'View only', emoji: '👨' },
-            { name: 'Dr. Smith', role: 'Doctor', access: 'Health data', emoji: '👨‍⚕️' },
+            { name: 'Sarah Johnson', role: 'Primary', access: 'Full access', color: iosColors.blue },
+            { name: 'John Johnson', role: 'Son', access: 'View only', color: iosColors.green },
+            { name: 'Dr. Smith', role: 'Doctor', access: 'Health data', color: iosColors.purple },
           ].map(member => (
             <div key={member.name} className="flex items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-muted-foreground" />
-              </div>
+              <IconBox Icon={User} color={member.color} />
               <div className="flex-1 min-w-0">
                 <div className="text-[14px] font-medium text-foreground">{member.name}</div>
                 <div className="text-[11px] text-muted-foreground">{member.role} · {member.access}</div>

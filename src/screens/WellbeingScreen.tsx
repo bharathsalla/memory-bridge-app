@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { Moon, Heart, Shield, HelpCircle, ChevronRight, Bell, Eye, Globe, LogOut, Footprints, Pill, Smile, Meh, Frown, AlertCircle, Angry, BedDouble } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 
 const moods = [
@@ -133,15 +134,15 @@ export default function WellbeingScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Settings</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           {[
-            { icon: Bell, label: 'Notifications', detail: 'On' },
-            { icon: Globe, label: 'Language', detail: 'English' },
-            { icon: Shield, label: 'Privacy', detail: '' },
-            { icon: HelpCircle, label: 'Help & Support', detail: '' },
+            { icon: Bell, label: 'Notifications', detail: 'On', color: iosColors.red },
+            { icon: Globe, label: 'Language', detail: 'English', color: iosColors.blue },
+            { icon: Shield, label: 'Privacy', detail: '', color: iosColors.green },
+            { icon: HelpCircle, label: 'Help & Support', detail: '', color: iosColors.purple },
           ].map(item => {
             const Icon = item.icon;
             return (
-              <button key={item.label} className="w-full flex items-center gap-3 px-4 text-left active:bg-muted/20 transition-colors touch-target" style={{ minHeight: 56 }}>
-                <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
+              <button key={item.label} className="w-full flex items-center gap-3 px-4 text-left active:bg-muted/20 transition-colors touch-target" style={{ minHeight: 60 }}>
+                <IconBox Icon={Icon} color={item.color} />
                 <span className="text-ios-callout font-medium text-foreground flex-1">{item.label}</span>
                 {item.detail && <span className="text-ios-footnote text-muted-foreground">{item.detail}</span>}
                 <ChevronRight className="w-5 h-5 text-muted-foreground/30" />

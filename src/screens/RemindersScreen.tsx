@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Check, Clock, AlarmClock, Plus, Pill, X } from 'lucide-react';
+import { Bell, Check, Clock, AlarmClock, Plus, Pill, X, Utensils, Footprints } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import { useScheduledReminders, useAcknowledgeReminder, useSnoozeReminder, useCreateReminder } from '@/hooks/useReminders';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-const typeConfig: Record<string, { icon: typeof Pill; label: string }> = {
-  medication: { icon: Pill, label: 'Medication' },
-  meal: { icon: Clock, label: 'Meal' },
-  exercise: { icon: Clock, label: 'Exercise' },
-  check_in: { icon: Bell, label: 'Check-in' },
-  custom: { icon: Bell, label: 'Custom' },
+const typeConfig: Record<string, { icon: typeof Pill; label: string; color: string }> = {
+  medication: { icon: Pill, label: 'Medication', color: iosColors.orange },
+  meal: { icon: Utensils, label: 'Meal', color: iosColors.green },
+  exercise: { icon: Footprints, label: 'Exercise', color: iosColors.blue },
+  check_in: { icon: Bell, label: 'Check-in', color: iosColors.purple },
+  custom: { icon: Bell, label: 'Custom', color: iosColors.teal },
 };
 
 export default function RemindersScreen() {
@@ -91,7 +92,7 @@ export default function RemindersScreen() {
               return (
                 <div key={item.id} className="px-4 py-3">
                   <div className="flex items-start gap-3">
-                    <IconComp className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <IconBox Icon={IconComp} color={cfg.color} />
                     <div className="flex-1 min-w-0">
                       <div className="text-ios-callout font-semibold text-foreground">{reminder.title}</div>
                       <div className="text-ios-footnote text-muted-foreground mt-0.5">{reminder.message}</div>
@@ -144,7 +145,7 @@ export default function RemindersScreen() {
               const timeStr = dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
               return (
                 <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-                  <IconComp className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <IconBox Icon={IconComp} color={cfg.color} />
                   <div className="flex-1 min-w-0">
                     <div className="text-ios-callout font-medium text-foreground truncate">{reminder.title}</div>
                     <div className="text-ios-footnote text-muted-foreground mt-0.5">{reminder.message}</div>
