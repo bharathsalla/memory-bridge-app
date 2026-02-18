@@ -187,12 +187,12 @@ export default function MemoryLaneScreen() {
   };
 
   const memoryCardStyles = [
-    'from-rose-50 to-pink-50/50 border-rose-200/50',
-    'from-amber-50 to-yellow-50/50 border-amber-200/50',
-    'from-sky-50 to-blue-50/50 border-sky-200/50',
-    'from-emerald-50 to-green-50/50 border-emerald-200/50',
-    'from-violet-50 to-purple-50/50 border-violet-200/50',
-    'from-orange-50 to-amber-50/50 border-orange-200/50',
+    'from-destructive/5 to-destructive/10 border-destructive/20',
+    'from-warning/5 to-warning/10 border-warning/20',
+    'from-primary/5 to-primary/10 border-primary/20',
+    'from-success/5 to-success/10 border-success/20',
+    'from-accent/5 to-accent/10 border-accent/20',
+    'from-secondary/5 to-secondary/10 border-secondary/20',
   ];
 
   if (loading) {
@@ -204,15 +204,21 @@ export default function MemoryLaneScreen() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background relative">
-      {/* Header */}
-      <div className="bg-primary px-5 py-5 rounded-b-2xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-[22px] font-bold text-primary-foreground">Memory Lane</h1>
-            <p className="text-[14px] text-primary-foreground/70 mt-0.5">{dateStr}</p>
+    <div className="h-full flex flex-col ios-grouped-bg relative">
+      {/* Gradient Header — Care-style */}
+      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+              <Clock className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Memory Lane</h1>
+              <p className="text-[13px] text-primary-foreground/60 font-medium">{dateStr}</p>
+            </div>
           </div>
-          <Button onClick={() => setShowAdd(true)} size="sm" className="h-10 px-4 rounded-xl text-[14px] font-semibold gap-1.5 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 border-0">
+          <Button onClick={() => setShowAdd(true)} size="sm" className="h-10 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-primary-foreground/25">
             <Plus className="w-4 h-4" /> Add
           </Button>
         </div>

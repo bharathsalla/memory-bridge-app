@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Check, Clock, AlarmClock, Plus, Pill, UtensilsCrossed, Footprints, MessageCircle, X } from 'lucide-react';
 import { useScheduledReminders, useAcknowledgeReminder, useSnoozeReminder, useCreateReminder } from '@/hooks/useReminders';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const typeConfig: Record<string, { emoji: string; color: string; bg: string }> = {
   medication: { emoji: '💊', color: 'text-primary', bg: 'bg-primary/10' },
@@ -61,74 +66,79 @@ export default function RemindersScreen() {
   const upcomingReminders = scheduled.filter(s => s.status === 'active' && new Date(s.next_due_time) > new Date());
 
   return (
-    <div className="h-full overflow-y-auto warm-gradient pb-24">
-      <div className="px-5 pt-4 pb-3">
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-24 relative">
+      {/* Gradient Header — Care-style */}
+      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Bell className="w-6 h-6 text-primary" />
+            <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+              <Bell className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-[22px] font-extrabold text-foreground">Reminders</h1>
+            <div>
+              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Reminders</h1>
+              <p className="text-[13px] text-primary-foreground/60 font-medium">{scheduled.length} scheduled</p>
+            </div>
           </div>
-          <button
+          <Button
             onClick={() => setShowCreate(true)}
-            className="w-12 h-12 rounded-2xl gradient-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target shadow-md"
+            size="sm"
+            className="h-10 px-3 rounded-xl text-[13px] font-semibold border-primary-foreground/25 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 gap-1.5"
           >
-            <Plus className="w-5 h-5" />
-          </button>
+            <Plus className="w-4 h-4" /> New
+          </Button>
         </div>
       </div>
 
       {/* Active / Due Reminders */}
       {activeReminders.length > 0 && (
-        <div className="px-5 mt-3">
-          <h2 className="text-[17px] font-extrabold text-destructive mb-3 flex items-center gap-2">
-            <AlarmClock className="w-5 h-5" /> Active Now
-          </h2>
+        <div className="mx-4 mt-4">
+          <p className="text-[13px] font-bold text-destructive uppercase tracking-wider mb-2 px-1 font-display flex items-center gap-1.5">
+            <AlarmClock className="w-4 h-4" /> Active Now
+          </p>
           <div className="space-y-3">
             {activeReminders.map((item, i) => {
               const reminder = item.reminders as any;
               if (!reminder) return null;
               const cfg = typeConfig[reminder.type] || typeConfig.custom;
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="ios-card-elevated p-5 border-l-4 border-destructive"
-                >
-                  {reminder.photo_url && (
-                    <img src={reminder.photo_url} alt="" className="w-full h-36 object-cover rounded-xl mb-4" />
-                  )}
-                  <div className="flex items-start gap-4">
-                    <div className={`w-14 h-14 rounded-2xl ${cfg.bg} flex items-center justify-center shrink-0`}>
-                      <span className="text-[26px]">{cfg.emoji}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[18px] font-bold text-foreground">{reminder.title}</div>
-                      <div className="text-[16px] text-muted-foreground mt-1 leading-relaxed">{reminder.message}</div>
-                      <div className={`inline-block mt-2 px-3 py-1 rounded-lg text-[12px] font-bold ${cfg.bg} ${cfg.color}`}>
-                        {reminder.priority?.toUpperCase()}
+                <motion.div key={item.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <Card className="border-destructive/30 shadow-sm border-l-4 border-l-destructive">
+                    <CardContent className="p-4">
+                      {reminder.photo_url && (
+                        <img src={reminder.photo_url} alt="" className="w-full h-36 object-cover rounded-xl mb-3" />
+                      )}
+                      <div className="flex items-start gap-3">
+                        <div className={`w-12 h-12 rounded-2xl ${cfg.bg} flex items-center justify-center shrink-0`}>
+                          <span className="text-[24px]">{cfg.emoji}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[16px] font-bold text-foreground">{reminder.title}</div>
+                          <div className="text-[14px] text-muted-foreground mt-1 leading-relaxed">{reminder.message}</div>
+                          <Badge className={`mt-2 ${cfg.bg} ${cfg.color} border-0 text-[11px] font-bold`}>
+                            {reminder.priority?.toUpperCase()}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-4">
-                    <button
-                      onClick={() => handleAcknowledge(item.id, reminder.id)}
-                      disabled={acknowledge.isPending}
-                      className="flex-1 h-14 rounded-xl gradient-success text-success-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
-                    >
-                      <Check className="w-6 h-6" /> Done
-                    </button>
-                    <button
-                      onClick={() => handleSnooze(item.id, reminder.id)}
-                      disabled={snooze.isPending}
-                      className="flex-1 h-14 rounded-xl gradient-primary text-primary-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
-                    >
-                      <Clock className="w-6 h-6" /> 10 Min
-                    </button>
-                  </div>
+                      <div className="flex gap-3 mt-4">
+                        <Button
+                          onClick={() => handleAcknowledge(item.id, reminder.id)}
+                          disabled={acknowledge.isPending}
+                          className="flex-1 h-12 rounded-xl gradient-success text-success-foreground font-extrabold text-[15px] gap-2"
+                        >
+                          <Check className="w-5 h-5" /> Done
+                        </Button>
+                        <Button
+                          onClick={() => handleSnooze(item.id, reminder.id)}
+                          disabled={snooze.isPending}
+                          variant="default"
+                          className="flex-1 h-12 rounded-xl font-extrabold text-[15px] gap-2"
+                        >
+                          <Clock className="w-5 h-5" /> 10 Min
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               );
             })}
@@ -137,20 +147,22 @@ export default function RemindersScreen() {
       )}
 
       {/* Upcoming */}
-      <div className="px-5 mt-5">
-        <h2 className="text-[17px] font-extrabold text-foreground mb-3 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-muted-foreground" /> Upcoming
-        </h2>
+      <div className="mx-4 mt-5">
+        <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1 font-display flex items-center gap-1.5">
+          <Clock className="w-4 h-4" /> Upcoming
+        </p>
         {isLoading ? (
-          <div className="ios-card-elevated p-8 text-center text-muted-foreground text-[16px]">Loading...</div>
+          <Card className="border-border/60 shadow-sm"><CardContent className="p-8 text-center text-muted-foreground text-[14px]">Loading...</CardContent></Card>
         ) : upcomingReminders.length === 0 && activeReminders.length === 0 ? (
-          <div className="ios-card-elevated p-10 text-center">
-            <Bell className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <div className="text-[18px] font-bold text-muted-foreground">No reminders yet</div>
-            <div className="text-[15px] text-muted-foreground/70 mt-2">Tap + to create one</div>
-          </div>
+          <Card className="border-border/60 shadow-sm">
+            <CardContent className="p-10 text-center">
+              <Bell className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <div className="text-[16px] font-bold text-muted-foreground">No reminders yet</div>
+              <div className="text-[13px] text-muted-foreground/70 mt-1">Tap + to create one</div>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="space-y-3">
+          <Card className="border-border/60 shadow-sm overflow-hidden divide-y divide-border/30">
             {upcomingReminders.map((item, i) => {
               const reminder = item.reminders as any;
               if (!reminder) return null;
@@ -158,25 +170,21 @@ export default function RemindersScreen() {
               const dueDate = new Date(item.next_due_time);
               const timeStr = dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="ios-card-elevated flex items-center gap-4 p-4"
-                >
-                  <div className={`w-12 h-12 rounded-2xl ${cfg.bg} flex items-center justify-center shrink-0`}>
-                    <span className="text-[22px]">{cfg.emoji}</span>
+                <motion.div key={item.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+                  <div className="flex items-center gap-3.5 p-4">
+                    <div className={`w-11 h-11 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
+                      <span className="text-[20px]">{cfg.emoji}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[15px] font-bold text-foreground truncate">{reminder.title}</div>
+                      <div className="text-[13px] text-muted-foreground mt-0.5">{reminder.message}</div>
+                    </div>
+                    <span className="text-[13px] font-bold text-muted-foreground shrink-0">{timeStr}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[16px] font-bold text-foreground truncate">{reminder.title}</div>
-                    <div className="text-[14px] text-muted-foreground mt-1">{reminder.message}</div>
-                  </div>
-                  <div className="text-[14px] font-bold text-muted-foreground shrink-0">{timeStr}</div>
                 </motion.div>
               );
             })}
-          </div>
+          </Card>
         )}
       </div>
 
@@ -187,7 +195,7 @@ export default function RemindersScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end justify-center"
+            className="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end justify-center"
             onClick={() => setShowCreate(false)}
           >
             <motion.div
@@ -195,52 +203,50 @@ export default function RemindersScreen() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-card rounded-t-3xl w-full max-w-md p-6 pb-8"
+              className="bg-card rounded-t-3xl w-full p-6 pb-8 shadow-xl"
               onClick={e => e.stopPropagation()}
             >
+              <div className="flex justify-center mb-3">
+                <div className="w-10 h-1 rounded-full bg-muted" />
+              </div>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-[20px] font-extrabold text-foreground">New Reminder</h3>
-                <button onClick={() => setShowCreate(false)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center touch-target">
+                <h3 className="text-[20px] font-extrabold text-foreground font-display">New Reminder</h3>
+                <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)} className="w-9 h-9 rounded-full">
                   <X className="w-5 h-5 text-muted-foreground" />
-                </button>
+                </Button>
               </div>
 
-              <div className="flex gap-2.5 mb-5 flex-wrap">
+              <div className="flex gap-2 mb-5 flex-wrap">
                 {[
-                  { id: 'medication', label: '💊 Med', Icon: Pill },
-                  { id: 'meal', label: '🍽️ Meal', Icon: UtensilsCrossed },
-                  { id: 'exercise', label: '🚶 Walk', Icon: Footprints },
-                  { id: 'check_in', label: '😊 Check-in', Icon: MessageCircle },
+                  { id: 'medication', label: '💊 Med' },
+                  { id: 'meal', label: '🍽️ Meal' },
+                  { id: 'exercise', label: '🚶 Walk' },
+                  { id: 'check_in', label: '😊 Check-in' },
                 ].map(t => (
-                  <button
+                  <Button
                     key={t.id}
+                    variant={newType === t.id ? 'default' : 'outline'}
                     onClick={() => setNewType(t.id)}
-                    className={`px-4 py-3 rounded-xl text-[15px] font-bold border-2 transition-all touch-target ${
-                      newType === t.id
-                        ? 'border-primary gradient-primary text-primary-foreground'
-                        : 'border-border bg-card text-muted-foreground'
-                    }`}
+                    className="rounded-xl text-[14px] font-bold h-11 px-4"
                   >
                     {t.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
-              <input
-                type="text"
+              <Input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
                 placeholder="Reminder title..."
-                className="w-full px-5 rounded-xl bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 mb-3"
-                style={{ height: 52 }}
+                className="h-12 rounded-xl text-[15px] mb-3"
               />
 
-              <textarea
+              <Textarea
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
                 placeholder="Message for the patient..."
                 rows={2}
-                className="w-full px-5 py-4 rounded-xl bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 mb-3 resize-none"
+                className="rounded-xl text-[15px] mb-3 resize-none"
               />
 
               <div className="flex items-center gap-3 mb-5">
@@ -249,17 +255,18 @@ export default function RemindersScreen() {
                   type="time"
                   value={newTime}
                   onChange={e => setNewTime(e.target.value)}
-                  className="h-12 px-4 rounded-xl bg-muted/50 text-[16px] text-foreground outline-none border border-border/20"
+                  className="h-11 px-4 rounded-xl bg-muted/50 text-[15px] text-foreground outline-none border border-border"
                 />
               </div>
 
-              <button
+              <Button
                 onClick={handleCreate}
                 disabled={createReminder.isPending || !newTitle.trim()}
-                className="w-full h-14 rounded-xl gradient-primary text-primary-foreground font-extrabold text-[18px] active:scale-95 transition-transform disabled:opacity-50 touch-target shadow-lg"
+                size="lg"
+                className="w-full h-14 rounded-xl text-[16px] font-extrabold shadow-lg"
               >
                 {createReminder.isPending ? 'Creating...' : 'Create Reminder'}
-              </button>
+              </Button>
             </motion.div>
           </motion.div>
         )}

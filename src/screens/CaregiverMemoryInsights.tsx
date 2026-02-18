@@ -87,15 +87,24 @@ export default function CaregiverMemoryInsights() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto warm-gradient pb-6">
-      <div className="px-5 pt-3 pb-2 flex items-center justify-between">
-        <div>
-          <h1 className="text-[22px] font-bold text-foreground">Memory Insights</h1>
-          <p className="text-[12px] text-muted-foreground mt-0.5">AI-powered cognitive pattern analysis</p>
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
+              <Brain className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Memory Insights</h1>
+              <p className="text-[13px] text-primary-foreground/60 font-medium">AI cognitive analysis</p>
+            </div>
+          </div>
+          <button onClick={() => fetchInsights(true)} disabled={refreshing} className="w-10 h-10 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <RefreshCw className={`w-4 h-4 text-primary-foreground ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
-        <button onClick={() => fetchInsights(true)} disabled={refreshing} className="w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center">
-          <RefreshCw className={`w-4 h-4 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`} />
-        </button>
       </div>
 
       {/* Key Metrics */}
