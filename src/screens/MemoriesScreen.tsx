@@ -288,28 +288,18 @@ export default function MemoriesScreen() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
-        {/* Gradient Header — standardized like all other pages */}
-        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-                <Heart className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Memories</h1>
-                <p className="text-[13px] text-primary-foreground/60 font-medium">
-                  {aiCuratedMemories.length} memories · AI curated daily
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={simulateSync}
-              className="w-10 h-10 rounded-xl bg-primary-foreground/15 flex items-center justify-center"
-            >
-              <RefreshCw className={`w-4.5 h-4.5 text-primary-foreground ${aiSyncing ? 'animate-spin' : ''}`} />
-            </button>
+        {/* iOS Large Title */}
+        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+          <div>
+            <h1 className="text-ios-large-title text-foreground">Memories</h1>
+            <p className="text-ios-subheadline text-muted-foreground mt-1">{aiCuratedMemories.length} memories · AI curated</p>
           </div>
+          <button
+            onClick={simulateSync}
+            className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target"
+          >
+            <RefreshCw className={`w-4 h-4 text-muted-foreground ${aiSyncing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
 
         {/* Source Toggle — below header */}

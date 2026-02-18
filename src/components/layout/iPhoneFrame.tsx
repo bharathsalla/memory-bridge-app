@@ -21,17 +21,17 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
           boxShadow: '0 0 0 3px #2a2a4a, 0 0 0 6px #0d0d1a, 0 30px 90px rgba(15, 52, 96, 0.5), inset 0 1px 1px rgba(255,255,255,0.05)',
         }}
       >
-        {/* Side buttons — titanium finish */}
+        {/* Side buttons */}
         <div className="absolute left-[-3px] top-[160px] w-[3px] h-[35px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #3a3a5a, #2a2a4a)' }} />
         <div className="absolute left-[-3px] top-[210px] w-[3px] h-[60px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #3a3a5a, #2a2a4a)' }} />
         <div className="absolute left-[-3px] top-[280px] w-[3px] h-[60px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #3a3a5a, #2a2a4a)' }} />
         <div className="absolute right-[-3px] top-[220px] w-[3px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg, #3a3a5a, #2a2a4a)' }} />
 
         {/* Screen bezel */}
-        <div className="absolute inset-[4px] rounded-[51px] overflow-hidden flex flex-col bg-background">
+        <div className="absolute inset-[4px] rounded-[51px] overflow-hidden flex flex-col" style={{ backgroundColor: '#F2F2F7' }}>
           {/* iOS Status Bar */}
-          <div className="relative z-50 flex items-center justify-between px-8 pt-[14px] pb-[6px] bg-background/80 backdrop-blur-xl">
-            <span className="text-[15px] font-semibold text-foreground tracking-tight w-[54px] font-display">
+          <div className="relative z-50 flex items-center justify-between px-8 pt-[14px] pb-[6px]" style={{ backgroundColor: 'rgba(242, 242, 247, 0.8)', backdropFilter: 'blur(20px)' }}>
+            <span className="text-[15px] font-semibold text-foreground tracking-tight w-[54px]">
               {timeStr}
             </span>
             {/* Dynamic Island */}
@@ -44,13 +44,13 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
           </div>
 
           {/* App content */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: '#F2F2F7' }}>
             {children}
           </div>
 
           {/* Home Indicator */}
-          <div className="relative z-50 flex justify-center pb-[8px] pt-[4px] bg-background">
-            <div className="w-[134px] h-[5px] rounded-full bg-foreground/12" />
+          <div className="relative z-50 flex justify-center pb-[8px] pt-[4px]" style={{ backgroundColor: 'rgba(242, 242, 247, 0.8)' }}>
+            <div className="w-[134px] h-[5px] rounded-full bg-foreground/15" />
           </div>
         </div>
       </div>
