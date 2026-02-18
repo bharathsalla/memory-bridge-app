@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 
-const screenMeta: Record<string, {emoji: string;label: string;}> = {
+const screenMeta: Record<string, {emoji: string; label: string;}> = {
   today: { emoji: '🏠', label: 'Home — Today' },
   memories: { emoji: '🧠', label: 'Memories' },
   memorylane: { emoji: '📖', label: 'Memory Lane' },
@@ -31,7 +31,8 @@ export default function ContextBanner() {
       key={activePatientTab}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="shrink-0 px-5 py-3 border-t border-border/15 bg-primary/6 flex items-center justify-center gap-3">
+      className="shrink-0 px-5 py-3 border-t border-border/10 bg-primary/4 flex items-center justify-center gap-3"
+    >
       <span className="text-[18px] font-extrabold text-foreground flex items-center gap-2">
         ⏰ {timeStr}
       </span>

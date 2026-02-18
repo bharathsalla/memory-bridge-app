@@ -12,12 +12,12 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   return (
     <div className="h-full w-full flex items-center justify-center bg-black">
       {/* iPhone outer shell */}
-      <div className="relative w-[393px] h-[852px] max-h-[100dvh] bg-[#1a1a1c] rounded-[55px] shadow-[0_0_0_3px_#2a2a2e,0_0_0_6px_#111,0_25px_80px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col">
+      <div className="relative w-[393px] h-[852px] max-h-[100dvh] bg-[#2a2030] rounded-[55px] shadow-[0_0_0_3px_#3d2d48,0_0_0_6px_#1a1020,0_25px_80px_rgba(80,40,100,0.5)] overflow-hidden flex flex-col">
         {/* Side buttons */}
-        <div className="absolute left-[-3px] top-[160px] w-[3px] h-[35px] bg-[#2a2a2e] rounded-l-sm" />
-        <div className="absolute left-[-3px] top-[210px] w-[3px] h-[60px] bg-[#2a2a2e] rounded-l-sm" />
-        <div className="absolute left-[-3px] top-[280px] w-[3px] h-[60px] bg-[#2a2a2e] rounded-l-sm" />
-        <div className="absolute right-[-3px] top-[220px] w-[3px] h-[80px] bg-[#2a2a2e] rounded-r-sm" />
+        <div className="absolute left-[-3px] top-[160px] w-[3px] h-[35px] bg-[#3d2d48] rounded-l-sm" />
+        <div className="absolute left-[-3px] top-[210px] w-[3px] h-[60px] bg-[#3d2d48] rounded-l-sm" />
+        <div className="absolute left-[-3px] top-[280px] w-[3px] h-[60px] bg-[#3d2d48] rounded-l-sm" />
+        <div className="absolute right-[-3px] top-[220px] w-[3px] h-[80px] bg-[#3d2d48] rounded-r-sm" />
 
         {/* Screen bezel */}
         <div className="absolute inset-[4px] rounded-[51px] overflow-hidden flex flex-col bg-background">
