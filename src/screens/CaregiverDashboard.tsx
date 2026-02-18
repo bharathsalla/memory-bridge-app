@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import CaregiverSupportEcosystem from '@/components/CaregiverSupportEcosystem';
 import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
@@ -30,6 +30,7 @@ export default function CaregiverDashboard() {
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1', '2']));
   const [reportRange, setReportRange] = useState<'7' | '30' | '90'>('7');
   const [manageOpen, setManageOpen] = useState(false);
+  const [modeModalOpen, setModeModalOpen] = useState(false);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -245,6 +246,7 @@ export default function CaregiverDashboard() {
 
   // Vitals Tab - Crisis Prevention Engine + Patient Mode Switcher
   if (activeCaregiverTab === 'vitals') {
+    
     const modeOptions = [
       { id: 'full' as const, label: 'Independent', desc: 'Full navigation & features', icon: '🟢' },
       { id: 'simplified' as const, label: 'Guided', desc: 'Simplified with key tabs', icon: '🟡' },
@@ -253,50 +255,68 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto bg-background pb-6">
-        {/* Patient View Mode Switcher */}
-        <div className="px-5 pt-4 pb-2">
-          <div className="ios-card-elevated p-4 rounded-2xl">
-            <div className="flex items-center gap-2 mb-3">
-              <Eye className="w-5 h-5 text-primary" />
-              <h3 className="text-[16px] font-extrabold text-foreground">Patient View Mode</h3>
-            </div>
-            <p className="text-[13px] text-muted-foreground mb-4">
-              Current: <span className="font-bold text-foreground">{mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}</span>
-            </p>
-            <div className="space-y-2.5">
-              {modeOptions.map(opt => (
-                <button
-                  key={opt.id}
-                  onClick={() => setMode(opt.id)}
-                  className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all text-left ${
-                    mode === opt.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border/60 bg-card hover:border-primary/30'
-                  }`}
-                >
-                  <span className="text-[20px]">{opt.icon}</span>
-                  <div className="flex-1">
-                    <p className={`text-[15px] font-bold ${mode === opt.id ? 'text-primary' : 'text-foreground'}`}>{opt.label}</p>
-                    <p className="text-[12px] text-muted-foreground">{opt.desc}</p>
-                  </div>
-                  {mode === opt.id && <Check className="w-5 h-5 text-primary shrink-0" />}
-                </button>
-              ))}
-            </div>
-            <Button
-              className="w-full h-14 mt-4 rounded-2xl text-[16px] font-bold"
-              onClick={() => {/* mode already applied on click above */}}
-            >
-              <Eye className="w-5 h-5 mr-2" />
-              Switch to Patient View
-            </Button>
-          </div>
-        </div>
-
-        <Separator className="mx-5 my-2" />
-
         {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
+
+        {/* Patient Mode Switch Button */}
+        <div className="px-5 pt-4 pb-2">
+          <Button
+            className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-md"
+            onClick={() => setModeModalOpen(true)}
+          >
+            <Settings2 className="w-5 h-5 mr-2" />
+            Change Patient View Mode
+          </Button>
+          <p className="text-center text-[13px] text-muted-foreground mt-2">
+            Current: <span className="font-bold text-foreground">{mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}</span>
+          </p>
+        </div>
+
+        {/* Mode Modal */}
+        <AnimatePresence>
+          {modeModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex items-end justify-center bg-foreground/40 backdrop-blur-sm"
+              onClick={() => setModeModalOpen(false)}
+            >
+              <motion.div
+                initial={{ y: 300 }}
+                animate={{ y: 0 }}
+                exit={{ y: 300 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                className="w-full bg-card rounded-t-3xl p-6 pb-8 shadow-2xl"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="w-10 h-1 bg-muted-foreground/20 rounded-full mx-auto mb-5" />
+                <h3 className="text-[18px] font-extrabold text-foreground mb-1">Patient View Mode</h3>
+                <p className="text-[13px] text-muted-foreground mb-5">Choose the interface complexity for the patient.</p>
+                <div className="space-y-2.5">
+                  {modeOptions.map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => { setMode(opt.id); setModeModalOpen(false); }}
+                      className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left ${
+                        mode === opt.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border/60 bg-card hover:border-primary/30'
+                      }`}
+                    >
+                      <span className="text-[22px]">{opt.icon}</span>
+                      <div className="flex-1">
+                        <p className={`text-[15px] font-bold ${mode === opt.id ? 'text-primary' : 'text-foreground'}`}>{opt.label}</p>
+                        <p className="text-[12px] text-muted-foreground">{opt.desc}</p>
+                      </div>
+                      {mode === opt.id && <Check className="w-5 h-5 text-primary shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

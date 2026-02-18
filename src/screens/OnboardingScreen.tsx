@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { useVoiceOver } from '@/contexts/VoiceOverContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Hand, Users, Mic, Monitor } from 'lucide-react';
+import { Smartphone, Hand, Users, Mic, Monitor, Heart } from 'lucide-react';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
 
@@ -77,12 +77,13 @@ export default function OnboardingScreen() {
                 className="w-32 h-32 overflow-hidden mb-8 rounded-3xl shadow-lg ring-4 ring-primary/10">
                 <img alt="MemoCare" className="w-full h-full object-cover" src="/lovable-uploads/e870b19c-fc1d-486f-815f-86f58cef95ed.png" />
               </motion.div>
-              <h1 className="text-ios-title text-foreground mb-3">Welcome to<br />MemoCare</h1>
-              <p className="text-ios-body text-muted-foreground max-w-[280px] leading-relaxed">
+              <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight">Welcome to<br />MemoCare</h1>
+              <p className="text-[16px] text-muted-foreground max-w-[280px] leading-relaxed">
                 Supporting you every step of the way, with care and kindness.
               </p>
               <div className="mt-auto mb-8 w-full space-y-3">
-                <button onClick={next} className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg">
+                <button onClick={next} className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg flex items-center justify-center gap-2">
+                  <Heart className="w-5 h-5" />
                   Get Started
                 </button>
                 <button onClick={() => { setSelectedMode('full'); setStep('personalize'); }} className="w-full h-12 text-primary text-[16px] font-semibold rounded-2xl">
@@ -98,29 +99,31 @@ export default function OnboardingScreen() {
                 className="w-24 h-24 gradient-rose rounded-3xl flex items-center justify-center mb-8 shadow-lg">
                 <Mic className="w-12 h-12 text-secondary-foreground" />
               </motion.div>
-              <h1 className="text-ios-title1 text-foreground mb-3">How would you like to use MemoCare?</h1>
-              <p className="text-ios-body text-muted-foreground max-w-[280px] leading-relaxed mb-8">
+              <h1 className="text-[24px] font-extrabold text-foreground mb-3 leading-tight">How would you like to use MemoCare?</h1>
+              <p className="text-[15px] text-muted-foreground max-w-[280px] leading-relaxed mb-8">
                 Choose your preferred way to interact.
               </p>
               <div className="w-full space-y-3">
+                {/* Browse Mode — Primary */}
+                <motion.button whileTap={{ scale: 0.97 }} onClick={next}
+                  className="w-full p-5 flex items-center gap-4 text-left touch-target-xl rounded-2xl bg-primary text-primary-foreground shadow-md active:opacity-90 transition-all">
+                  <div className="w-14 h-14 rounded-2xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
+                    <Monitor className="w-7 h-7 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[17px] font-bold text-primary-foreground">Browse Mode</div>
+                    <div className="text-[13px] text-primary-foreground/70 mt-1 leading-snug">Use the app by tapping and swiping. Enable voice later.</div>
+                  </div>
+                </motion.button>
+                {/* Voice Over — Secondary outline */}
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleVoiceChoice}
-                  className="w-full ios-card-elevated p-5 flex items-center gap-4 text-left touch-target-xl border-2 border-secondary/30 active:bg-secondary/5 transition-colors">
-                  <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0">
-                    <Mic className="w-7 h-7 text-secondary" />
+                  className="w-full p-5 flex items-center gap-4 text-left touch-target-xl rounded-2xl border-2 border-primary bg-transparent active:bg-primary/5 transition-all">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Mic className="w-7 h-7 text-primary" />
                   </div>
                   <div className="flex-1">
                     <div className="text-[17px] font-bold text-foreground">Voice Care</div>
                     <div className="text-[13px] text-muted-foreground mt-1 leading-snug">I'll guide you with voice. Just speak to navigate and more.</div>
-                  </div>
-                </motion.button>
-                <motion.button whileTap={{ scale: 0.97 }} onClick={next}
-                  className="w-full ios-card-elevated p-5 flex items-center gap-4 text-left touch-target-xl active:bg-muted/30 transition-colors">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Monitor className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-[17px] font-bold text-foreground">Browse Mode</div>
-                    <div className="text-[13px] text-muted-foreground mt-1 leading-snug">Use the app by tapping and swiping. Enable voice later.</div>
                   </div>
                 </motion.button>
               </div>
