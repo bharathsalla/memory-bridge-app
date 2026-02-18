@@ -288,18 +288,18 @@ export default function CareScreen() {
               className="bg-card rounded-2xl w-full max-w-sm overflow-hidden border border-border"
               onClick={e => e.stopPropagation()}
             >
-              <div className="p-5 pb-3 flex items-center justify-between">
+              <div className="p-5 flex items-center justify-between">
                 <h3 className="text-ios-title2 text-foreground">Choose Dashboard View</h3>
                 <button onClick={() => setViewModalOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center touch-target">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
-              <div className="divide-y divide-border/30">
+              <div className="px-5 pb-5 divide-y divide-border/30">
                 {careViewOptions.map(view => (
                   <button
                     key={view.id}
                     onClick={() => selectView(view.id)}
-                    className="w-full flex items-center gap-3 px-5 text-left touch-target"
+                    className="w-full flex items-center gap-3 py-4 text-left touch-target"
                     style={{ minHeight: 56 }}
                   >
                     <IconBox Icon={view.icon} color={view.color} />
