@@ -3,6 +3,7 @@ import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSi
 import { useApp } from '@/contexts/AppContext';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import CaregiverSupportEcosystem from '@/components/CaregiverSupportEcosystem';
+import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
 import { motion } from 'framer-motion';
 import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
@@ -246,140 +247,11 @@ export default function CaregiverDashboard() {
     );
   }
 
-  // Health Tab
-  if (activeCaregiverTab === 'health') {
+  // Vitals Tab - Crisis Prevention Engine
+  if (activeCaregiverTab === 'vitals') {
     return (
-      <div className="h-full overflow-y-auto warm-gradient pb-6">
-        <div className="px-5 pt-3 pb-3">
-          <h1 className="text-[22px] font-bold text-foreground">Patient Health</h1>
-        </div>
-
-        {/* Vitals */}
-        <div className="px-5 mt-1">
-          <h2 className="text-ios-title3 text-foreground mb-3">Vital Signs</h2>
-          <div className="grid grid-cols-2 gap-2.5">
-            {[
-              { label: 'Heart Rate', value: '72 bpm', Icon: Heart, time: '1 hr ago', bg: 'bg-destructive/8', color: 'text-destructive' },
-              { label: 'Blood Pressure', value: '120/80', Icon: Activity, time: 'This morning', bg: 'bg-primary/8', color: 'text-primary' },
-              { label: 'Weight', value: '150 lbs', Icon: BarChart3, time: 'Yesterday', bg: 'bg-sage/8', color: 'text-sage' },
-              { label: 'Temperature', value: '98.6°F', Icon: Activity, time: '2 hrs ago', bg: 'bg-accent/8', color: 'text-accent' },
-            ].map(vital => (
-              <div key={vital.label} className="ios-card-elevated p-3.5">
-                <div className={`w-9 h-9 rounded-xl ${vital.bg} flex items-center justify-center mb-2`}>
-                  <vital.Icon className={`w-[18px] h-[18px] ${vital.color}`} />
-                </div>
-                <div className="text-[18px] font-bold text-foreground">{vital.value}</div>
-                <div className="text-[12px] text-muted-foreground mt-0.5">{vital.label}</div>
-                <div className="text-[11px] text-muted-foreground">{vital.time}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Activity Monitoring */}
-        <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Activity</h2>
-          <div className="ios-card-elevated p-4 space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[14px] text-foreground font-medium">Movement</span>
-                <span className="text-[13px] text-primary font-medium">{stepCount.toLocaleString()} steps</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((stepCount / 3000) * 100, 100)}%` }} className="h-full rounded-full bg-primary" />
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-1.5">7-day avg: 3,100 steps</div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[14px] text-foreground font-medium">Sleep</span>
-                <span className="text-[13px] text-lavender font-medium">{sleepHours} hrs</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${(sleepHours / 9) * 100}%` }} className="h-full rounded-full bg-lavender" />
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-1.5">Quality: Good · 2 interruptions</div>
-            </div>
-            <div className="pt-2.5 border-t border-border/60">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-warning" />
-                <span className="text-[13px] text-warning font-medium">Movement lower than usual today</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Cognitive Health */}
-        <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Cognitive Health</h2>
-          <div className="ios-card-elevated p-4 space-y-3">
-            {[
-              { label: 'Task Completion', value: `${taskCompletionRate}%`, trend: 'down from 91%', color: 'text-warning' },
-              { label: 'Avg Response Time', value: '45 sec', trend: 'up from 30 sec', color: 'text-warning' },
-              { label: 'Voice Command Success', value: '78%', trend: 'stable', color: 'text-primary' },
-            ].map(item => (
-              <div key={item.label} className="flex items-center justify-between py-1">
-                <span className="text-[14px] text-foreground">{item.label}</span>
-                <div className="text-right">
-                  <span className="text-[14px] font-bold text-foreground">{item.value}</span>
-                  <span className={`block text-[11px] ${item.color}`}>{item.trend}</span>
-                </div>
-              </div>
-            ))}
-            <div className="pt-2.5 border-t border-border/60">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-accent" />
-                <span className="text-[13px] text-accent font-medium">Consider switching to Simplified Mode</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Medications */}
-        <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Medications</h2>
-          <div className="ios-card-elevated divide-y divide-border/60">
-            {medications.map(med => (
-              <div key={med.id} className="flex items-center gap-3 p-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${med.taken ? 'bg-success/10' : 'bg-warning/10'}`}>
-                  <Pill className={`w-5 h-5 ${med.taken ? 'text-success' : 'text-warning'}`} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[14px] font-medium text-foreground">{med.name} {med.dosage}</div>
-                  <div className="text-[12px] text-muted-foreground">{med.time}</div>
-                </div>
-                <span className={`text-[12px] font-semibold ${med.taken ? 'text-success' : 'text-warning'}`}>
-                  {med.taken ? `Taken ${med.taken_at}` : 'Pending'}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-2 text-[12px] text-muted-foreground text-center">
-            Adherence: {medicationAdherence}% (last 30 days)
-          </div>
-        </div>
-
-        {/* Mood */}
-        <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3">Mood Tracking</h2>
-          <div className="ios-card-elevated p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[28px]">{currentMood.emoji}</span>
-              <div>
-                <div className="text-[14px] font-semibold text-foreground">Currently: {currentMood.label}</div>
-                <div className="text-[12px] text-muted-foreground">Logged at {currentMood.time}</div>
-              </div>
-            </div>
-            <div className="flex justify-between pt-3 border-t border-border/60">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
-                <div key={day} className="flex flex-col items-center gap-1">
-                  <span className="text-[18px]">{['😊', '😊', '😐', '😊', '😔', '😊', '😊'][i]}</span>
-                  <span className="text-[10px] text-muted-foreground">{day}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <div className="h-full overflow-y-auto bg-background">
+        <CrisisPreventionEngine />
       </div>
     );
   }

@@ -31,7 +31,7 @@ const navTitles: Record<string, string> = {
 
 const cgNavTitles: Record<string, string> = {
   dashboard: 'Care Dashboard',
-  health: 'Patient Health',
+  vitals: 'Crisis Prevention',
   tasks: 'Care Tasks',
   reports: 'Reports',
   memories: 'Memory Insights',
