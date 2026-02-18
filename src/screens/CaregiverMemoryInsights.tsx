@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain, Sparkles, Heart, TrendingUp, TrendingDown, Loader2,
+  Brain, Sparkles, TrendingUp, TrendingDown, Loader2,
   ChevronRight, BookOpen, AlertTriangle, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle } from
 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
@@ -93,7 +93,7 @@ export default function CaregiverMemoryInsights() {
       <div className="px-5 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <h1 className="text-ios-large-title text-foreground">Insights</h1>
-          <button onClick={() => fetchInsights(true)} disabled={refreshing} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#dee3e3] text-[#2a2323] border-[#bababa]">
+          <button onClick={() => fetchInsights(true)} disabled={refreshing} className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <RefreshCw className={`w-4 h-4 text-primary ${refreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -258,7 +258,7 @@ export default function CaregiverMemoryInsights() {
       {data.recommendations.length > 0 &&
       <div className="px-5 mt-5 mb-4">
           <h2 className="text-[16px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <Heart className="w-4 h-4 text-destructive" /> AI Recommendations
+             AI Recommendations
           </h2>
           <div className="space-y-2.5">
             {data.recommendations.map((rec, i) =>
