@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain, Sparkles, TrendingUp, TrendingDown, Loader2,
-  ChevronRight, BookOpen, AlertTriangle, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle } from
+  Brain, Sparkles, Heart, TrendingUp, TrendingDown, Loader2,
+  ChevronRight, BookOpen, RefreshCw, FileText, Image, Mic, MessageSquare, Check, Circle } from
 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import {
@@ -236,7 +236,7 @@ export default function CaregiverMemoryInsights() {
       {data.alerts.length > 0 &&
       <div className="px-5 mt-5">
           <h2 className="text-[16px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-warning" /> Cognitive Alerts
+             Cognitive Alerts
           </h2>
           <div className="ios-card-elevated divide-y divide-border/40">
             {data.alerts.map((alert, i) =>
@@ -258,7 +258,7 @@ export default function CaregiverMemoryInsights() {
       {data.recommendations.length > 0 &&
       <div className="px-5 mt-5 mb-4">
           <h2 className="text-[16px] font-bold text-foreground mb-3 flex items-center gap-2">
-             AI Recommendations
+            <Heart className="w-4 h-4 text-destructive" /> AI Recommendations
           </h2>
           <div className="space-y-2.5">
             {data.recommendations.map((rec, i) =>
