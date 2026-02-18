@@ -3,7 +3,6 @@ import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { Shield, MapPin, Phone, AlertTriangle, Activity, Check, ChevronRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 export default function SafetyScreen() {
   const { mode, isSOSActive, triggerSOS, cancelSOS, patientLocation } = useApp();
@@ -24,8 +23,8 @@ export default function SafetyScreen() {
     return (
       <div className="h-full flex flex-col items-center justify-center px-8 ios-grouped-bg relative overflow-hidden">
         <div className="text-center mb-14 relative z-10">
-          <div className="w-32 h-32 rounded-full gradient-success flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Shield className="w-16 h-16 text-success-foreground" />
+          <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-16 h-16 text-muted-foreground" />
           </div>
           <h1 className="text-ios-large-title text-foreground">You're Safe</h1>
         </div>
@@ -46,36 +45,38 @@ export default function SafetyScreen() {
   if (mode === 'simplified') {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
-        {/* Large title */}
         <div className="px-4 pt-4 pb-1">
           <h1 className="text-ios-large-title text-foreground">Safety</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">Everything looks good</p>
         </div>
 
-        <div className="px-4 space-y-3">
-          <div className="ios-card p-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-              <Shield className="w-7 h-7 text-success" />
-            </div>
-            <div>
-              <div className="text-ios-title2 text-foreground">You're Safe</div>
-              <div className="text-ios-subheadline text-muted-foreground">All systems normal</div>
+        <div className="px-4 mt-4 space-y-3">
+          {/* Status */}
+          <div className="ios-card overflow-hidden">
+            <div className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+              <Shield className="w-5 h-5 text-muted-foreground shrink-0" />
+              <div className="flex-1">
+                <div className="text-ios-callout font-medium text-foreground">You're Safe</div>
+                <div className="text-ios-footnote text-muted-foreground">All systems normal</div>
+              </div>
+              <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
             </div>
           </div>
 
+          {/* Location */}
           <div className="ios-card overflow-hidden">
-            <div className="flex items-center gap-3 p-4 pb-2">
-              <MapPin className="w-5 h-5 text-primary" />
-              <span className="text-ios-headline text-foreground">Current Location</span>
+            <div className="flex items-center gap-3 px-4" style={{ minHeight: 44 }}>
+              <MapPin className="w-5 h-5 text-muted-foreground" />
+              <span className="text-ios-callout font-medium text-foreground">Current Location</span>
             </div>
             <div className="px-4 pb-4">
               <div className="rounded-xl overflow-hidden h-40">
                 <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
               </div>
               <div className="flex items-center gap-2 mt-3">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span className="text-ios-callout font-semibold text-foreground">Home</span>
-                <Badge className="ml-auto bg-success/10 text-success border-0 text-ios-caption font-semibold">Safe zone</Badge>
+                <MapPin className="w-4 h-4 text-muted-foreground" />
+                <span className="text-ios-subheadline font-semibold text-foreground">Home</span>
+                <span className="ml-auto text-ios-caption font-semibold text-muted-foreground">Safe zone</span>
               </div>
             </div>
           </div>
@@ -103,54 +104,55 @@ export default function SafetyScreen() {
         <p className="text-ios-subheadline text-muted-foreground mt-1">All systems normal</p>
       </div>
 
-      <div className="px-4 space-y-3">
-        {/* Status Card */}
-        <div className="ios-card overflow-hidden divide-y divide-border/30">
+      {/* Status */}
+      <div className="mt-4">
+        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Status</p>
+        <div className="mx-4 ios-card overflow-hidden">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-            <Check className="w-5 h-5 text-success shrink-0" />
+            <Check className="w-5 h-5 text-muted-foreground shrink-0" />
             <div className="flex-1">
               <div className="text-ios-callout font-medium text-foreground">All Systems Normal</div>
               <div className="text-ios-footnote text-muted-foreground">Last checked 2 min ago</div>
             </div>
-            <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+            <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
           </div>
         </div>
+      </div>
 
-        {/* Location Card */}
-        <div className="ios-card overflow-hidden">
-          <div className="flex items-center gap-3 p-4 pb-2">
-            <MapPin className="w-5 h-5 text-primary" />
-            <span className="text-ios-headline text-foreground">Current Location</span>
-          </div>
-          <div className="px-4 pb-4">
+      {/* Location */}
+      <div className="mt-6">
+        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Location</p>
+        <div className="mx-4 ios-card overflow-hidden">
+          <div className="px-4 pt-3 pb-4">
             <div className="rounded-xl overflow-hidden h-36">
               <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
             </div>
             <div className="flex items-center gap-2 mt-3">
-              <MapPin className="w-4 h-4 text-primary" />
+              <MapPin className="w-5 h-5 text-muted-foreground" />
               <span className="text-ios-subheadline font-semibold text-foreground">Home</span>
-              <span className="ml-auto text-ios-caption font-semibold text-success bg-success/8 px-2 py-0.5 rounded-full">Safe zone</span>
+              <span className="ml-auto text-ios-caption font-semibold text-muted-foreground">Safe zone</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Fall Detection */}
-        <div className="ios-card overflow-hidden">
+      {/* Safety Features */}
+      <div className="mt-6">
+        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Safety Features</p>
+        <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
             <Activity className="w-5 h-5 text-muted-foreground shrink-0" />
             <span className="text-ios-callout font-medium text-foreground flex-1">Fall Detection</span>
-            <span className="text-ios-caption font-semibold text-success">Active</span>
+            <span className="text-ios-footnote text-muted-foreground">Active</span>
             <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
           </div>
-          <div className="px-4 pb-3 pl-12 text-ios-footnote text-muted-foreground">No incidents in the last 30 days</div>
         </div>
+      </div>
 
-        {/* Emergency Contacts */}
-        <div className="ios-card overflow-hidden divide-y divide-border/30">
-          <div className="flex items-center gap-3 px-4" style={{ minHeight: 44 }}>
-            <Phone className="w-5 h-5 text-muted-foreground" />
-            <span className="text-ios-headline text-foreground">Emergency Contacts</span>
-          </div>
+      {/* Emergency Contacts */}
+      <div className="mt-6">
+        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Emergency Contacts</p>
+        <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           {[
             { name: 'Sarah Johnson', role: 'Primary Caregiver' },
             { name: 'John Johnson', role: 'Son' },
@@ -166,15 +168,17 @@ export default function SafetyScreen() {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* SOS Button */}
+      {/* SOS */}
+      <div className="px-4 mt-6">
         <Button variant="destructive" size="lg" onClick={handleSOS}
           className="w-full h-[52px] rounded-xl text-ios-headline font-bold gap-3 sos-pulse">
           <AlertTriangle className="w-5 h-5" />
           {isSOSActive ? 'Calling Sarah...' : sosCountdown !== null ? `Calling in ${sosCountdown}...` : 'Emergency SOS'}
         </Button>
         {(isSOSActive || sosCountdown !== null) && (
-          <Button variant="ghost" onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full text-ios-subheadline text-muted-foreground font-semibold">
+          <Button variant="ghost" onClick={() => { cancelSOS(); setSosCountdown(null); }} className="w-full text-ios-subheadline text-muted-foreground font-semibold mt-2">
             Cancel
           </Button>
         )}

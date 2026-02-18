@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-const typeConfig: Record<string, { emoji: string; color: string; bg: string }> = {
-  medication: { emoji: '💊', color: 'text-primary', bg: 'bg-primary/10' },
-  meal: { emoji: '🍽️', color: 'text-accent', bg: 'bg-accent/10' },
-  exercise: { emoji: '🚶', color: 'text-sage', bg: 'bg-sage/10' },
-  check_in: { emoji: '😊', color: 'text-lavender', bg: 'bg-lavender/10' },
-  custom: { emoji: '📋', color: 'text-secondary', bg: 'bg-secondary/10' },
+const typeConfig: Record<string, { icon: typeof Pill; label: string }> = {
+  medication: { icon: Pill, label: 'Medication' },
+  meal: { icon: Clock, label: 'Meal' },
+  exercise: { icon: Clock, label: 'Exercise' },
+  check_in: { icon: Bell, label: 'Check-in' },
+  custom: { icon: Bell, label: 'Custom' },
 };
 
 export default function RemindersScreen() {
@@ -29,14 +29,14 @@ export default function RemindersScreen() {
   const handleAcknowledge = (scheduledId: string, reminderId: string) => {
     acknowledge.mutate(
       { scheduledId, reminderId, startTime: Date.now() - 5000 },
-      { onSuccess: () => toast({ title: '✅ Done!', description: 'Reminder completed.' }) }
+      { onSuccess: () => toast({ title: 'Done', description: 'Reminder completed.' }) }
     );
   };
 
   const handleSnooze = (scheduledId: string, reminderId: string) => {
     snooze.mutate(
       { scheduledId, reminderId, minutes: 10 },
-      { onSuccess: () => toast({ title: '⏰ Snoozed', description: 'Reminder will come back in 10 minutes.' }) }
+      { onSuccess: () => toast({ title: 'Snoozed', description: 'Reminder will come back in 10 minutes.' }) }
     );
   };
 
@@ -51,7 +51,7 @@ export default function RemindersScreen() {
       },
       {
         onSuccess: () => {
-          toast({ title: '✅ Reminder Created' });
+          toast({ title: 'Reminder Created' });
           setShowCreate(false);
           setNewTitle('');
           setNewMessage('');
@@ -82,51 +82,46 @@ export default function RemindersScreen() {
 
       {/* Active Reminders */}
       {activeReminders.length > 0 && (
-        <div className="px-4 mt-3">
-          <p className="text-ios-footnote font-medium text-destructive uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
+        <div className="mt-4">
+          <p className="text-ios-footnote font-medium text-destructive uppercase tracking-wider mb-2 px-5 flex items-center gap-1.5">
             <AlarmClock className="w-3.5 h-3.5" /> Active Now
           </p>
-          <div className="space-y-2">
-            {activeReminders.map((item, i) => {
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+            {activeReminders.map((item) => {
               const reminder = item.reminders as any;
               if (!reminder) return null;
               const cfg = typeConfig[reminder.type] || typeConfig.custom;
+              const IconComp = cfg.icon;
               return (
-                <motion.div key={item.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <div className="ios-card border-l-4 border-l-destructive">
-                    <div className="p-4">
-                      {reminder.photo_url && (
-                        <img src={reminder.photo_url} alt="" className="w-full h-32 object-cover rounded-xl mb-3" />
-                      )}
-                      <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
-                          <span className="text-[20px]">{cfg.emoji}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-ios-callout font-semibold text-foreground">{reminder.title}</div>
-                          <div className="text-ios-subheadline text-muted-foreground mt-1">{reminder.message}</div>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        <Button
-                          onClick={() => handleAcknowledge(item.id, reminder.id)}
-                          disabled={acknowledge.isPending}
-                          className="flex-1 h-11 rounded-xl font-semibold gap-2"
-                        >
-                          <Check className="w-4 h-4" /> Done
-                        </Button>
-                        <Button
-                          onClick={() => handleSnooze(item.id, reminder.id)}
-                          disabled={snooze.isPending}
-                          variant="secondary"
-                          className="flex-1 h-11 rounded-xl font-semibold gap-2"
-                        >
-                          <Clock className="w-4 h-4" /> 10 Min
-                        </Button>
-                      </div>
+                <div key={item.id} className="px-4 py-3">
+                  {reminder.photo_url && (
+                    <img src={reminder.photo_url} alt="" className="w-full h-32 object-cover rounded-xl mb-3" />
+                  )}
+                  <div className="flex items-start gap-3">
+                    <IconComp className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-ios-callout font-semibold text-foreground">{reminder.title}</div>
+                      <div className="text-ios-footnote text-muted-foreground mt-0.5">{reminder.message}</div>
                     </div>
                   </div>
-                </motion.div>
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      onClick={() => handleAcknowledge(item.id, reminder.id)}
+                      disabled={acknowledge.isPending}
+                      className="flex-1 h-11 rounded-xl font-semibold gap-2"
+                    >
+                      <Check className="w-4 h-4" /> Done
+                    </Button>
+                    <Button
+                      onClick={() => handleSnooze(item.id, reminder.id)}
+                      disabled={snooze.isPending}
+                      variant="secondary"
+                      className="flex-1 h-11 rounded-xl font-semibold gap-2"
+                    >
+                      <Clock className="w-4 h-4" /> 10 Min
+                    </Button>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -134,39 +129,36 @@ export default function RemindersScreen() {
       )}
 
       {/* Upcoming */}
-      <div className="px-4 mt-5">
-        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
+      <div className="mt-6">
+        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5 flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" /> Upcoming
         </p>
         {isLoading ? (
-          <div className="ios-card p-8 text-center text-ios-subheadline text-muted-foreground">Loading...</div>
+          <div className="mx-4 ios-card p-8 text-center text-ios-subheadline text-muted-foreground">Loading...</div>
         ) : upcomingReminders.length === 0 && activeReminders.length === 0 ? (
-          <div className="ios-card p-10 text-center">
+          <div className="mx-4 ios-card p-10 text-center">
             <Bell className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
             <div className="text-ios-callout font-semibold text-muted-foreground">No reminders yet</div>
             <div className="text-ios-footnote text-muted-foreground/70 mt-1">Tap + to create one</div>
           </div>
         ) : (
-          <div className="ios-card overflow-hidden divide-y divide-border/30">
-            {upcomingReminders.map((item, i) => {
+          <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+            {upcomingReminders.map((item) => {
               const reminder = item.reminders as any;
               if (!reminder) return null;
               const cfg = typeConfig[reminder.type] || typeConfig.custom;
+              const IconComp = cfg.icon;
               const dueDate = new Date(item.next_due_time);
               const timeStr = dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
               return (
-                <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-                  <div className="flex items-center gap-3 p-4">
-                    <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
-                      <span className="text-[18px]">{cfg.emoji}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-ios-subheadline font-semibold text-foreground truncate">{reminder.title}</div>
-                      <div className="text-ios-footnote text-muted-foreground mt-0.5">{reminder.message}</div>
-                    </div>
-                    <span className="text-ios-footnote font-semibold text-muted-foreground shrink-0">{timeStr}</span>
+                <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  <IconComp className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-ios-callout font-medium text-foreground truncate">{reminder.title}</div>
+                    <div className="text-ios-footnote text-muted-foreground mt-0.5">{reminder.message}</div>
                   </div>
-                </motion.div>
+                  <span className="text-ios-footnote font-semibold text-muted-foreground shrink-0">{timeStr}</span>
+                </div>
               );
             })}
           </div>
@@ -180,7 +172,7 @@ export default function RemindersScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 ios-blur-dark flex items-end justify-center"
+            className="absolute inset-0 z-50 bg-black/30 flex items-end justify-center"
             onClick={() => setShowCreate(false)}
           >
             <motion.div
@@ -201,21 +193,25 @@ export default function RemindersScreen() {
                 </button>
               </div>
 
-              <div className="flex gap-2 mb-4 flex-wrap">
+              {/* Type selector as segmented control */}
+              <div className="flex bg-muted rounded-xl p-1 gap-1 mb-4">
                 {[
-                  { id: 'medication', label: '💊 Med' },
-                  { id: 'meal', label: '🍽️ Meal' },
-                  { id: 'exercise', label: '🚶 Walk' },
-                  { id: 'check_in', label: '😊 Check-in' },
+                  { id: 'medication', label: 'Med' },
+                  { id: 'meal', label: 'Meal' },
+                  { id: 'exercise', label: 'Walk' },
+                  { id: 'check_in', label: 'Check-in' },
                 ].map(t => (
-                  <Button
+                  <button
                     key={t.id}
-                    variant={newType === t.id ? 'default' : 'outline'}
                     onClick={() => setNewType(t.id)}
-                    className="rounded-full text-ios-footnote font-semibold h-9 px-4"
+                    className={`flex-1 h-8 rounded-lg text-[12px] font-semibold transition-all ${
+                      newType === t.id
+                        ? 'bg-card text-foreground shadow-sm'
+                        : 'text-muted-foreground'
+                    }`}
                   >
                     {t.label}
-                  </Button>
+                  </button>
                 ))}
               </div>
 

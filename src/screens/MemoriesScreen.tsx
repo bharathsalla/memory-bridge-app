@@ -108,11 +108,11 @@ const aiCuratedMemories = [
 ];
 
 const categories = [
-  { id: 'all', label: 'For You', icon: <Sparkles className="w-4 h-4" /> },
-  { id: 'family', label: 'Family', icon: <Users className="w-4 h-4" /> },
-  { id: 'places', label: 'Places', icon: <MapPin className="w-4 h-4" /> },
-  { id: 'celebration', label: 'Events', icon: <Star className="w-4 h-4" /> },
-  { id: 'daily', label: 'Daily', icon: <Sun className="w-4 h-4" /> },
+  { id: 'all', label: 'For You' },
+  { id: 'family', label: 'Family' },
+  { id: 'places', label: 'Places' },
+  { id: 'celebration', label: 'Events' },
+  { id: 'daily', label: 'Daily' },
 ];
 
 export default function MemoriesScreen() {
@@ -359,19 +359,20 @@ export default function MemoriesScreen() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
             {/* Slideshow CTA — Apple Health style row */}
             <div className="px-4 mt-4">
+              <div className="ios-card overflow-hidden">
               <button
                 onClick={() => { setSlideshowActive(true); setIsPlaying(true); setSlideshowIndex(0); }}
-                className="w-full ios-card p-4 flex items-center gap-3 text-left touch-target"
+                className="w-full flex items-center gap-3 px-4 text-left touch-target"
+                style={{ minHeight: 56 }}
               >
-                <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                  <Play className="w-5 h-5 text-primary ml-0.5" />
-                </div>
+                <Play className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div className="flex-1">
-                  <p className="text-ios-callout font-semibold text-foreground">Play Memory Slideshow</p>
+                  <p className="text-ios-callout font-medium text-foreground">Play Memory Slideshow</p>
                   <p className="text-ios-footnote text-muted-foreground">{filteredMemories.length} memories · AI curated</p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
               </button>
+              </div>
             </div>
 
             {/* Category Segmented Control */}
@@ -393,15 +394,15 @@ export default function MemoriesScreen() {
               </div>
             </div>
 
-            {/* AI Memory Pick — Apple Health style */}
-            <div className="px-4 mt-4">
-              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Today's AI Pick</p>
-              <div className="ios-card overflow-hidden">
-                <div className="p-4 flex items-center gap-3">
+            {/* AI Memory Pick */}
+            <div className="mt-6">
+              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's AI Pick</p>
+              <div className="mx-4 ios-card overflow-hidden">
+                <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
                   <img src={aiCuratedMemories[4].image} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-ios-callout font-semibold text-foreground">{aiCuratedMemories[4].title}</p>
-                    <p className="text-ios-footnote text-muted-foreground mt-0.5">{aiCuratedMemories[4].subtitle}</p>
+                    <p className="text-ios-callout font-medium text-foreground">{aiCuratedMemories[4].title}</p>
+                    <p className="text-ios-footnote text-muted-foreground">{aiCuratedMemories[4].subtitle}</p>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                 </div>

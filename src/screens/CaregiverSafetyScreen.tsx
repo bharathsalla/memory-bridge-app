@@ -448,8 +448,8 @@ export default function CaregiverSafetyScreen() {
           onClick={() => setSubPage('connect-device')}
           className="w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left"
         >
-          <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-            <Wifi className="w-6 h-6 text-primary" />
+          <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+            <Wifi className="w-5 h-5 text-muted-foreground" />
           </div>
           <div className="flex-1">
             <div className="text-[15px] font-bold text-foreground">Connected Devices</div>
@@ -543,11 +543,11 @@ export default function CaregiverSafetyScreen() {
           onClick={() => setSubPage('location-history')}
           className="w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left touch-target"
         >
-          <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-            <History className="w-5 h-5 text-primary" />
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+            <History className="w-5 h-5 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <div className="text-[15px] font-semibold text-foreground">📍 View Location History</div>
+            <div className="text-[15px] font-semibold text-foreground">View Location History</div>
             <div className="text-[12px] text-muted-foreground">Track movement patterns</div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -558,11 +558,11 @@ export default function CaregiverSafetyScreen() {
           onClick={() => setSubPage('set-safe-area')}
           className="w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left touch-target"
         >
-          <div className="w-11 h-11 rounded-xl bg-success/8 flex items-center justify-center shrink-0">
-            <Settings2 className="w-5 h-5 text-success" />
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+            <Settings2 className="w-5 h-5 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <div className="text-[15px] font-semibold text-foreground">🛠 Set / Edit Safe Area</div>
+            <div className="text-[15px] font-semibold text-foreground">Set / Edit Safe Area</div>
             <div className="text-[12px] text-muted-foreground">Current radius: {safeZoneRadius}m</div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -577,7 +577,7 @@ export default function CaregiverSafetyScreen() {
             <AlertTriangle className={`w-5 h-5 ${sosAlert ? 'text-destructive-foreground' : 'text-destructive'}`} />
           </div>
           <div className="flex-1">
-            <div className="text-[15px] font-semibold text-foreground">🆘 SOS Alerts</div>
+            <div className="text-[15px] font-semibold text-foreground">SOS Alerts</div>
             <div className="text-[12px] text-muted-foreground">{sosAlert ? 'Active alert!' : 'No active alerts'}</div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />

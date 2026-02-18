@@ -27,10 +27,10 @@ export interface MemoryEntry {
 }
 
 const activityCategories = [
-  { type: 'phone', icon: Phone, label: 'Phone Call', color: 'bg-blue-500' },
-  { type: 'place', icon: MapPin, label: 'Visited Place', color: 'bg-amber-500' },
-  { type: 'person', icon: Users, label: 'Met Someone', color: 'bg-purple-500' },
-  { type: 'other', icon: MessageSquare, label: 'Other', color: 'bg-primary' },
+  { type: 'phone', icon: Phone, label: 'Phone Call' },
+  { type: 'place', icon: MapPin, label: 'Visited Place' },
+  { type: 'person', icon: Users, label: 'Met Someone' },
+  { type: 'other', icon: MessageSquare, label: 'Other' },
 ];
 
 const typeToCategory = (type: string) => {
@@ -139,7 +139,7 @@ export default function MemoryLaneScreen() {
         type: typeMap[catType] || 'note',
         title: newTitle,
         description: newDescription,
-        emoji: catType === 'phone' ? '📞' : catType === 'place' ? '📍' : catType === 'person' ? '👥' : '💬',
+        emoji: '📝',
         cognitive_prompt: prompt,
         engagement_score: 50,
       });
@@ -187,12 +187,12 @@ export default function MemoryLaneScreen() {
   };
 
   const memoryCardStyles = [
-    'from-destructive/5 to-destructive/10 border-destructive/20',
-    'from-warning/5 to-warning/10 border-warning/20',
-    'from-primary/5 to-primary/10 border-primary/20',
-    'from-success/5 to-success/10 border-success/20',
-    'from-accent/5 to-accent/10 border-accent/20',
-    'from-secondary/5 to-secondary/10 border-secondary/20',
+    'bg-muted/30 border-border/40',
+    'bg-muted/30 border-border/40',
+    'bg-muted/30 border-border/40',
+    'bg-muted/30 border-border/40',
+    'bg-muted/30 border-border/40',
+    'bg-muted/30 border-border/40',
   ];
 
   if (loading) {
@@ -224,9 +224,7 @@ export default function MemoryLaneScreen() {
           <div className="px-5 pt-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-sm">
-                  <Heart className="w-4.5 h-4.5 text-white" />
-                </div>
+                <Heart className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <h2 className="text-[17px] font-bold text-foreground">Yesterday's Memories</h2>
                   <p className="text-[12px] text-muted-foreground font-medium">{yesterdayMemories.length} moment{yesterdayMemories.length > 1 ? 's' : ''} captured</p>
@@ -250,7 +248,7 @@ export default function MemoryLaneScreen() {
                   onClick={() => setSelectedMemory(mem)}
                   className="text-left"
                 >
-                  <div className={`rounded-2xl bg-gradient-to-br ${memoryCardStyles[i % memoryCardStyles.length]} border p-4 h-[130px] flex flex-col justify-between shadow-sm active:scale-[0.97] transition-transform`}>
+                  <div className={`rounded-2xl ${memoryCardStyles[i % memoryCardStyles.length]} border p-4 h-[130px] flex flex-col justify-between active:scale-[0.97] transition-transform`}>
                     <div className="flex items-start justify-between">
                       <span className="text-[32px] leading-none">{mem.emoji}</span>
                       <div className="flex items-center gap-1">
@@ -280,9 +278,7 @@ export default function MemoryLaneScreen() {
 
           {memories.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-                <Clock className="w-8 h-8 text-primary" />
-              </div>
+              <Clock className="w-10 h-10 text-muted-foreground/20 mb-5" />
               <h3 className="text-[20px] font-bold text-foreground mb-2">No memories yet</h3>
               <p className="text-[16px] text-muted-foreground text-center leading-relaxed">
                 Tap "Add" to log your first moment.
@@ -293,9 +289,9 @@ export default function MemoryLaneScreen() {
           {Object.entries(groupedByDate).map(([date, entries]) => (
             <div key={date} className="mb-6">
               <div className="flex items-center gap-2 mb-3">
-                <Badge variant="secondary" className="text-[12px] font-bold bg-primary/10 text-primary border-primary/20 px-2.5 py-0.5">
+                <span className="text-[12px] font-semibold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full">
                   {date}
-                </Badge>
+                </span>
                 <span className="text-[12px] text-muted-foreground font-medium">{entries.length} memor{entries.length > 1 ? 'ies' : 'y'}</span>
               </div>
 
@@ -312,10 +308,10 @@ export default function MemoryLaneScreen() {
                       onClick={() => setSelectedMemory(memory)}
                       className="w-full text-left"
                     >
-                      <Card className="border border-border shadow-sm active:scale-[0.98] transition-transform hover:shadow-md">
-                        <CardContent className="p-4 flex items-center gap-3.5">
-                          <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 text-[22px]">
-                            {memory.emoji}
+                      <Card className="border border-border/40 active:scale-[0.98] transition-transform">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <div className="w-5 h-5 flex items-center justify-center shrink-0 text-muted-foreground">
+                            {typeIcon(memory.type)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[16px] font-bold text-foreground leading-tight line-clamp-1">{memory.title}</p>
@@ -327,7 +323,7 @@ export default function MemoryLaneScreen() {
                                 <Clock className="w-3 h-3" /> {memory.time}
                               </span>
                               {memory.cognitiveAnswer && (
-                                <Badge variant="secondary" className="text-[10px] font-bold bg-success/10 text-success border-success/20 px-1.5 py-0">✓ Recalled</Badge>
+                                <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0 rounded-full">Recalled</span>
                               )}
                             </div>
                           </div>
