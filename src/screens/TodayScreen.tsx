@@ -155,8 +155,8 @@ export default function TodayScreen() {
           <div className="rounded-2xl overflow-hidden bg-primary">
             <button
               onClick={() => setShowIDCard(true)}
-              className="w-full flex items-center gap-3 px-4 text-left touch-target"
-              style={{ minHeight: 64 }}
+              className="w-full flex items-center gap-3 px-5 py-4 text-left touch-target"
+              style={{ minHeight: 72 }}
             >
               <img src={patientAvatar} alt="Profile" className="w-12 h-12 object-cover shrink-0 rounded-full ring-2 ring-white/30" />
               <div className="flex-1">
@@ -178,7 +178,7 @@ export default function TodayScreen() {
               { label: 'Mood', value: currentMood.label, Icon: Heart, detail: currentMood.time, color: '#FF3B30', bgColor: 'rgba(255, 59, 48, 0.12)' },
               { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}%`, color: '#FF9500', bgColor: 'rgba(255, 149, 0, 0.12)' },
             ].map((stat) => (
-              <div key={stat.label} className="ios-card p-3.5 flex flex-col gap-1.5">
+              <div key={stat.label} className="ios-card p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.bgColor }}>
                     <stat.Icon className="w-4.5 h-4.5" style={{ width: 18, height: 18, color: stat.color }} />
@@ -206,7 +206,7 @@ export default function TodayScreen() {
             <div className="px-4">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {pendingMeds.map((med) => (
-                  <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                    <div key={med.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 64 }}>
                     <IconBox Icon={Pill} color={iosColors.orange} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
@@ -228,7 +228,7 @@ export default function TodayScreen() {
             <div className="px-4 mt-2">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {takenMeds.map((med) => (
-                  <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 48 }}>
+                  <div key={med.id} className="flex items-center gap-3 px-5 py-3" style={{ minHeight: 56 }}>
                     <IconBox Icon={Check} color={iosColors.green} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-subheadline text-muted-foreground line-through">{med.name} · {med.dosage}</p>
@@ -256,7 +256,7 @@ export default function TodayScreen() {
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">
               {activities.map((item, idx) => (
-                <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+                <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
                   {item.completed ? (
                     <IconBox Icon={Check} color={iosColors.green} />
                   ) : (
