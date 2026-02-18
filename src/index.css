@@ -111,18 +111,18 @@
   /* iOS Inset Grouped Card — Apple Health style */
   .ios-card {
     @apply bg-card;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: var(--shadow-card);
   }
 
   .ios-card-elevated {
     @apply bg-card;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: var(--shadow-elevated);
   }
 
   .ios-card-glass {
-    border-radius: 12px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);

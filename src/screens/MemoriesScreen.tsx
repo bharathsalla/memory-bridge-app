@@ -325,8 +325,8 @@ export default function MemoriesScreen() {
               <div className="ios-card overflow-hidden">
                 <button
                 onClick={() => {setSlideshowActive(true);setIsPlaying(true);setSlideshowIndex(0);}}
-                className="w-full flex items-center gap-3 px-4 text-left touch-target"
-                style={{ minHeight: 56 }}>
+                className="w-full flex items-center gap-3 px-5 py-4 text-left touch-target"
+                style={{ minHeight: 64 }}>
 
                   <IconBox Icon={Play} color={iosColors.purple} size={40} iconSize={20} />
                   <div className="flex-1">
@@ -352,7 +352,7 @@ export default function MemoriesScreen() {
             <div className="mt-5">
               <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's AI Pick</p>
               <div className="mx-4 ios-card overflow-hidden">
-                <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                <div className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 64 }}>
                   <img src={aiCuratedMemories[4].image} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-ios-callout font-medium text-foreground">{aiCuratedMemories[4].title}</p>
@@ -373,8 +373,8 @@ export default function MemoriesScreen() {
                   {filteredMemories.map((mem) =>
                 <button
                   key={mem.id}
-                  className="w-full flex items-center gap-3 px-4 text-left touch-target"
-                  style={{ minHeight: 64 }}>
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left touch-target"
+                  style={{ minHeight: 72 }}>
 
                       <img src={mem.image} alt={mem.title} className="w-11 h-11 rounded-xl object-cover shrink-0" />
                       <div className="flex-1 min-w-0">
