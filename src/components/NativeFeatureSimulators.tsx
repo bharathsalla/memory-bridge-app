@@ -6,6 +6,7 @@ import {
   Mic, Speaker, AlertTriangle, Power, RefreshCw, Radio,
   Vibrate, Moon, Sun, ChevronRight, ExternalLink
 } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 // ─── Push Notification Simulator ───────────────────────────
 export function PushNotificationSimulator() {
@@ -31,9 +32,7 @@ export function PushNotificationSimulator() {
       <div className="ios-card-elevated p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-primary" />
-            </div>
+            <IconBox Icon={Bell} color={iosColors.red} />
             <div>
               <div className="text-[14px] font-bold text-foreground">Push Notifications</div>
               <div className="text-[11px] text-muted-foreground">
@@ -67,9 +66,7 @@ export function PushNotificationSimulator() {
         onClick={() => setShowPreview(!showPreview)}
         className="w-full ios-card-elevated p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
       >
-        <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
-          <BellRing className="w-4 h-4 text-accent" />
-        </div>
+        <IconBox Icon={BellRing} color={iosColors.orange} />
         <div className="flex-1 text-left">
           <div className="text-[13px] font-semibold text-foreground">Preview Notification</div>
           <div className="text-[11px] text-muted-foreground">See how alerts appear on device</div>
@@ -93,14 +90,14 @@ export function PushNotificationSimulator() {
                 <span className="text-[11px] text-background/60 font-medium">MEMOCARE</span>
                 <span className="text-[10px] text-background/40 ml-auto">now</span>
               </div>
-              <div className="text-[14px] font-bold text-background">💊 Medication Reminder</div>
+              <div className="text-[14px] font-bold text-background">Medication Reminder</div>
               <div className="text-[13px] text-background/70 mt-0.5">Time to take Lisinopril 10mg — Take 1 tablet with water</div>
               <div className="flex gap-2 mt-3">
                 <div className="flex-1 bg-background/20 rounded-lg py-1.5 text-center text-[12px] font-semibold text-background">
-                  ✓ Done
+                  Done
                 </div>
                 <div className="flex-1 bg-background/20 rounded-lg py-1.5 text-center text-[12px] font-semibold text-background">
-                  ⏰ Snooze
+                  Snooze
                 </div>
               </div>
             </div>
@@ -159,9 +156,7 @@ export function BackgroundFetchSimulator() {
       <div className="ios-card-elevated p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sage/10 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-sage" />
-            </div>
+            <IconBox Icon={Zap} color={iosColors.green} />
             <div>
               <div className="text-[14px] font-bold text-foreground">Background Services</div>
               <div className="text-[11px] text-success font-medium flex items-center gap-1">
@@ -265,9 +260,7 @@ export function AlexaIntegrationSimulator() {
       {/* Link status */}
       <div className="ios-card-elevated p-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#00CAFF]/10 flex items-center justify-center">
-            <span className="text-[24px]">🔵</span>
-          </div>
+          <IconBox Icon={Speaker} color={iosColors.teal} size={48} iconSize={24} />
           <div className="flex-1">
             <div className="text-[16px] font-bold text-foreground">Amazon Alexa</div>
             <div className="text-[12px] text-muted-foreground flex items-center gap-1.5">
@@ -339,9 +332,7 @@ export function AlexaIntegrationSimulator() {
         onClick={startDemo}
         className="w-full ios-card-elevated p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
       >
-        <div className="w-9 h-9 rounded-xl bg-lavender/10 flex items-center justify-center">
-          <Radio className="w-4 h-4 text-lavender" />
-        </div>
+        <IconBox Icon={Radio} color={iosColors.purple} />
         <div className="flex-1 text-left">
           <div className="text-[13px] font-semibold text-foreground">Play Demo Conversation</div>
           <div className="text-[11px] text-muted-foreground">See Alexa interaction flow</div>

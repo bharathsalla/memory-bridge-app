@@ -93,18 +93,20 @@ export default function CareScreen() {
       {/* Tabs — iOS segmented control */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <div className="px-4 pt-2 pb-1.5 shrink-0">
-          <div className="flex bg-muted rounded-lg p-0.5 gap-0.5">
+          <div className="flex bg-secondary/50 rounded-[9px] p-[2px]">
             {[
-              { value: 'chat', icon: <MessageCircle className="w-3.5 h-3.5" />, label: 'Chat' },
-              { value: 'tasks', icon: <CheckSquare className="w-3.5 h-3.5" />, label: 'Tasks' },
-              { value: 'calendar', icon: <CalendarDays className="w-3.5 h-3.5" />, label: 'Events' },
-              { value: 'team', icon: <Users className="w-3.5 h-3.5" />, label: 'Team' },
+              { value: 'chat', icon: <MessageCircle className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Chat' },
+              { value: 'tasks', icon: <CheckSquare className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Tasks' },
+              { value: 'calendar', icon: <CalendarDays className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Events' },
+              { value: 'team', icon: <Users className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Team' },
             ].map(tab => (
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
-                className={`flex-1 flex items-center justify-center gap-1 h-8 rounded-md text-[12px] font-semibold transition-all ${
-                  activeTab === tab.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                className={`flex-1 flex items-center justify-center gap-1 h-[32px] rounded-[7px] text-[13px] font-medium transition-all ${
+                  activeTab === tab.value
+                    ? 'bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)]'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {tab.icon}

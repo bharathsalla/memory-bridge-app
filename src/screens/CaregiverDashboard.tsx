@@ -76,6 +76,37 @@ export default function CaregiverDashboard() {
               </div>
               <Shield className="w-5 h-5 text-primary-foreground/60 shrink-0" />
             </div>
+            {/* Caregiver Details */}
+            <div className="px-4 pb-4 pt-1 border-t border-white/10 grid grid-cols-2 gap-2">
+              <div className="flex items-center gap-2">
+                <User className="w-3.5 h-3.5 text-primary-foreground/60" />
+                <div>
+                  <div className="text-[10px] text-primary-foreground/50">Caregiver</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Sarah Johnson</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Heart className="w-3.5 h-3.5 text-primary-foreground/60" />
+                <div>
+                  <div className="text-[10px] text-primary-foreground/50">Relationship</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Daughter</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-primary-foreground/60" />
+                <div>
+                  <div className="text-[10px] text-primary-foreground/50">Contact</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">+1 555-0123</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="w-3.5 h-3.5 text-primary-foreground/60" />
+                <div>
+                  <div className="text-[10px] text-primary-foreground/50">Care Status</div>
+                  <div className="text-[12px] font-semibold text-primary-foreground">Active</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button onClick={() => setActiveCaregiverTab('safety')}
@@ -257,8 +288,11 @@ export default function CaregiverDashboard() {
           <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
 
-        {/* Patient Mode Switch Button */}
-        <div className="px-5 pb-3">
+        {/* Crisis Prevention Engine */}
+        <CrisisPreventionEngine />
+
+        {/* Patient Mode Switch Button — below content */}
+        <div className="px-5 py-4">
           <Button
             className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-sm"
             onClick={() => setModeModalOpen(true)}
@@ -267,9 +301,6 @@ export default function CaregiverDashboard() {
             Patient View: {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
           </Button>
         </div>
-
-        {/* Crisis Prevention Engine */}
-        <CrisisPreventionEngine />
 
         {/* Mode Modal */}
         <AnimatePresence>
