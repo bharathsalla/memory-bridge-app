@@ -65,14 +65,14 @@ export default function RemindersScreen() {
       <div className="px-5 pt-4 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
               <Bell className="w-6 h-6 text-primary" />
             </div>
             <h1 className="text-[22px] font-extrabold text-foreground">Reminders</h1>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target"
+            className="w-12 h-12 rounded-2xl gradient-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform touch-target shadow-md"
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -96,13 +96,13 @@ export default function RemindersScreen() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="ios-card-elevated p-5 border-l-4 border-destructive rounded-2xl"
+                  className="ios-card-elevated p-5 border-l-4 border-destructive"
                 >
                   {reminder.photo_url && (
                     <img src={reminder.photo_url} alt="" className="w-full h-36 object-cover rounded-xl mb-4" />
                   )}
                   <div className="flex items-start gap-4">
-                    <div className={`w-14 h-14 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
+                    <div className={`w-14 h-14 rounded-2xl ${cfg.bg} flex items-center justify-center shrink-0`}>
                       <span className="text-[26px]">{cfg.emoji}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -117,14 +117,14 @@ export default function RemindersScreen() {
                     <button
                       onClick={() => handleAcknowledge(item.id, reminder.id)}
                       disabled={acknowledge.isPending}
-                      className="flex-1 h-14 rounded-xl bg-success text-success-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
+                      className="flex-1 h-14 rounded-xl gradient-success text-success-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
                     >
                       <Check className="w-6 h-6" /> Done
                     </button>
                     <button
                       onClick={() => handleSnooze(item.id, reminder.id)}
                       disabled={snooze.isPending}
-                      className="flex-1 h-14 rounded-xl bg-primary text-primary-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
+                      className="flex-1 h-14 rounded-xl gradient-primary text-primary-foreground font-extrabold text-[17px] flex items-center justify-center gap-2 active:scale-95 transition-transform touch-target"
                     >
                       <Clock className="w-6 h-6" /> 10 Min
                     </button>
@@ -142,9 +142,9 @@ export default function RemindersScreen() {
           <Clock className="w-5 h-5 text-muted-foreground" /> Upcoming
         </h2>
         {isLoading ? (
-          <div className="ios-card-elevated p-8 text-center text-muted-foreground text-[16px] rounded-2xl">Loading...</div>
+          <div className="ios-card-elevated p-8 text-center text-muted-foreground text-[16px]">Loading...</div>
         ) : upcomingReminders.length === 0 && activeReminders.length === 0 ? (
-          <div className="ios-card-elevated p-10 text-center rounded-2xl">
+          <div className="ios-card-elevated p-10 text-center">
             <Bell className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <div className="text-[18px] font-bold text-muted-foreground">No reminders yet</div>
             <div className="text-[15px] text-muted-foreground/70 mt-2">Tap + to create one</div>
@@ -163,9 +163,9 @@ export default function RemindersScreen() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="ios-card-elevated flex items-center gap-4 p-4 rounded-2xl"
+                  className="ios-card-elevated flex items-center gap-4 p-4"
                 >
-                  <div className={`w-12 h-12 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
+                  <div className={`w-12 h-12 rounded-2xl ${cfg.bg} flex items-center justify-center shrink-0`}>
                     <span className="text-[22px]">{cfg.emoji}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -187,7 +187,7 @@ export default function RemindersScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end justify-center"
             onClick={() => setShowCreate(false)}
           >
             <motion.div
@@ -217,7 +217,7 @@ export default function RemindersScreen() {
                     onClick={() => setNewType(t.id)}
                     className={`px-4 py-3 rounded-xl text-[15px] font-bold border-2 transition-all touch-target ${
                       newType === t.id
-                        ? 'border-primary bg-primary text-primary-foreground'
+                        ? 'border-primary gradient-primary text-primary-foreground'
                         : 'border-border bg-card text-muted-foreground'
                     }`}
                   >
@@ -231,7 +231,7 @@ export default function RemindersScreen() {
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
                 placeholder="Reminder title..."
-                className="w-full h-13 px-5 rounded-xl bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 mb-3"
+                className="w-full px-5 rounded-xl bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 mb-3"
                 style={{ height: 52 }}
               />
 
@@ -256,7 +256,7 @@ export default function RemindersScreen() {
               <button
                 onClick={handleCreate}
                 disabled={createReminder.isPending || !newTitle.trim()}
-                className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-extrabold text-[18px] active:scale-95 transition-transform disabled:opacity-50 touch-target"
+                className="w-full h-14 rounded-xl gradient-primary text-primary-foreground font-extrabold text-[18px] active:scale-95 transition-transform disabled:opacity-50 touch-target shadow-lg"
               >
                 {createReminder.isPending ? 'Creating...' : 'Create Reminder'}
               </button>

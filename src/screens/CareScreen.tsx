@@ -76,7 +76,7 @@ export default function CareScreen() {
           </div>
           <button
             onClick={handleDashboardClick}
-            className="flex items-center gap-2 px-4 h-11 rounded-2xl bg-primary text-primary-foreground text-[15px] font-bold active:scale-95 transition-transform touch-target"
+            className="flex items-center gap-2 px-4 h-11 rounded-2xl gradient-primary text-primary-foreground text-[15px] font-bold active:scale-95 transition-transform touch-target shadow-md"
           >
             <img src={patientAvatar} alt="" className="w-6 h-6 rounded-full object-cover border border-primary-foreground/20" />
             Dashboard
@@ -122,10 +122,10 @@ export default function CareScreen() {
                       {msg.avatar}
                     </div>
                   )}
-                  <div className={`max-w-[72%] rounded-2xl px-4 py-3 ${
+                  <div className={`max-w-[72%] px-4 py-3 ${
                     msg.isMine
-                      ? 'bg-primary text-primary-foreground rounded-br-lg'
-                      : 'bg-card border border-border/30 rounded-bl-lg shadow-sm'
+                      ? 'gradient-primary text-primary-foreground rounded-2xl rounded-br-lg shadow-md'
+                      : 'bg-card border border-border/30 rounded-2xl rounded-bl-lg shadow-sm'
                   }`}>
                     {!msg.isMine && <div className="text-[13px] font-bold text-primary mb-1">{msg.sender}</div>}
                     <p className={`text-[16px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
@@ -143,7 +143,7 @@ export default function CareScreen() {
                   placeholder="Message your family..."
                   className="flex-1 h-12 px-5 rounded-full bg-muted/50 text-[16px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 transition-colors"
                 />
-                <button className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-sm touch-target">
+                <button className="w-12 h-12 rounded-full gradient-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md touch-target">
                   <Send className="w-5 h-5" />
                 </button>
               </div>
@@ -271,7 +271,7 @@ export default function CareScreen() {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           onClick={() => setManageOpen(true)}
-          className="absolute bottom-6 right-5 w-14 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform touch-target"
+          className="absolute bottom-6 right-5 w-14 h-14 rounded-2xl gradient-primary text-primary-foreground flex items-center justify-center z-30 shadow-lg active:scale-90 transition-transform touch-target"
           aria-label="Add new item"
         >
           <Plus className="w-6 h-6" />
@@ -286,7 +286,7 @@ export default function CareScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/40 flex items-center justify-center px-5"
+            className="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-5"
             onClick={() => setViewModalOpen(false)}
           >
             <motion.div
