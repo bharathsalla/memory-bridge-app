@@ -12,7 +12,7 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User
+  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock, User, Sparkles
 } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { Button } from '@/components/ui/button';
@@ -284,24 +284,49 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-4 pb-2">
+        <div className="px-5 pt-4 pb-3">
           <h1 className="text-ios-large-title text-foreground">Vitals</h1>
           <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
 
+        {/* Patient View — iOS grouped list row */}
+        <div className="px-4 mb-4">
+          <button
+            onClick={() => setModeModalOpen(true)}
+            className="w-full ios-card flex items-center justify-between px-4 touch-target"
+            style={{ minHeight: 52 }}
+          >
+            <div className="flex items-center gap-3">
+              <IconBox Icon={Eye} color={iosColors.blue} size={36} iconSize={18} />
+              <span className="text-ios-callout font-medium text-foreground">Patient View</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className={`text-[13px] font-semibold ${
+                mode === 'full' ? 'text-primary' : mode === 'simplified' ? 'text-warning' : 'text-destructive'
+              }`}>
+                {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
+            </div>
+          </button>
+        </div>
+
+        {/* Greeting + Crisis Forecast Card */}
+        <div className="px-4 mb-5">
+          <div className="ios-card p-4">
+            <div className="flex items-start justify-between mb-1">
+              <p className="text-[15px] font-semibold text-primary">Good Morning, Sarah</p>
+              <span className="text-[11px] font-semibold text-primary flex items-center gap-1 bg-primary/8 px-2 py-0.5 rounded-full">
+                <Sparkles className="w-3 h-3" /> AI Active
+              </span>
+            </div>
+            <h2 className="text-[22px] font-bold text-foreground leading-tight">Crisis Forecast</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
+          </div>
+        </div>
+
         {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
-
-        {/* Patient Mode Switch Button — below content */}
-        <div className="px-5 py-4">
-          <Button
-            className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-sm"
-            onClick={() => setModeModalOpen(true)}
-          >
-            <Settings2 className="w-5 h-5 mr-2" />
-            Patient View: {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
-          </Button>
-        </div>
 
         {/* Mode Modal */}
         <AnimatePresence>
