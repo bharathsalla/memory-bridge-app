@@ -23,9 +23,9 @@ async function callSupport(body: Record<string, unknown>) {
 }
 
 const moodOptions = [
-  { emoji: '😊', label: 'Managing Well', color: 'bg-success/15 text-success border-success/30' },
-  { emoji: '😔', label: 'Feeling Tired', color: 'bg-warning/15 text-warning border-warning/30' },
-  { emoji: '😫', label: 'Overwhelmed', color: 'bg-destructive/15 text-destructive border-destructive/30' },
+  { Icon: Smile, label: 'Managing Well', color: 'bg-success/15 text-success border-success/30' },
+  { Icon: Frown, label: 'Feeling Tired', color: 'bg-warning/15 text-warning border-warning/30' },
+  { Icon: AlertTriangle, label: 'Overwhelmed', color: 'bg-destructive/15 text-destructive border-destructive/30' },
 ];
 
 const burnoutQuestions = [
@@ -41,10 +41,10 @@ export default function CaregiverSupportEcosystem() {
   const [educationSub, setEducationSub] = useState<EducationSub>(null);
 
   // Stress check-in state
-  const [moodHistory, setMoodHistory] = useState<{ emoji: string; label: string; date: string }[]>([
-    { emoji: '😊', label: 'Managing Well', date: 'Mon' },
-    { emoji: '😔', label: 'Feeling Tired', date: 'Tue' },
-    { emoji: '😔', label: 'Feeling Tired', date: 'Wed' },
+  const [moodHistory, setMoodHistory] = useState<{ icon: string; label: string; date: string }[]>([
+    { icon: 'smile', label: 'Managing Well', date: 'Mon' },
+    { icon: 'frown', label: 'Feeling Tired', date: 'Tue' },
+    { icon: 'frown', label: 'Feeling Tired', date: 'Wed' },
   ]);
   const [todayMood, setTodayMood] = useState<string | null>(null);
   const [moodMessage, setMoodMessage] = useState('');
@@ -68,25 +68,25 @@ export default function CaregiverSupportEcosystem() {
   // Safe break state
   const [breakActive, setBreakActive] = useState(false);
 
-  const negativeCount = moodHistory.filter(m => m.emoji !== '😊').length;
+  const negativeCount = moodHistory.filter(m => m.label !== 'Managing Well').length;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  const handleMoodSelect = async (emoji: string, label: string) => {
-    setTodayMood(emoji);
-    const newHistory = [...moodHistory, { emoji, label, date: 'Today' }];
+  const handleMoodSelect = async (label: string) => {
+    setTodayMood(label);
+    const newHistory = [...moodHistory, { icon: label === 'Managing Well' ? 'smile' : 'frown', label, date: 'Today' }];
     setMoodHistory(newHistory);
     setMoodLoading(true);
     try {
       const data = await callSupport({ type: 'mood_response', moodHistory: newHistory });
       const result = data.result;
-      setMoodMessage(result?.message || result?.raw || "Thank you for checking in. Your feelings matter. 💙");
+      setMoodMessage(result?.message || result?.raw || "Thank you for checking in. Your feelings matter.");
       setMoodSuggestChat(result?.suggestChatbot === true);
     } catch {
-      setMoodMessage(emoji === '😊' ? "Glad you're holding steady 💙" : "It's okay to feel this way. You're doing more than enough. 💙");
-      setMoodSuggestChat(emoji !== '😊');
+      setMoodMessage(label === 'Managing Well' ? "Glad you're holding steady" : "It's okay to feel this way. You're doing more than enough.");
+      setMoodSuggestChat(label !== 'Managing Well');
     }
     setMoodLoading(false);
   };
@@ -103,7 +103,7 @@ export default function CaregiverSupportEcosystem() {
       const data = await callSupport({ type: 'chatbot', messages: updatedMessages });
       setChatMessages(prev => [...prev, { role: 'bot', text: data.reply }]);
     } catch {
-      setChatMessages(prev => [...prev, { role: 'bot', text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment. 💙" }]);
+      setChatMessages(prev => [...prev, { role: 'bot', text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment." }]);
     }
     setChatLoading(false);
   };
@@ -147,28 +147,35 @@ export default function CaregiverSupportEcosystem() {
       <div className="space-y-4">
         <BackButton onClick={() => { setActiveModule(null); setTodayMood(null); setMoodMessage(''); }} />
         <div className="text-center mb-2">
-          <div className="text-[28px] mb-1">🧠</div>
+          <div className="w-[44px] h-[44px] rounded-[10px] flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: '#FF9500' }}>
+            <Brain className="text-white" style={{ width: 22, height: 22, strokeWidth: 1.5 }} />
+          </div>
           <h3 className="text-[18px] font-bold text-foreground">Caregiver Check-In</h3>
           <p className="text-[14px] text-muted-foreground mt-1">How are YOU feeling today?</p>
         </div>
 
         {!todayMood ? (
           <div className="space-y-2.5">
-            {moodOptions.map(opt => (
-              <motion.button
-                key={opt.emoji}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleMoodSelect(opt.emoji, opt.label)}
-                className={`w-full flex items-center gap-3 p-4 rounded-2xl border ${opt.color} transition-all`}
-              >
-                <span className="text-[28px]">{opt.emoji}</span>
-                <span className="text-[15px] font-semibold">{opt.label}</span>
-              </motion.button>
-            ))}
+            {moodOptions.map(opt => {
+              const MoodIcon = opt.Icon;
+              return (
+                <motion.button
+                  key={opt.label}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleMoodSelect(opt.label)}
+                  className={`w-full flex items-center gap-3 p-4 rounded-2xl border ${opt.color} transition-all`}
+                >
+                  <MoodIcon style={{ width: 22, height: 22, strokeWidth: 1.5 }} />
+                  <span className="text-[15px] font-semibold">{opt.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
         ) : (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="ios-card-elevated p-4 text-center">
-            <div className="text-[36px] mb-2">{todayMood}</div>
+            <div className="w-10 h-10 rounded-[10px] bg-muted flex items-center justify-center mx-auto mb-2">
+              <Check className="w-5 h-5 text-muted-foreground" style={{ strokeWidth: 1.5 }} />
+            </div>
             {moodLoading ? (
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -191,16 +198,19 @@ export default function CaregiverSupportEcosystem() {
         <div className="ios-card-elevated p-4">
           <h4 className="text-[14px] font-bold text-foreground mb-3">This Week</h4>
           <div className="flex gap-2 justify-center">
-            {moodHistory.slice(-7).map((m, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <span className="text-[20px]">{m.emoji}</span>
-                <span className="text-[10px] text-muted-foreground">{m.date}</span>
-              </div>
-            ))}
+            {moodHistory.slice(-7).map((m, i) => {
+              const MIcon = m.label === 'Managing Well' ? Smile : m.label === 'Overwhelmed' ? AlertTriangle : Frown;
+              return (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <MIcon className="w-5 h-5 text-muted-foreground" style={{ strokeWidth: 1.5 }} />
+                  <span className="text-[10px] text-muted-foreground">{m.date}</span>
+                </div>
+              );
+            })}
           </div>
           {negativeCount >= 3 && (
             <div className="mt-3 p-3 rounded-xl bg-warning/10 border border-warning/20">
-              <p className="text-[12px] text-warning font-medium">⚠ You've had a tough week. Consider talking to the support chatbot or taking a break.</p>
+              <p className="text-[12px] text-warning font-medium">You've had a tough week. Consider talking to the support chatbot or taking a break.</p>
             </div>
           )}
         </div>
@@ -274,7 +284,9 @@ export default function CaregiverSupportEcosystem() {
       <div className="space-y-4">
         <BackButton onClick={() => { setActiveModule(null); setBreakActive(false); }} />
         <div className="text-center mb-2">
-          <div className="text-[28px] mb-1">☕</div>
+          <div className="w-[44px] h-[44px] rounded-[10px] flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: '#34C759' }}>
+            <Coffee className="text-white" style={{ width: 22, height: 22, strokeWidth: 1.5 }} />
+          </div>
           <h3 className="text-[18px] font-bold text-foreground">Safe Break Mode</h3>
           <p className="text-[14px] text-muted-foreground mt-1">Take guilt-free rest when patient is stable</p>
         </div>
@@ -286,7 +298,7 @@ export default function CaregiverSupportEcosystem() {
             </div>
             <div>
               <div className={`text-[16px] font-bold ${isStable ? 'text-success' : 'text-warning'}`}>
-                {isStable ? '🟢 All Stable' : '⚠ Stay Attentive'}
+                {isStable ? 'All Stable' : 'Stay Attentive'}
               </div>
               <div className="text-[12px] text-muted-foreground">
                 {isStable ? 'Patient inside geofence · GPS stable · Battery OK' : 'Patient near boundary area'}
@@ -300,7 +312,7 @@ export default function CaregiverSupportEcosystem() {
 
           {!breakActive ? (
             <button onClick={() => setBreakActive(true)} disabled={!isStable} className={`w-full py-3 rounded-xl font-bold text-[14px] ${isStable ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}`}>
-              {isStable ? '☕ Start Break Timer' : 'Not safe for break right now'}
+              {isStable ? 'Start Break Timer' : 'Not safe for break right now'}
             </button>
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
@@ -315,7 +327,7 @@ export default function CaregiverSupportEcosystem() {
         </div>
 
         <div className="ios-card p-4">
-          <h4 className="text-[13px] font-bold text-foreground mb-2">🧠 Why breaks matter</h4>
+          <h4 className="text-[13px] font-bold text-foreground mb-2">Why breaks matter</h4>
           <p className="text-[12px] text-muted-foreground leading-relaxed">
             Research shows caregiver burnout directly impacts patient care quality. Regular short breaks improve decision-making, patience, and emotional resilience.
           </p>
@@ -329,7 +341,9 @@ export default function CaregiverSupportEcosystem() {
       <div className="space-y-4">
         <BackButton onClick={() => { setActiveModule(null); setBurnoutAnswers([]); setBurnoutDone(false); setBurnoutRecs(null); }} />
         <div className="text-center mb-2">
-          <div className="text-[28px] mb-1">📊</div>
+          <div className="w-[44px] h-[44px] rounded-[10px] flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: '#AF52DE' }}>
+            <Shield className="text-white" style={{ width: 22, height: 22, strokeWidth: 1.5 }} />
+          </div>
           <h3 className="text-[18px] font-bold text-foreground">Burnout Risk Assessment</h3>
           <p className="text-[14px] text-muted-foreground mt-1">Monthly 5-question wellness check</p>
         </div>
@@ -370,7 +384,7 @@ export default function CaregiverSupportEcosystem() {
             </div>
 
             <div className="ios-card-elevated p-4">
-              <h4 className="text-[14px] font-bold text-foreground mb-2">💡 AI-Powered Recommendations</h4>
+              <h4 className="text-[14px] font-bold text-foreground mb-2">AI-Powered Recommendations</h4>
               {burnoutRecsLoading ? (
                 <div className="flex items-center justify-center gap-2 py-4">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -418,7 +432,7 @@ export default function CaregiverSupportEcosystem() {
                     </>
                   ) : (
                     <>
-                      <p>• Great job managing your wellbeing! 💙</p>
+                      <p>• Great job managing your wellbeing!</p>
                       <p>• Continue your current self-care routine</p>
                       <p>• Check in monthly to track your wellness</p>
                     </>
@@ -442,7 +456,7 @@ export default function CaregiverSupportEcosystem() {
       return (
         <div className="space-y-4">
           <BackButton onClick={() => setEducationSub(null)} />
-          <h3 className="text-[18px] font-bold text-foreground">💬 Community Support</h3>
+          <h3 className="text-[18px] font-bold text-foreground">Community Support</h3>
           {[
             { platform: 'Reddit', groups: ['r/Alzheimers', 'r/dementia', 'r/CaregiverSupport'], color: 'bg-[#FF4500]/10 text-[#FF4500]' },
             { platform: 'Facebook', groups: ["Alzheimer's Caregiver Support Group", 'Dementia Caregivers India', 'Young Onset Dementia Support'], color: 'bg-[#1877F2]/10 text-[#1877F2]' },
@@ -468,7 +482,7 @@ export default function CaregiverSupportEcosystem() {
       return (
         <div className="space-y-4">
           <BackButton onClick={() => setEducationSub(null)} />
-          <h3 className="text-[18px] font-bold text-foreground">📊 Tips by Stage</h3>
+          <h3 className="text-[18px] font-bold text-foreground">Tips by Stage</h3>
           {[
             { stage: 'Early Stage', color: 'bg-success/10 border-success/20', dot: 'bg-success', tips: ['Use reminders and routines', 'Simplify the environment', 'Encourage independence', 'Start legal & financial planning'], learnMore: 'Focus on maintaining quality of life and planning ahead while the person can still participate in decisions.' },
             { stage: 'Middle Stage', color: 'bg-warning/10 border-warning/20', dot: 'bg-warning', tips: ['Increase supervision gradually', 'Wandering prevention strategies', 'Use calm redirection methods', 'Reduce overstimulation'], learnMore: 'This is often the longest stage. Behavior changes like sundowning and aggression are common. Patience and routine are key.' },
@@ -565,44 +579,49 @@ export default function CaregiverSupportEcosystem() {
     );
   }
 
-  // ── MAIN CARD GRID ──
-  const modules = [
-    { id: 'checkin' as Module, icon: '🧠', title: 'Daily Stress Check-In', desc: 'Quick emotional pulse', bg: 'bg-primary/8', border: 'border-primary/15' },
-    { id: 'chatbot' as Module, icon: '💬', title: 'Support Chatbot', desc: 'AI-powered dementia care assistant', bg: 'bg-lavender/8', border: 'border-lavender/15' },
-    { id: 'safebreak' as Module, icon: '☕', title: 'Safe Break Mode', desc: 'Rest when patient is stable', bg: 'bg-success/8', border: 'border-success/15' },
-    { id: 'burnout' as Module, icon: '📊', title: 'Burnout Assessment', desc: 'Monthly wellness check', bg: 'bg-warning/8', border: 'border-warning/15' },
-    { id: 'education' as Module, icon: '📚', title: 'Education & Community', desc: 'Learn & connect with others', bg: 'bg-accent/8', border: 'border-accent/15' },
+  // ── MAIN CARD GRID — iOS Health multicolor icon containers ──
+  const modules: { id: Module; Icon: typeof Brain; title: string; desc: string; iconBg: string; iconColor: string }[] = [
+    { id: 'checkin', Icon: Brain, title: 'Daily Stress Check-In', desc: 'Quick emotional pulse', iconBg: '#FF9500', iconColor: '#FFFFFF' },
+    { id: 'chatbot', Icon: MessageCircle, title: 'Support Chatbot', desc: 'AI-powered dementia care assistant', iconBg: '#007AFF', iconColor: '#FFFFFF' },
+    { id: 'safebreak', Icon: Coffee, title: 'Safe Break Mode', desc: 'Rest when patient is stable', iconBg: '#34C759', iconColor: '#FFFFFF' },
+    { id: 'burnout', Icon: Shield, title: 'Burnout Assessment', desc: 'Monthly wellness check', iconBg: '#AF52DE', iconColor: '#FFFFFF' },
+    { id: 'education', Icon: BookOpen, title: 'Education & Community', desc: 'Learn & connect with others', iconBg: '#34C759', iconColor: '#FFFFFF' },
   ];
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
-        <Heart className="w-5 h-5 text-rose" />
+        <Heart className="w-5 h-5 text-muted-foreground" />
         <h3 className="text-[16px] font-bold text-foreground">Caregiver Wellness Hub</h3>
       </div>
       <p className="text-[12px] text-muted-foreground -mt-1">Your emotional support & education center</p>
 
       <div className="space-y-2.5">
-        {modules.map(m => (
-          <motion.button
-            key={m.id}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setActiveModule(m.id)}
-            className={`w-full flex items-center gap-3.5 p-4 rounded-2xl border ${m.border} ${m.bg} transition-all text-left`}
-          >
-            <div className="text-[26px] shrink-0">{m.icon}</div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[14px] font-bold text-foreground">{m.title}</div>
-              <div className="text-[12px] text-muted-foreground">{m.desc}</div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-          </motion.button>
-        ))}
+        {modules.map(m => {
+          const Icon = m.Icon;
+          return (
+            <motion.button
+              key={m.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveModule(m.id)}
+              className="w-full flex items-center gap-3.5 p-3 rounded-xl bg-card transition-all text-left"
+            >
+              <div className="w-[44px] h-[44px] rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: m.iconBg }}>
+                <Icon style={{ width: 22, height: 22, color: m.iconColor, strokeWidth: 1.5 }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-bold text-foreground">{m.title}</div>
+                <div className="text-[12px] text-muted-foreground">{m.desc}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </motion.button>
+          );
+        })}
       </div>
 
       {negativeCount >= 3 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-xl bg-warning/10 border border-warning/20">
-          <p className="text-[12px] text-warning font-medium">💛 You've had a tough week. Consider using the Support Chatbot or Burnout Assessment.</p>
+          <p className="text-[12px] text-warning font-medium">You've had a tough week. Consider using the Support Chatbot or Burnout Assessment.</p>
         </motion.div>
       )}
     </div>

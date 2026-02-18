@@ -23,8 +23,8 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-// iOS system blue
-const ACTIVE_COLOR = '#007AFF';
+// Brand green for active state — matches --primary
+const ACTIVE_COLOR = 'hsl(168, 42%, 40%)';
 const INACTIVE_COLOR = '#8E8E93';
 
 export default function TabBar() {
