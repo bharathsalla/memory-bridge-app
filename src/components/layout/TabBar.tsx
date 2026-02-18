@@ -1,6 +1,5 @@
 import { useApp, PatientTab, CaregiverTab } from '@/contexts/AppContext';
 import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, Settings2, BookHeart, Brain } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Today', icon: Home },
@@ -24,6 +23,10 @@ const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = 
   { id: 'settings', label: 'Settings', icon: Settings2 },
 ];
 
+// iOS system blue for active state
+const ACTIVE_COLOR = '#007AFF';
+const INACTIVE_COLOR = '#8E8E93';
+
 export default function TabBar() {
   const { mode, activePatientTab, activeCaregiverTab, isCaregiverView, setActivePatientTab, setActiveCaregiverTab } = useApp();
 
@@ -32,33 +35,33 @@ export default function TabBar() {
   const renderTab = (
     tab: { id: string; label: string; icon: typeof Home },
     active: boolean,
-    onClick: () => void,
-    layoutId: string
+    onClick: () => void
   ) => {
     const Icon = tab.icon;
     return (
       <button
         key={tab.id}
         onClick={onClick}
-        className="flex flex-col items-center gap-0.5 py-1 px-2 relative touch-target"
+        className="flex flex-col items-center gap-0.5 py-1 px-2 touch-target"
         aria-label={tab.label}
         aria-current={active ? 'page' : undefined}
       >
-        {active && (
-          <motion.div
-            layoutId={layoutId}
-            className="absolute -top-1 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-primary"
-            transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
-          />
-        )}
         <Icon
-          className={`w-[22px] h-[22px] transition-colors ${active ? 'text-primary' : 'text-muted-foreground/50'}`}
-          strokeWidth={active ? 2.2 : 1.6}
+          className="transition-colors"
+          style={{
+            width: 22,
+            height: 22,
+            color: active ? ACTIVE_COLOR : INACTIVE_COLOR,
+            strokeWidth: active ? 2 : 1.5,
+          }}
         />
         <span
-          className={`text-[10px] transition-colors ${
-            active ? 'text-primary font-semibold' : 'text-muted-foreground/50 font-medium'
-          }`}
+          className="transition-colors"
+          style={{
+            fontSize: 10,
+            fontWeight: active ? 600 : 500,
+            color: active ? ACTIVE_COLOR : INACTIVE_COLOR,
+          }}
         >
           {tab.label}
         </span>
@@ -68,10 +71,10 @@ export default function TabBar() {
 
   if (isCaregiverView) {
     return (
-      <div className="ios-blur border-t border-border/30 shrink-0">
+      <div className="border-t border-border/30 shrink-0" style={{ backgroundColor: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)' }}>
         <div className="flex items-center justify-around px-1 pt-1 pb-1">
           {caregiverTabs.map(tab =>
-            renderTab(tab, activeCaregiverTab === tab.id, () => setActiveCaregiverTab(tab.id), 'cg-indicator')
+            renderTab(tab, activeCaregiverTab === tab.id, () => setActiveCaregiverTab(tab.id))
           )}
         </div>
       </div>
@@ -79,17 +82,15 @@ export default function TabBar() {
   }
 
   const tabs = mode === 'simplified' ? simplifiedTabs : fullTabs;
-  const isSimplified = mode === 'simplified';
 
   return (
-    <div className="ios-blur border-t border-border/30 shrink-0">
+    <div className="border-t border-border/30 shrink-0" style={{ backgroundColor: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-center justify-around px-2 pt-1 pb-1">
         {tabs.map(tab =>
           renderTab(
             tab,
             activePatientTab === tab.id,
-            () => setActivePatientTab(tab.id),
-            'patient-indicator'
+            () => setActivePatientTab(tab.id)
           )
         )}
       </div>

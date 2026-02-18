@@ -289,17 +289,17 @@ export default function MemoriesScreen() {
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
       <div className="relative z-10">
         {/* iOS Large Title */}
-        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-          <div>
+        <div className="px-4 pt-14 pb-1">
+          <div className="flex items-center justify-between">
             <h1 className="text-ios-large-title text-foreground">Memories</h1>
-            <p className="text-ios-subheadline text-muted-foreground mt-1">{aiCuratedMemories.length} memories · AI curated</p>
+            <button
+              onClick={simulateSync}
+              className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target"
+            >
+              <RefreshCw className={`w-4 h-4 text-muted-foreground ${aiSyncing ? 'animate-spin' : ''}`} />
+            </button>
           </div>
-          <button
-            onClick={simulateSync}
-            className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target"
-          >
-            <RefreshCw className={`w-4 h-4 text-muted-foreground ${aiSyncing ? 'animate-spin' : ''}`} />
-          </button>
+          <p className="text-ios-subheadline text-muted-foreground mt-1">{aiCuratedMemories.length} memories · AI curated</p>
         </div>
 
         {/* Source Toggle — below header */}
@@ -357,184 +357,86 @@ export default function MemoriesScreen() {
         {/* ── AI Curated View ── */}
         {activeSource === 'ai' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-            {/* Slideshow CTA */}
-            <div className="px-5 mt-4">
+            {/* Slideshow CTA — Apple Health style row */}
+            <div className="px-4 mt-4">
               <button
                 onClick={() => { setSlideshowActive(true); setIsPlaying(true); setSlideshowIndex(0); }}
-                className="w-full relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground shadow-lg active:scale-[0.97] transition-transform"
+                className="w-full ios-card p-4 flex items-center gap-3 text-left touch-target"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary-foreground/10 to-primary/0 animate-pulse" />
-                <div className="relative flex items-center justify-center gap-3 py-5 px-6">
-                  <div className="w-14 h-14 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center shadow-inner">
-                    <Play className="w-7 h-7 ml-0.5" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <p className="text-[18px] font-extrabold leading-tight">Play Memory Slideshow</p>
-                    <p className="text-[13px] font-medium text-primary-foreground/70 mt-0.5">{filteredMemories.length} memories · AI curated for you</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-primary-foreground/50" />
+                <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                  <Play className="w-5 h-5 text-primary ml-0.5" />
                 </div>
+                <div className="flex-1">
+                  <p className="text-ios-callout font-semibold text-foreground">Play Memory Slideshow</p>
+                  <p className="text-ios-footnote text-muted-foreground">{filteredMemories.length} memories · AI curated</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
               </button>
             </div>
 
-            {/* Category Pills */}
-            <div className="px-5 mt-4">
-              <div className="flex bg-muted rounded-xl p-1 gap-1 overflow-x-auto scrollbar-hide">
+            {/* Category Segmented Control */}
+            <div className="px-4 mt-4">
+              <div className="ios-card p-1 flex gap-0.5 overflow-x-auto">
                 {categories.map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-1.5 px-3 h-9 shrink-0 rounded-lg text-[12px] font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 h-8 shrink-0 rounded-lg text-[12px] font-semibold transition-colors ${
                       activeCategory === cat.id
-                        ? 'bg-card text-primary shadow-sm'
+                        ? 'bg-muted text-foreground'
                         : 'text-muted-foreground'
                     }`}
                   >
-                    {cat.icon}
                     {cat.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* AI Insight Banner */}
-            <div className="px-5 mt-4">
-              <div className="bg-gradient-to-r from-accent/10 to-primary/5 rounded-2xl border border-accent/20 p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center">
-                    <Wand2 className="w-4.5 h-4.5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-bold text-foreground">Today's AI Memory Pick</p>
-                    <p className="text-[11px] text-muted-foreground font-medium">Based on your patterns & mood</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 bg-card rounded-xl p-3 border border-border/40">
-                  <img src={aiCuratedMemories[4].image} alt="" className="w-14 h-14 rounded-xl object-cover" />
+            {/* AI Memory Pick — Apple Health style */}
+            <div className="px-4 mt-4">
+              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Today's AI Pick</p>
+              <div className="ios-card overflow-hidden">
+                <div className="p-4 flex items-center gap-3">
+                  <img src={aiCuratedMemories[4].image} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-bold text-foreground">{aiCuratedMemories[4].title}</p>
-                    <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">{aiCuratedMemories[4].subtitle}</p>
+                    <p className="text-ios-callout font-semibold text-foreground">{aiCuratedMemories[4].title}</p>
+                    <p className="text-ios-footnote text-muted-foreground mt-0.5">{aiCuratedMemories[4].subtitle}</p>
                   </div>
-                  <Heart className={`w-5 h-5 shrink-0 ${favorites.has(aiCuratedMemories[4].id) ? 'text-secondary fill-secondary' : 'text-muted-foreground/30'}`} />
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                 </div>
               </div>
             </div>
 
-            {/* Memory Grid */}
-            <div className="px-5 mt-5">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-[17px] font-extrabold text-foreground">
-                  {activeCategory === 'all' ? 'Curated For You' : categories.find(c => c.id === activeCategory)?.label}
-                </h2>
-                <Badge variant="secondary" className="text-[12px] font-bold bg-muted text-muted-foreground rounded-full px-3">
-                  {filteredMemories.length}
-                </Badge>
-              </div>
-              <div className="space-y-3">
-                {filteredMemories.map((mem, i) => (
-                  <motion.div
-                    key={mem.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.06 }}
-                  >
+            {/* Memory List — Apple Health grouped style */}
+            <div className="mt-6">
+              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">
+                {activeCategory === 'all' ? 'Curated For You' : categories.find(c => c.id === activeCategory)?.label}
+              </p>
+              <div className="px-4">
+                <div className="ios-card overflow-hidden divide-y divide-border/30">
+                {filteredMemories.map((mem) => (
                     <button
+                      key={mem.id}
                       onClick={() => setExpandedMemory(expandedMemory === mem.id ? null : mem.id)}
-                      className="w-full bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden active:scale-[0.98] transition-transform text-left"
+                      className="w-full flex items-center gap-3 p-4 text-left touch-target"
                     >
-                      <div className="flex">
-                        <img src={mem.image} alt={mem.title} className="w-28 h-28 object-cover shrink-0" />
-                        <div className="flex-1 p-3.5 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <p className="text-[15px] font-bold text-foreground leading-snug line-clamp-2">{mem.title}</p>
-                              <p className="text-[12px] text-muted-foreground mt-1 font-medium">{mem.subtitle}</p>
-                            </div>
-                            {favorites.has(mem.id) && (
-                              <Heart className="w-4 h-4 text-secondary fill-secondary shrink-0 mt-0.5" />
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 mt-2">
-                            <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> {mem.date}
-                            </span>
-                            <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
-                              <MapPin className="w-3 h-3" /> {mem.location}
-                            </span>
-                          </div>
-                        </div>
+                      <img src={mem.image} alt={mem.title} className="w-11 h-11 rounded-xl object-cover shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-ios-callout font-semibold text-foreground line-clamp-1">{mem.title}</p>
+                        <p className="text-ios-footnote text-muted-foreground mt-0.5">{mem.date} · {mem.location}</p>
                       </div>
-
-                      {/* Expanded AI Insight */}
-                      <AnimatePresence>
-                        {expandedMemory === mem.id && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="px-4 pb-4 pt-1 border-t border-border/40">
-                              <div className="flex items-start gap-2.5 mt-3">
-                                <Brain className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                                <div>
-                                  <p className="text-[11px] font-bold text-accent">AI Insight</p>
-                                  <p className="text-[13px] text-foreground/80 mt-0.5 leading-relaxed">{mem.aiInsight}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 mt-3 flex-wrap">
-                                {mem.people.length > 0 && (
-                                  <Badge variant="outline" className="text-[10px] font-semibold rounded-full">
-                                    <Users className="w-3 h-3 mr-1" /> {mem.people.join(', ')}
-                                  </Badge>
-                                )}
-                                <Badge variant="outline" className="text-[10px] font-semibold rounded-full">
-                                  <Eye className="w-3 h-3 mr-1" /> {mem.recallStrength}% recall
-                                </Badge>
-                                <Badge variant="outline" className="text-[10px] font-semibold rounded-full text-muted-foreground">
-                                  {mem.source}
-                                </Badge>
-                              </div>
-                              <div className="flex gap-2 mt-3">
-                                <Button size="sm" variant="outline" className="flex-1 h-9 rounded-xl text-[12px] font-bold" onClick={(e) => { e.stopPropagation(); toggleFav(mem.id); }}>
-                                  <Heart className={`w-3.5 h-3.5 mr-1 ${favorites.has(mem.id) ? 'text-secondary fill-secondary' : ''}`} />
-                                  {favorites.has(mem.id) ? 'Saved' : 'Save'}
-                                </Button>
-                                <Button size="sm" className="flex-1 h-9 rounded-xl text-[12px] font-bold" onClick={(e) => { e.stopPropagation(); setSlideshowIndex(i); setSlideshowActive(true); setIsPlaying(false); }}>
-                                  <Play className="w-3.5 h-3.5 mr-1" /> View
-                                </Button>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      {favorites.has(mem.id) && (
+                        <Heart className="w-4 h-4 text-destructive fill-destructive shrink-0" />
+                      )}
+                      <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                     </button>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
 
-            {/* AI Source Info */}
-            <div className="px-5 mt-5 mb-4">
-              <div className="bg-muted/30 rounded-2xl p-4 border border-border/40">
-                <p className="text-[12px] font-bold text-muted-foreground flex items-center gap-2 mb-2">
-                  <Brain className="w-3.5 h-3.5" /> How AI Curates Your Memories
-                </p>
-                <div className="space-y-2">
-                  {[
-                    { icon: <Camera className="w-3.5 h-3.5" />, text: 'Scans Google Photos & phone gallery daily' },
-                    { icon: <MapPin className="w-3.5 h-3.5" />, text: 'Extracts locations, faces & events' },
-                    { icon: <Calendar className="w-3.5 h-3.5" />, text: 'Matches memories to dates & seasons' },
-                    { icon: <Sparkles className="w-3.5 h-3.5" />, text: 'Predicts which memories boost your mood' },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2.5">
-                      <span className="text-muted-foreground">{item.icon}</span>
-                      <p className="text-[12px] text-muted-foreground font-medium">{item.text}</p>
-                    </div>
-                  ))}
+                ))}
                 </div>
               </div>
             </div>
+
           </motion.div>
         )}
 
