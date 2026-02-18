@@ -41,23 +41,15 @@ export default function CaregiverDashboard() {
   if (activeCaregiverTab === 'dashboard') {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* Gradient Header — Care-style */}
-        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-                <Activity className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Dashboard</h1>
-                <p className="text-[13px] text-primary-foreground/60 font-medium">Margaret's care overview</p>
-              </div>
-            </div>
-            <Button onClick={toggleCaregiverView} size="sm" className="h-10 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-primary-foreground/25">
+        {/* iOS Large Title Header */}
+        <div className="px-5 pt-14 pb-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-ios-large-title text-foreground">Dashboard</h1>
+            <Button onClick={toggleCaregiverView} size="sm" className="h-9 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary/10 text-primary hover:bg-primary/15 border-0">
               <Eye className="w-4 h-4" /> Patient View
             </Button>
           </div>
+          <p className="text-[15px] text-muted-foreground mt-1">Margaret's care overview</p>
         </div>
 
         {/* Patient Status */}
@@ -266,10 +258,16 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* Patient Mode Switch Button — under tab bar */}
-        <div className="px-5 pt-4 pb-3">
+        {/* iOS Large Title Header */}
+        <div className="px-5 pt-14 pb-2">
+          <h1 className="text-ios-large-title text-foreground">Vitals</h1>
+          <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
+        </div>
+
+        {/* Patient Mode Switch Button */}
+        <div className="px-5 pb-3">
           <Button
-            className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-md"
+            className="w-full h-14 rounded-2xl text-[16px] font-bold shadow-sm"
             onClick={() => setModeModalOpen(true)}
           >
             <Settings2 className="w-5 h-5 mr-2" />
@@ -343,20 +341,10 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
-        {/* Gradient Header */}
-        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-                <Check className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Care Tasks</h1>
-                <p className="text-[13px] text-primary-foreground/60 font-medium">{tasksDone.size}/{tasks.length} done</p>
-              </div>
-            </div>
-          </div>
+        {/* iOS Large Title Header */}
+        <div className="px-5 pt-14 pb-2">
+          <h1 className="text-ios-large-title text-foreground">Tasks</h1>
+          <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
         </div>
         <div className="px-5 mt-3">
           <div className="flex bg-muted rounded-xl p-1 gap-1">
@@ -498,23 +486,15 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* Gradient Header */}
-        <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Behavioral Analytics</h1>
-                <p className="text-[13px] text-primary-foreground/60 font-medium">AI-powered insights</p>
-              </div>
-            </div>
-            <button className="flex items-center gap-1 text-[13px] text-primary-foreground/80 font-medium touch-target bg-primary-foreground/10 px-3 h-9 rounded-xl">
+        {/* iOS Large Title Header */}
+        <div className="px-5 pt-14 pb-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-ios-large-title text-foreground">Analytics</h1>
+            <button className="flex items-center gap-1 text-[13px] text-primary font-semibold touch-target bg-primary/10 px-3 h-9 rounded-xl">
               <Share2 className="w-4 h-4" /> Export
             </button>
           </div>
+          <p className="text-[15px] text-muted-foreground mt-1">AI-powered behavioral insights</p>
         </div>
         <div className="px-5 mt-3">
           <div className="flex bg-muted rounded-xl p-1 gap-1">
@@ -772,18 +752,10 @@ export default function CaregiverDashboard() {
   // Settings Tab
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-      {/* Gradient Header */}
-      <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 pt-5 pb-5 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center">
-            <Settings2 className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-[20px] font-extrabold text-primary-foreground leading-tight font-display">Settings</h1>
-            <p className="text-[13px] text-primary-foreground/60 font-medium">Manage preferences</p>
-          </div>
-        </div>
+      {/* iOS Large Title Header */}
+      <div className="px-5 pt-14 pb-2">
+        <h1 className="text-ios-large-title text-foreground">Settings</h1>
+        <p className="text-[15px] text-muted-foreground mt-1">Manage preferences</p>
       </div>
 
       {/* Profile */}
