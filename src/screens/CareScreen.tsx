@@ -1,9 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Paperclip, ArrowUp } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Paperclip, ArrowUp, Camera, Image, Brain, Sparkles, MapPin, Eye } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
+
+import familyDinner from '@/assets/memories/family-dinner.jpg';
+import gardenMorning from '@/assets/memories/garden-morning.jpg';
+import beachGrandkids from '@/assets/memories/beach-grandkids.jpg';
+import birthdayCelebration from '@/assets/memories/birthday-celebration.jpg';
+import morningTea from '@/assets/memories/morning-tea.jpg';
+import parkPicnic from '@/assets/memories/park-picnic.jpg';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -250,6 +257,89 @@ export default function CareScreen() {
                   </div>
                 </motion.div>
               ))}
+            </div>
+
+            {/* ── Memory Management Section ── */}
+            <Separator className="my-6" />
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center">
+                <Brain className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <h2 className="text-[17px] font-extrabold text-foreground">Memory Manager</h2>
+                <p className="text-[12px] text-muted-foreground font-medium">Send memories to your patient</p>
+              </div>
+            </div>
+
+            {/* Quick Add Memory */}
+            <Button
+              onClick={() => setManageOpen(true)}
+              variant="outline"
+              size="lg"
+              className="w-full h-14 rounded-2xl text-[15px] font-bold gap-2 border-dashed border-2 mb-4"
+            >
+              <Camera className="w-5 h-5" /> Add & Send New Memory
+            </Button>
+
+            {/* Sent Memories Preview */}
+            <div className="space-y-3">
+              <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Recently Sent</p>
+
+              {[
+                { image: parkPicnic, title: 'Park picnic with family', date: 'Sent 2h ago', status: 'Viewed', seen: true },
+                { image: familyDinner, title: 'Last week\'s dinner together', date: 'Sent yesterday', status: 'Delivered', seen: false },
+                { image: beachGrandkids, title: 'Beach day memories', date: 'Sent 3 days ago', status: 'Viewed', seen: true },
+              ].map((mem, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
+                  <div className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+                    <div className="flex items-center gap-3 p-3.5">
+                      <img src={mem.image} alt={mem.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-bold text-foreground line-clamp-1">{mem.title}</p>
+                        <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">{mem.date}</p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${mem.seen ? 'bg-success' : 'bg-accent'}`} />
+                          <span className={`text-[11px] font-bold ${mem.seen ? 'text-success' : 'text-accent'}`}>{mem.status}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* AI Suggestions for Caregiver */}
+            <div className="mt-5 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl border border-primary/10 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <p className="text-[13px] font-bold text-foreground">AI Suggests These Memories</p>
+              </div>
+              <p className="text-[12px] text-muted-foreground font-medium mb-3">Based on today's date & patient mood patterns</p>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                {[
+                  { image: birthdayCelebration, label: 'Birthday 2024' },
+                  { image: morningTea, label: 'Morning routine' },
+                  { image: gardenMorning, label: 'Garden walk' },
+                ].map((sug, i) => (
+                  <div key={i} className="shrink-0 w-24">
+                    <img src={sug.image} alt={sug.label} className="w-24 h-20 rounded-xl object-cover" />
+                    <p className="text-[11px] font-bold text-foreground mt-1.5 text-center line-clamp-1">{sug.label}</p>
+                  </div>
+                ))}
+              </div>
+              <Button size="sm" className="w-full mt-3 h-9 rounded-xl text-[12px] font-bold">
+                <Send className="w-3.5 h-3.5 mr-1" /> Send AI-Picked Memories
+              </Button>
+            </div>
+
+            {/* Sync Status */}
+            <div className="mt-4 bg-muted/30 rounded-xl p-3 flex items-center gap-3 border border-border/30">
+              <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <p className="text-[12px] text-muted-foreground font-medium">
+                Syncing with patient's Memories tab · Last sync: 2 min ago
+              </p>
             </div>
           </div>
         </TabsContent>
