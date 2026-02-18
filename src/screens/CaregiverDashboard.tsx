@@ -10,7 +10,7 @@ import {
   MapPin, MessageCircle, Bell, Phone, Heart, Moon, Footprints,
   Pill, TrendingDown, TrendingUp, AlertTriangle, ChevronRight,
   Activity, Brain, FileText, Share2, Download, Mail, Shield,
-  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan
+  Plus, Eye, LogOut, BarChart3, Check, Settings2, Monitor, Mic, MousePointer, Timer, Scan, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -42,7 +42,7 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-14 pb-2">
+        <div className="px-5 pt-4 pb-2">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-large-title text-foreground">Dashboard</h1>
             <Button onClick={toggleCaregiverView} size="sm" className="h-9 px-3 rounded-xl text-[13px] font-semibold gap-1.5 bg-primary/10 text-primary hover:bg-primary/15 border-0">
@@ -140,10 +140,8 @@ export default function CaregiverDashboard() {
             ].map(action => {
               const Icon = action.icon;
               return (
-                <button key={action.label} className="w-full flex items-center gap-3 p-4 text-left touch-target">
-                  <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
+                <button key={action.label} className="w-full flex items-center gap-3 px-4 text-left touch-target" style={{ minHeight: 56 }}>
+                  <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">{action.label}</p>
                     <p className="text-ios-footnote text-muted-foreground">{action.detail}</p>
@@ -160,18 +158,20 @@ export default function CaregiverDashboard() {
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {activities.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 p-4">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shrink-0 ${item.completed ? 'bg-success/10' : 'bg-warning/10'}`}>
-                  {item.icon}
-                </div>
+              <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                {item.completed ? (
+                  <Check className="w-5 h-5 text-success shrink-0" />
+                ) : (
+                  <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
+                )}
                 <div className="flex-1">
                   <div className="text-ios-callout font-medium text-foreground">{item.description}</div>
-                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{item.time}</div>
+                  <div className="text-ios-footnote text-muted-foreground">{item.time}</div>
                 </div>
                 {item.completed ? (
                   <span className="text-ios-caption font-semibold text-success">Done</span>
                 ) : (
-                  <span className="text-ios-caption font-medium text-warning">Pending</span>
+                  <span className="text-ios-caption font-medium text-muted-foreground">Pending</span>
                 )}
               </div>
             ))}
@@ -185,15 +185,13 @@ export default function CaregiverDashboard() {
             {[
               { label: 'Sleep', value: `${sleepHours}h`, Icon: Moon, trend: 'up' },
               { label: 'Steps', value: `${(stepCount / 1000).toFixed(1)}k`, Icon: Footprints, trend: 'down' },
-              { label: 'Mood', value: currentMood.emoji, Icon: Heart, trend: 'stable' },
+              { label: 'Mood', value: currentMood.label, Icon: Heart, trend: 'stable' },
               { label: 'Medications', value: `${medicationAdherence}%`, Icon: Pill, trend: 'up' },
             ].map(metric => {
               const Icon = metric.Icon;
               return (
-                <div key={metric.label} className="flex items-center gap-3 p-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
+                <div key={metric.label} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                   <div className="flex-1">
                     <p className="text-ios-callout font-medium text-foreground">{metric.label}</p>
                   </div>
@@ -256,7 +254,7 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-14 pb-2">
+        <div className="px-5 pt-4 pb-2">
           <h1 className="text-ios-large-title text-foreground">Vitals</h1>
           <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
@@ -339,7 +337,7 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6 relative">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-14 pb-2">
+        <div className="px-5 pt-4 pb-2">
           <h1 className="text-ios-large-title text-foreground">Tasks</h1>
           <p className="text-[15px] text-muted-foreground mt-1">{tasksDone.size}/{tasks.length} completed today</p>
         </div>
@@ -484,7 +482,7 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header */}
-        <div className="px-5 pt-14 pb-2">
+        <div className="px-5 pt-4 pb-2">
           <div className="flex items-center justify-between">
             <h1 className="text-ios-large-title text-foreground">Analytics</h1>
             <button className="flex items-center gap-1 text-[13px] text-primary font-semibold touch-target bg-primary/10 px-3 h-9 rounded-xl">
@@ -750,7 +748,7 @@ export default function CaregiverDashboard() {
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
       {/* iOS Large Title Header */}
-      <div className="px-5 pt-14 pb-2">
+      <div className="px-5 pt-4 pb-2">
         <h1 className="text-ios-large-title text-foreground">Settings</h1>
         <p className="text-[15px] text-muted-foreground mt-1">Manage preferences</p>
       </div>

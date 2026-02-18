@@ -133,8 +133,8 @@ export default function TodayScreen() {
   return (
     <div className="h-full relative">
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* Large Navigation Title */}
-        <div className="px-4 pt-14 pb-1">
+        {/* iOS Large Navigation Title */}
+        <div className="px-4 pt-4 pb-1">
           <div className="flex items-center justify-between mb-1">
             <p className="text-ios-footnote text-muted-foreground font-medium">{dateStr}</p>
             <div className="flex items-center gap-2">
@@ -169,17 +169,11 @@ export default function TodayScreen() {
             {[
               { label: 'Steps', value: stepCount.toLocaleString(), Icon: Footprints, detail: 'Goal: 5,000' },
               { label: 'Sleep', value: `${sleepHours} hrs`, Icon: Moon, detail: 'Last night' },
-              { label: 'Mood', value: currentMood.label, Icon: Heart, emoji: currentMood.emoji },
+              { label: 'Mood', value: currentMood.label, Icon: Heart, detail: currentMood.time },
               { label: 'Medications', value: `${takenMeds.length}/${medications.length}`, Icon: Pill, detail: `${medProgress}% complete` },
             ].map((stat) => (
-              <div key={stat.label} className="flex items-center gap-3 p-4">
-                <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                  {stat.emoji ? (
-                    <span className="text-[18px]">{stat.emoji}</span>
-                  ) : (
-                    <stat.Icon className="w-5 h-5 text-primary" />
-                  )}
-                </div>
+              <div key={stat.label} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                <stat.Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div className="flex-1">
                   <p className="text-ios-callout font-medium text-foreground">{stat.label}</p>
                   {stat.detail && <p className="text-ios-footnote text-muted-foreground">{stat.detail}</p>}
@@ -262,17 +256,15 @@ export default function TodayScreen() {
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">
               {activities.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 p-4">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-[18px] ${
-                    item.completed ? 'bg-success/10' : 'bg-muted/40'
-                  }`}>
-                    {item.completed ? <Check className="w-4 h-4 text-success" /> : <span>{item.icon}</span>}
-                  </div>
+                <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  {item.completed ? (
+                    <Check className="w-5 h-5 text-success shrink-0" />
+                  ) : (
+                    <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-ios-callout font-medium text-foreground">{item.description}</p>
-                    <p className="text-ios-footnote text-muted-foreground mt-0.5 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {item.time}
-                    </p>
+                    <p className="text-ios-footnote text-muted-foreground">{item.time}</p>
                   </div>
                   {item.completed && (
                     <span className="text-ios-caption font-semibold text-success">Done</span>
