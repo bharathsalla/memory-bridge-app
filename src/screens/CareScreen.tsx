@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Smile } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,11 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const messages = [
-  { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false, avatar: '👩' },
-  { id: '2', sender: 'You', text: "I'm doing well, dear! Took my morning walk.", time: '10:35 AM', isMine: true, avatar: '' },
-  { id: '3', sender: 'John', text: "That's great! I'll visit this weekend.", time: '11:00 AM', isMine: false, avatar: '👨' },
+  { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today? 💕', time: '10:30 AM', isMine: false, avatar: '👩' },
+  { id: '2', sender: 'You', text: "I'm doing well, dear! Took my morning walk. The garden looks beautiful today 🌸", time: '10:35 AM', isMine: true, avatar: '' },
+  { id: '3', sender: 'Sarah', text: "That's wonderful! Don't forget to take your afternoon medicine at 2pm", time: '10:38 AM', isMine: false, avatar: '👩' },
+  { id: '4', sender: 'You', text: "Thank you for reminding me, sweetie ❤️", time: '10:40 AM', isMine: true, avatar: '' },
+  { id: '5', sender: 'John', text: "Hey Mom! I'll visit this weekend. Want me to bring anything?", time: '11:00 AM', isMine: false, avatar: '👨' },
 ];
 
 const careTasks = [
@@ -106,41 +108,60 @@ export default function CareScreen() {
 
         {/* Chat */}
         <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0">
-          <div className="flex-1 overflow-y-auto px-5 pt-3 space-y-4 pb-3">
+          {/* Date separator */}
+          <div className="flex items-center gap-3 px-5 pt-4 pb-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[12px] text-muted-foreground font-semibold bg-muted/50 px-3 py-1 rounded-full">Today</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 pt-1 space-y-3 pb-3">
             {messages.map((msg, i) => (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 6 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className={`flex gap-3 ${msg.isMine ? 'flex-row-reverse' : ''}`}
+                transition={{ delay: i * 0.06 }}
+                className={`flex gap-2.5 ${msg.isMine ? 'flex-row-reverse' : ''}`}
               >
                 {!msg.isMine && (
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 text-[20px]">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-auto mb-1 text-[18px] ring-2 ring-primary/20">
                     {msg.avatar}
                   </div>
                 )}
-                <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${
-                  msg.isMine
-                    ? 'bg-primary text-primary-foreground rounded-br-md shadow-sm'
-                    : 'bg-card border border-border rounded-bl-md shadow-sm'
-                }`}>
-                  {!msg.isMine && <p className="text-[13px] font-bold text-primary mb-1">{msg.sender}</p>}
-                  <p className={`text-[16px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
-                  <p className={`text-[12px] mt-1.5 ${msg.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground'}`}>{msg.time}</p>
+                <div className="max-w-[78%] flex flex-col gap-0.5">
+                  {!msg.isMine && <p className="text-[12px] font-bold text-primary ml-1">{msg.sender}</p>}
+                  <div className={`px-4 py-2.5 ${
+                    msg.isMine
+                      ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md shadow-sm'
+                      : 'bg-card border border-border rounded-2xl rounded-bl-md shadow-sm'
+                  }`}>
+                    <p className={`text-[15px] leading-relaxed ${msg.isMine ? '' : 'text-foreground'}`}>{msg.text}</p>
+                  </div>
+                  <p className={`text-[11px] mt-0.5 ${msg.isMine ? 'text-right mr-1 text-muted-foreground/60' : 'ml-1 text-muted-foreground/60'}`}>
+                    {msg.time}
+                    {msg.isMine && ' ✓✓'}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
-          <div className="px-4 pb-4 pt-3 bg-background border-t border-border/30">
-            <div className="flex gap-3 items-center">
-              <Input
-                value={messageInput}
-                onChange={e => setMessageInput(e.target.value)}
-                placeholder="Message your family..."
-                className="flex-1 h-12 rounded-full text-[16px] border-border"
-              />
-              <Button size="icon" className="w-12 h-12 rounded-full shrink-0 touch-target">
+
+          {/* Chat input bar */}
+          <div className="px-3 pb-3 pt-2 bg-background/80 backdrop-blur-sm border-t border-border/30">
+            <div className="flex gap-2 items-end">
+              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full shrink-0 text-muted-foreground">
+                <Smile className="w-5 h-5" />
+              </Button>
+              <div className="flex-1 relative">
+                <Input
+                  value={messageInput}
+                  onChange={e => setMessageInput(e.target.value)}
+                  placeholder="Type a message..."
+                  className="h-11 rounded-full text-[15px] border-border bg-muted/30 pr-4 pl-4"
+                />
+              </div>
+              <Button size="icon" className="w-11 h-11 rounded-full shrink-0 shadow-sm">
                 <Send className="w-5 h-5" />
               </Button>
             </div>

@@ -17,9 +17,23 @@ const medImages: Record<string, string> = {
   'Metformin': 'https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=200&h=200&fit=crop&q=80',
   'Aspirin': 'https://images.unsplash.com/photo-1626716493137-b67fe9501e76?w=200&h=200&fit=crop&q=80',
   'Donepezil': 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=200&h=200&fit=crop&q=80',
-  'Memantine': 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=200&h=200&fit=crop&q=80'
+  'Memantine': 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=200&h=200&fit=crop&q=80',
+  'Amlodipine': 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop&q=80',
+  'Omeprazole': 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=200&h=200&fit=crop&q=80',
 };
 const defaultMedImg = 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&h=200&fit=crop&q=80';
+
+// Medication color accents for visual differentiation
+const medColors: Record<string, string> = {
+  'Lisinopril': 'bg-blue-50 border-blue-200',
+  'Metformin': 'bg-amber-50 border-amber-200',
+  'Aspirin': 'bg-rose-50 border-rose-200',
+  'Donepezil': 'bg-violet-50 border-violet-200',
+  'Memantine': 'bg-emerald-50 border-emerald-200',
+  'Amlodipine': 'bg-cyan-50 border-cyan-200',
+  'Omeprazole': 'bg-orange-50 border-orange-200',
+};
+const defaultMedColor = 'bg-muted/30 border-border';
 
 export default function TodayScreen() {
   const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
@@ -219,68 +233,129 @@ export default function TodayScreen() {
             </Button>
           </div>
 
-          {/* Medications */}
+          {/* Medications — Revamped */}
           <div className="px-5 mt-6">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <h2 className="text-[20px] font-bold text-foreground">Medications</h2>
               <Badge variant="secondary" className="text-[14px] font-semibold bg-primary/10 text-primary border-primary/20 px-3 py-1">
-                {takenMeds.length}/{medications.length} taken
+                {takenMeds.length}/{medications.length}
               </Badge>
             </div>
             <Progress value={medProgress} className="h-2 mb-4" />
-            <div className="space-y-3">
-              {medications.map((med, i) => (
-                <motion.div key={med.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <Card className="border border-border shadow-sm">
-                    <CardContent className="p-4 flex items-center gap-4">
+
+            {/* Pending meds — large prominent cards */}
+            {pendingMeds.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {pendingMeds.map((med, i) => (
+                  <motion.div key={med.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                    <Card className={`border-2 shadow-md overflow-hidden ${medColors[med.name] || defaultMedColor}`}>
+                      <CardContent className="p-0">
+                        <div className="flex items-center gap-4 p-4">
+                          <div className="relative shrink-0">
+                            <img src={medImages[med.name] || defaultMedImg} alt={med.name}
+                              className="w-[72px] h-[72px] rounded-2xl object-cover shadow-sm"
+                              onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
+                            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-warning flex items-center justify-center shadow-sm">
+                              <Clock className="w-3.5 h-3.5 text-warning-foreground" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[18px] font-bold text-foreground leading-tight">{med.name}</p>
+                            <p className="text-[15px] text-muted-foreground font-semibold mt-1">{med.dosage}</p>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[14px] text-muted-foreground font-medium">{med.time}</span>
+                            </div>
+                            {med.instructions && (
+                              <p className="text-[13px] text-muted-foreground/70 mt-1 italic">{med.instructions}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-4 pb-4">
+                          <Button onClick={() => markMedicationTaken(med.id)} size="lg" className="w-full h-12 rounded-xl text-[17px] font-bold gap-2">
+                            <Check className="w-5 h-5" />
+                            Mark as Taken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* Taken meds — compact list */}
+            {takenMeds.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider mb-2">Completed</p>
+                {takenMeds.map((med, i) => (
+                  <motion.div key={med.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
                       <img src={medImages[med.name] || defaultMedImg} alt={med.name}
-                        className={`w-16 h-16 rounded-xl object-cover shrink-0 border border-border ${med.taken ? 'grayscale opacity-50' : ''}`}
+                        className="w-10 h-10 rounded-lg object-cover grayscale opacity-60 shrink-0"
                         onError={(e) => {(e.target as HTMLImageElement).src = defaultMedImg;}} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[17px] font-bold text-foreground">{med.name} <span className="text-muted-foreground font-medium">{med.dosage}</span></p>
-                        <div className="text-[15px] text-muted-foreground mt-1 flex items-center gap-1.5 font-medium">
-                          <Clock className="w-4 h-4" />
-                          {med.taken ? `Taken at ${med.taken_at}` : med.time}
-                        </div>
+                        <p className="text-[15px] font-semibold text-muted-foreground line-through">{med.name} · {med.dosage}</p>
+                        <p className="text-[13px] text-muted-foreground/70">Taken at {med.taken_at}</p>
                       </div>
-                      {med.taken ? (
-                        <div className="w-11 h-11 rounded-xl bg-success/15 flex items-center justify-center shrink-0">
-                          <Check className="w-6 h-6 text-success" />
-                        </div>
-                      ) : (
-                        <Button onClick={() => markMedicationTaken(med.id)} size="lg" className="h-11 px-5 rounded-xl text-[16px] font-bold shrink-0">
-                          Take
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                      <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                        <Check className="w-4 h-4 text-success" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {medications.length === 0 && (
+              <Card className="border border-border">
+                <CardContent className="p-8 flex flex-col items-center gap-2">
+                  <Pill className="w-10 h-10 text-muted-foreground/30" />
+                  <p className="text-[16px] text-muted-foreground font-medium">No medications scheduled</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
-          {/* Activity Timeline */}
+          {/* Today's Activity — Revamped Timeline */}
           <div className="px-5 mt-6 mb-6">
             <h2 className="text-[20px] font-bold text-foreground mb-4">Today's Activity</h2>
-            <Card className="border border-border shadow-sm">
-              <CardContent className="p-5">
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-[22px] top-4 bottom-4 w-[2px] bg-border" />
+              <div className="space-y-1">
                 {activities.map((item, i) => (
-                  <div key={item.id}>
-                    <div className="flex items-start gap-4 py-3">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-[18px] ${item.completed ? 'bg-success/10' : 'bg-muted/60'}`}>
-                        {item.icon}
+                  <motion.div key={item.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
+                    <div className="flex items-start gap-4 py-3 relative">
+                      <div className={`relative z-10 w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-[20px] border-2 shadow-sm ${
+                        item.completed
+                          ? 'bg-success/10 border-success/30'
+                          : 'bg-card border-border'
+                      }`}>
+                        {item.completed ? <Check className="w-5 h-5 text-success" /> : <span>{item.icon}</span>}
                       </div>
-                      <div className="flex-1 pt-0.5">
-                        <p className={`text-[16px] font-semibold leading-snug ${item.completed ? 'text-foreground' : 'text-muted-foreground'}`}>{item.description}</p>
-                        <p className="text-[14px] text-muted-foreground mt-1 font-medium">{item.time}</p>
-                      </div>
-                      {item.completed && <Check className="w-5 h-5 text-success mt-2 shrink-0" />}
+                      <Card className={`flex-1 border shadow-sm ${item.completed ? 'border-success/20 bg-success/[0.03]' : 'border-border'}`}>
+                        <CardContent className="p-3.5">
+                          <div className="flex items-center justify-between">
+                            <p className={`text-[16px] font-semibold leading-snug ${item.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
+                              {item.description}
+                            </p>
+                            {item.completed && (
+                              <Badge variant="secondary" className="text-[11px] font-bold bg-success/10 text-success border-success/20 ml-2 shrink-0">
+                                Done
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-[13px] text-muted-foreground mt-1 font-medium flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> {item.time}
+                          </p>
+                        </CardContent>
+                      </Card>
                     </div>
-                    {i < activities.length - 1 && <Separator className="ml-15" />}
-                  </div>
+                  </motion.div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
