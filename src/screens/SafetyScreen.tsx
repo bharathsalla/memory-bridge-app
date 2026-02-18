@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { Shield, MapPin, Phone, Activity, Check, ChevronRight, User } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 export default function SafetyScreen() {
   const { mode, isSOSActive, triggerSOS, cancelSOS } = useApp();
@@ -108,7 +109,7 @@ export default function SafetyScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Status</p>
         <div className="mx-4 ios-card overflow-hidden">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-            <Check className="w-5 h-5 text-muted-foreground shrink-0" />
+            <IconBox Icon={Check} color={iosColors.green} />
             <div className="flex-1">
               <div className="text-ios-callout font-medium text-foreground">All Systems Normal</div>
               <div className="text-ios-footnote text-muted-foreground">Last checked 2 min ago</div>
@@ -140,7 +141,7 @@ export default function SafetyScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Safety Features</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-            <Activity className="w-5 h-5 text-muted-foreground shrink-0" />
+            <IconBox Icon={Activity} color={iosColors.orange} />
             <span className="text-ios-callout font-medium text-foreground flex-1">Fall Detection</span>
             <span className="text-ios-footnote text-muted-foreground">Active</span>
             <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
@@ -157,8 +158,8 @@ export default function SafetyScreen() {
             { name: 'John Johnson', role: 'Son' },
             { name: 'Dr. Smith', role: 'Doctor' },
           ].map(contact => (
-            <div key={contact.name} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-              <User className="w-5 h-5 text-muted-foreground shrink-0" />
+            <div key={contact.name} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+              <IconBox Icon={User} color={['#007AFF','#34C759','#AF52DE'][['Sarah Johnson','John Johnson','Dr. Smith'].indexOf(contact.name)] || iosColors.blue} />
               <div className="flex-1">
                 <div className="text-ios-callout font-medium text-foreground">{contact.name}</div>
                 <div className="text-ios-footnote text-muted-foreground">{contact.role}</div>

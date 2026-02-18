@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
-import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart } from 'lucide-react';
+import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart, CalendarDays, Coffee, Dumbbell } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 import { Progress } from '@/components/ui/progress';
@@ -254,12 +255,12 @@ export default function TodayScreen() {
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">
-              {activities.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+              {activities.map((item, idx) => (
+                <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
                   {item.completed ? (
-                    <Check className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <IconBox Icon={Check} color={iosColors.green} />
                   ) : (
-                    <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <IconBox Icon={Clock} color={getColor(idx)} />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-ios-callout font-medium text-foreground">{item.description}</p>

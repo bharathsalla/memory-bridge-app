@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Phone, MapPin, Users, MessageSquare, Clock, Heart, X, Send, Loader2, ChevronRight, ChevronDown, Image, Mic, Sparkles, Check } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -209,7 +210,7 @@ export default function MemoryLaneScreen() {
                     className="w-full flex items-center gap-3 px-4 text-left touch-target"
                     style={{ minHeight: 56 }}
                   >
-                    <IconComp className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <IconBox Icon={IconComp} color={memory.type === 'photo' ? iosColors.blue : memory.type === 'voice' ? iosColors.orange : iosColors.green} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-callout font-medium text-foreground line-clamp-1">{memory.title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
