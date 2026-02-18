@@ -36,6 +36,20 @@ interface SOSHistoryEntry {
   resolvedAt?: string;
 }
 
+export interface VoiceReminder {
+  id: string;
+  medication: string;
+  time: string;
+  frequency: string;
+  trigger: string;
+  patientMessage: string;
+  caregiverName: string;
+  transcript: string;
+  createdAt: string;
+  status: 'active' | 'taken' | 'snoozed' | 'missed';
+  snoozedUntil?: string;
+}
+
 interface AppState {
   mode: AppMode;
   onboarded: boolean;
@@ -57,6 +71,7 @@ interface AppState {
   patientLocation: string;
   safeZoneRadius: number;
   sosHistory: SOSHistoryEntry[];
+  voiceReminders: VoiceReminder[];
 }
 
 interface AppContextType extends AppState {
@@ -74,6 +89,10 @@ interface AppContextType extends AppState {
   setPatientLocation: (loc: string) => void;
   setSafeZoneRadius: (r: number) => void;
   sosHistory: SOSHistoryEntry[];
+  addVoiceReminder: (reminder: Omit<VoiceReminder, 'id' | 'createdAt' | 'status'>) => void;
+  acknowledgeVoiceReminder: (id: string) => void;
+  snoozeVoiceReminder: (id: string, minutes: number) => void;
+  voiceReminders: VoiceReminder[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -118,6 +137,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       { id: 'hist-2', timestamp: 'Feb 8, 11:20 AM', location: 'Home', resolved: true, resolvedAt: 'Feb 8, 11:25 AM' },
       { id: 'hist-3', timestamp: 'Jan 28, 2:10 PM', location: 'Market Area', resolved: true, resolvedAt: 'Jan 28, 2:30 PM' },
     ],
+    voiceReminders: [],
   });
 
   const setMode = useCallback((mode: AppMode) => {
@@ -199,6 +219,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, detailScreen: screen }));
   }, []);
 
+  const addVoiceReminder = useCallback((reminder: Omit<VoiceReminder, 'id' | 'createdAt' | 'status'>) => {
+    setState(prev => ({
+      ...prev,
+      voiceReminders: [
+        ...prev.voiceReminders,
+        {
+          ...reminder,
+          id: `vr-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          status: 'active' as const,
+        },
+      ],
+    }));
+  }, []);
+
+  const acknowledgeVoiceReminder = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      voiceReminders: prev.voiceReminders.map(r =>
+        r.id === id ? { ...r, status: 'taken' as const } : r
+      ),
+    }));
+  }, []);
+
+  const snoozeVoiceReminder = useCallback((id: string, minutes: number) => {
+    const snoozedUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+    setState(prev => ({
+      ...prev,
+      voiceReminders: prev.voiceReminders.map(r =>
+        r.id === id ? { ...r, status: 'snoozed' as const, snoozedUntil } : r
+      ),
+    }));
+  }, []);
+
   return (
     <AppContext.Provider value={{
       ...state,
@@ -215,6 +269,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setPatientSafe,
       setPatientLocation,
       setSafeZoneRadius,
+      addVoiceReminder,
+      acknowledgeVoiceReminder,
+      snoozeVoiceReminder,
     }}>
       {children}
     </AppContext.Provider>

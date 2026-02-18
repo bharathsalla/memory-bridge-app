@@ -18,6 +18,7 @@ import CaregiverMemoryInsights from '@/screens/CaregiverMemoryInsights';
 import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
+import PatientReminderPopup from '@/components/PatientReminderPopup';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -167,6 +168,7 @@ const Index = () => {
                   {activePatientTab === 'safety' && <SafetyScreen />}
                   {activePatientTab === 'care' && <CareScreen />}
                   {activePatientTab === 'wellbeing' && <WellbeingScreen />}
+                  <PatientReminderPopup />
                 </>
               )}
             </motion.div>
