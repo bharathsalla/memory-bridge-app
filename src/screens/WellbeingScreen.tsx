@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useApp, AppMode } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Moon, Heart, Shield, HelpCircle, ChevronRight, Bell, Eye, Globe, LogOut, Footprints, Pill } from 'lucide-react';
+import { Moon, Heart, Shield, HelpCircle, ChevronRight, Bell, Eye, Globe, LogOut, Footprints, Pill, Smile, Meh, Frown, AlertCircle, Angry, BedDouble } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 
 const moods = [
-  { emoji: '😊', label: 'Happy' },
-  { emoji: '😐', label: 'Okay' },
-  { emoji: '😔', label: 'Sad' },
-  { emoji: '😰', label: 'Anxious' },
-  { emoji: '😤', label: 'Frustrated' },
-  { emoji: '😴', label: 'Tired' },
+  { icon: Smile, label: 'Happy' },
+  { icon: Meh, label: 'Okay' },
+  { icon: Frown, label: 'Sad' },
+  { icon: AlertCircle, label: 'Anxious' },
+  { icon: Angry, label: 'Frustrated' },
+  { icon: BedDouble, label: 'Tired' },
 ];
 
 export default function WellbeingScreen() {
@@ -32,7 +32,7 @@ export default function WellbeingScreen() {
       </div>
 
       {/* Profile */}
-      <div className="mt-4">
+      <div className="mt-3">
         <div className="mx-4 ios-card overflow-hidden">
           <div className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
             <img src={patientAvatar} alt="Profile" className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
@@ -45,32 +45,35 @@ export default function WellbeingScreen() {
         </div>
       </div>
 
-      {/* Mood Tracker */}
-      <div className="mt-6">
+      {/* Mood Tracker — SF Symbols only, no emoji */}
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">How are you feeling?</p>
         <div className="mx-4 ios-card p-4">
           <div className="grid grid-cols-3 gap-2">
-            {moods.map(m => (
-              <motion.button key={m.label} whileTap={{ scale: 0.9 }}
-                onClick={() => setMood({ ...m, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) })}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all touch-target ${
-                  currentMood.label === m.label ? 'bg-muted ring-2 ring-primary' : 'active:bg-muted/60'
-                }`} aria-label={`Select mood: ${m.label}`}>
-                <span className="text-[28px]">{m.emoji}</span>
-                <span className="text-ios-caption text-muted-foreground font-medium">{m.label}</span>
-              </motion.button>
-            ))}
+            {moods.map(m => {
+              const Icon = m.icon;
+              return (
+                <motion.button key={m.label} whileTap={{ scale: 0.9 }}
+                  onClick={() => setMood({ emoji: '', label: m.label, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) })}
+                  className={`flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all touch-target ${
+                    currentMood.label === m.label ? 'bg-muted ring-2 ring-primary' : 'active:bg-muted/60'
+                  }`} aria-label={`Select mood: ${m.label}`}>
+                  <Icon className="w-7 h-7 text-muted-foreground" />
+                  <span className="text-ios-caption text-muted-foreground font-medium">{m.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
           {currentMood && (
             <div className="mt-3 pt-3 border-t border-border/30 text-center text-ios-footnote text-muted-foreground">
-              Feeling {currentMood.label} {currentMood.emoji} · logged at {currentMood.time}
+              Feeling {currentMood.label} · logged at {currentMood.time}
             </div>
           )}
         </div>
       </div>
 
       {/* Health Summary — grouped list */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           {[
@@ -92,7 +95,7 @@ export default function WellbeingScreen() {
       </div>
 
       {/* Mode Switcher */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Interface Mode</p>
         <div className="mx-4 ios-card overflow-hidden">
           <button onClick={() => setShowModeSwitch(!showModeSwitch)}
@@ -126,7 +129,7 @@ export default function WellbeingScreen() {
       </div>
 
       {/* Settings — iOS grouped list */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Settings</p>
         <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
           {[
@@ -148,7 +151,7 @@ export default function WellbeingScreen() {
         </div>
       </div>
 
-      <div className="mx-4 mt-6 mb-6">
+      <div className="mx-4 mt-5 mb-6">
         <div className="ios-card overflow-hidden">
           <button className="w-full flex items-center gap-3 px-4 text-left text-destructive touch-target" style={{ minHeight: 56 }}>
             <LogOut className="w-5 h-5" />

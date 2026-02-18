@@ -1,24 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Paperclip, ArrowUp, Camera, Image, Brain, Sparkles, MapPin, Eye } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, ArrowUp, Mic } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
 import CaregiverMemorySender from '@/components/CaregiverMemorySender';
 
-
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 
 const messages = [
-  { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today? 💕', time: '10:30 AM', isMine: false, avatar: '👩' },
-  { id: '2', sender: 'You', text: "I'm doing well, dear! Took my morning walk. The garden looks beautiful today 🌸", time: '10:35 AM', isMine: true, avatar: '' },
-  { id: '3', sender: 'Sarah', text: "That's wonderful! Don't forget to take your afternoon medicine at 2pm", time: '10:38 AM', isMine: false, avatar: '👩' },
-  { id: '4', sender: 'You', text: "Thank you for reminding me, sweetie ❤️", time: '10:40 AM', isMine: true, avatar: '' },
-  { id: '5', sender: 'John', text: "Hey Mom! I'll visit this weekend. Want me to bring anything?", time: '11:00 AM', isMine: false, avatar: '👨' },
+  { id: '1', sender: 'Sarah', text: 'Hi Mom! How are you feeling today?', time: '10:30 AM', isMine: false },
+  { id: '2', sender: 'You', text: "I'm doing well, dear! Took my morning walk. The garden looks beautiful today.", time: '10:35 AM', isMine: true },
+  { id: '3', sender: 'Sarah', text: "That's wonderful! Don't forget to take your afternoon medicine at 2pm", time: '10:38 AM', isMine: false },
+  { id: '4', sender: 'You', text: "Thank you for reminding me, sweetie", time: '10:40 AM', isMine: true },
+  { id: '5', sender: 'John', text: "Hey Mom! I'll visit this weekend. Want me to bring anything?", time: '11:00 AM', isMine: false },
 ];
 
 const careTasks = [
@@ -59,16 +56,12 @@ export default function CareScreen() {
     toggleCaregiverView();
   };
 
-  const showFab = activeTab === 'tasks' || activeTab === 'calendar' || activeTab === 'team';
-
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     if (activeTab === 'chat') {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [activeTab]);
 
-  // Auto-resize textarea
   const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessageInput(e.target.value);
     if (textareaRef.current) {
@@ -83,36 +76,32 @@ export default function CareScreen() {
       <div className="px-4 pt-4 pb-1 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-ios-large-title text-foreground">Care Circle</h1>
-          <Button
+          <button
             onClick={() => setViewModalOpen(true)}
-            variant="ghost"
-            size="sm"
-            className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-2"
+            className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted text-ios-footnote font-semibold text-muted-foreground"
           >
             <img src={patientAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
             Dashboard
-          </Button>
+          </button>
         </div>
         <p className="text-ios-subheadline text-muted-foreground mt-1">3 members online</p>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — iOS segmented control */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <div className="px-4 pt-3 pb-1.5 shrink-0">
-          <div className="flex bg-muted rounded-xl p-1 gap-1">
+        <div className="px-4 pt-2 pb-1.5 shrink-0">
+          <div className="flex bg-muted rounded-lg p-0.5 gap-0.5">
             {[
-              { value: 'chat', icon: <MessageCircle className="w-4 h-4" />, label: 'Chat' },
-              { value: 'tasks', icon: <CheckSquare className="w-4 h-4" />, label: 'Tasks' },
-              { value: 'calendar', icon: <CalendarDays className="w-4 h-4" />, label: 'Events' },
-              { value: 'team', icon: <Users className="w-4 h-4" />, label: 'Team' },
+              { value: 'chat', icon: <MessageCircle className="w-3.5 h-3.5" />, label: 'Chat' },
+              { value: 'tasks', icon: <CheckSquare className="w-3.5 h-3.5" />, label: 'Tasks' },
+              { value: 'calendar', icon: <CalendarDays className="w-3.5 h-3.5" />, label: 'Events' },
+              { value: 'team', icon: <Users className="w-3.5 h-3.5" />, label: 'Team' },
             ].map(tab => (
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
-                className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-bold transition-all ${
-                  activeTab === tab.value
-                    ? 'bg-card text-primary shadow-sm'
-                    : 'text-muted-foreground'
+                className={`flex-1 flex items-center justify-center gap-1 h-8 rounded-md text-[12px] font-semibold transition-all ${
+                  activeTab === tab.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
               >
                 {tab.icon}
@@ -122,85 +111,72 @@ export default function CareScreen() {
           </div>
         </div>
 
-        {/* Chat — ChatGPT-style */}
+        {/* Chat — Apple Messages style */}
         <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0 data-[state=inactive]:hidden">
           <div className="flex-1 overflow-y-auto px-4 pt-3 pb-3">
-            {/* Date pill */}
             <div className="flex justify-center mb-4">
               <span className="text-[11px] text-muted-foreground font-medium bg-muted/50 px-4 py-1.5 rounded-full">Today</span>
             </div>
 
-            <div className="space-y-5">
-              {messages.map((msg, i) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
+            <div className="space-y-3">
+              {messages.map((msg) => (
+                <div key={msg.id}>
                   {msg.isMine ? (
-                    /* My message — right aligned, primary bubble */
                     <div className="flex justify-end">
-                      <div className="max-w-[82%]">
-                        <div className="bg-primary text-primary-foreground px-4 py-3 rounded-2xl rounded-br-md shadow-sm">
+                      <div className="max-w-[78%]">
+                        <div className="bg-primary text-primary-foreground px-4 py-2.5 rounded-2xl rounded-br-md">
                           <p className="text-[15px] leading-relaxed">{msg.text}</p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/50 mt-1 text-right mr-1 font-medium">
-                          {msg.time} · Read ✓✓
-                        </p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-1 text-right mr-1">{msg.time}</p>
                       </div>
                     </div>
                   ) : (
-                    /* Other's message — left aligned with avatar */
-                    <div className="flex gap-3 items-end">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-[16px] shadow-sm border border-border/50">
-                        {msg.avatar}
+                    <div className="flex gap-2 items-end">
+                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <Users className="w-3.5 h-3.5 text-muted-foreground" />
                       </div>
                       <div className="max-w-[78%]">
-                        <p className="text-[11px] font-bold text-primary ml-1 mb-1">{msg.sender}</p>
-                        <div className="bg-muted/60 text-foreground px-4 py-3 rounded-2xl rounded-bl-md">
+                        <p className="text-[11px] font-semibold text-muted-foreground ml-1 mb-0.5">{msg.sender}</p>
+                        <div className="bg-muted text-foreground px-4 py-2.5 rounded-2xl rounded-bl-md">
                           <p className="text-[15px] leading-relaxed">{msg.text}</p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/50 mt-1 ml-1 font-medium">{msg.time}</p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-1 ml-1">{msg.time}</p>
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
             <div ref={chatEndRef} />
           </div>
 
-          {/* ChatGPT-style input bar */}
+          {/* Input — Apple Messages style with mic inside */}
           <div className="px-3 pb-3 pt-2 shrink-0">
-            <div className="relative bg-muted/40 border border-border/60 rounded-2xl overflow-hidden shadow-sm focus-within:border-primary/40 focus-within:shadow-md transition-all">
+            <div className="relative flex items-end bg-muted rounded-2xl border border-border/40">
               <textarea
                 ref={textareaRef}
                 value={messageInput}
                 onChange={handleTextareaInput}
-                placeholder="Message Care Circle..."
+                placeholder="Message..."
                 rows={1}
-                className="w-full resize-none bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 px-4 pt-3 pb-2 outline-none max-h-[120px] leading-relaxed"
+                className="flex-1 resize-none bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 pl-4 pr-2 py-2.5 outline-none max-h-[120px] leading-relaxed"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    // send message
                   }
                 }}
               />
-              <div className="flex items-center justify-between px-3 pb-2.5">
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted/60 transition-colors touch-target">
-                  <Paperclip className="w-4 h-4" />
-                </button>
-                <button
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all touch-target ${
-                    messageInput.trim()
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'bg-muted/60 text-muted-foreground'
-                  }`}
-                >
-                  <ArrowUp className="w-4 h-4" />
-                </button>
+              <div className="flex items-center gap-1 pr-2 pb-2">
+                {!messageInput.trim() && (
+                  <button className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground touch-target">
+                    <Mic className="w-5 h-5" />
+                  </button>
+                )}
+                {messageInput.trim() && (
+                  <button className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground touch-target">
+                    <ArrowUp className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -208,78 +184,60 @@ export default function CareScreen() {
 
         {/* Tasks */}
         <TabsContent value="tasks" className="flex-1 min-h-0 overflow-y-auto mt-0">
-          <div className="px-5 pt-4 pb-24">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[19px] font-extrabold text-foreground font-display">Today's Tasks</h2>
-              <Badge variant="secondary" className="text-[13px] font-bold bg-primary/10 text-primary border-primary/20 px-3 py-1 rounded-full">
-                {tasksDone.size}/{careTasks.length}
-              </Badge>
+          <div className="pt-3 pb-24">
+            <div className="px-5 flex items-center justify-between mb-2">
+              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Today's Tasks</p>
+              <span className="text-ios-footnote text-muted-foreground">{tasksDone.size}/{careTasks.length}</span>
             </div>
-            <div className="space-y-3">
-              {careTasks.map((task, i) => (
-                <motion.div key={task.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <div
-                    className="bg-card rounded-2xl border border-border/60 shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
-                    onClick={() => toggleTask(task.id)}
-                  >
-                    <div className="p-4 flex items-center gap-4">
-                      <div className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all ${
-                        tasksDone.has(task.id) ? 'border-success bg-success' : 'border-border'
-                      }`}>
-                        {tasksDone.has(task.id) && <Check className="w-4 h-4 text-white" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-[16px] font-bold leading-tight ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                          {task.title}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="text-[13px] text-muted-foreground font-medium flex items-center gap-1">
-                            <UserCheck className="w-3.5 h-3.5" /> {task.assignee}
-                          </span>
-                          <span className="text-[13px] text-muted-foreground font-medium flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" /> {task.time}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+            <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+              {careTasks.map((task) => (
+                <button
+                  key={task.id}
+                  onClick={() => toggleTask(task.id)}
+                  className="w-full flex items-center gap-3 px-4 text-left touch-target"
+                  style={{ minHeight: 56 }}
+                >
+                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                    tasksDone.has(task.id) ? 'border-primary bg-primary' : 'border-muted-foreground/30'
+                  }`}>
+                    {tasksDone.has(task.id) && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
-                </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-ios-callout font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                      {task.title}
+                    </p>
+                    <p className="text-ios-footnote text-muted-foreground">{task.assignee} · {task.time}</p>
+                  </div>
+                </button>
               ))}
             </div>
 
-            {/* ── Memory Management Section ── */}
-            <Separator className="my-6" />
-            <CaregiverMemorySender />
+            <Separator className="my-5 mx-4" />
+            <div className="px-4">
+              <CaregiverMemorySender />
+            </div>
           </div>
         </TabsContent>
 
         {/* Calendar */}
         <TabsContent value="calendar" className="flex-1 min-h-0 overflow-y-auto mt-0">
-          <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[19px] font-extrabold text-foreground mb-4 font-display">Upcoming Events</h2>
-            <div className="space-y-3">
+          <div className="pt-3 pb-24">
+            <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Upcoming Events</p>
+            <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
               {[
                 { title: 'Doctor Visit', date: 'Tomorrow, 10:00 AM', type: 'Medical' },
                 { title: 'Family Lunch', date: 'Saturday, 12:00 PM', type: 'Social' },
                 { title: 'Physical Therapy', date: 'Monday, 2:00 PM', type: 'Health' },
-              ].map((apt, i) => (
-                <motion.div key={apt.title} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <div className="bg-card rounded-2xl border border-border/60 shadow-sm">
-                    <div className="p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-                        <CalendarDays className="w-6 h-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-[16px] font-bold text-foreground">{apt.title}</p>
-                        <p className="text-[14px] text-muted-foreground mt-1 font-medium">{apt.date}</p>
-                        <Badge variant="outline" className="mt-1.5 text-[11px] font-semibold text-primary border-primary/20 rounded-full">
-                          {apt.type}
-                        </Badge>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground/40 shrink-0" />
-                    </div>
+              ].map((apt) => (
+                <div key={apt.title} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  <CalendarDays className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-ios-callout font-medium text-foreground">{apt.title}</p>
+                    <p className="text-ios-footnote text-muted-foreground">{apt.date}</p>
                   </div>
-                </motion.div>
+                  <span className="text-ios-caption text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{apt.type}</span>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+                </div>
               ))}
             </div>
           </div>
@@ -287,45 +245,35 @@ export default function CareScreen() {
 
         {/* Team */}
         <TabsContent value="team" className="flex-1 min-h-0 overflow-y-auto mt-0">
-          <div className="px-5 pt-4 pb-24">
-            <h2 className="text-[19px] font-extrabold text-foreground mb-4 font-display">Care Team</h2>
-            <div className="space-y-3">
+          <div className="pt-3 pb-24">
+            <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Care Team</p>
+            <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
               {[
                 { name: 'Sarah Johnson', role: 'Primary Caregiver', status: 'Online', online: true },
                 { name: 'John Johnson', role: 'Son', status: 'Last seen 1h ago', online: false },
                 { name: 'Dr. Smith', role: 'Primary Physician', status: 'Available', online: true },
                 { name: 'Nurse Maria', role: 'Home Nurse', status: 'Next visit: Mon', online: false },
-              ].map((member, i) => (
-                <motion.div key={member.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <div className="bg-card rounded-2xl border border-border/60 shadow-sm">
-                    <div className="p-4 flex items-center gap-4">
-                      <div className="relative shrink-0">
-                        <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-primary" />
-                        </div>
-                        {member.online && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[16px] font-bold text-foreground">{member.name}</p>
-                        <p className="text-[13px] text-muted-foreground mt-0.5 font-medium">{member.role}</p>
-                      </div>
-                      <Badge variant={member.online ? 'secondary' : 'outline'} className={`text-[11px] font-semibold shrink-0 rounded-full ${
-                        member.online ? 'bg-success/10 text-success border-success/20' : 'text-muted-foreground'
-                      }`}>
-                        {member.status}
-                      </Badge>
+              ].map((member) => (
+                <div key={member.name} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                  <div className="relative shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
+                      <Users className="w-4 h-4 text-muted-foreground" />
                     </div>
+                    {member.online && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-primary border-2 border-card" />
+                    )}
                   </div>
-                </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-ios-callout font-medium text-foreground">{member.name}</p>
+                    <p className="text-ios-footnote text-muted-foreground">{member.role}</p>
+                  </div>
+                  <span className="text-ios-caption text-muted-foreground">{member.status}</span>
+                </div>
               ))}
             </div>
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* No FAB — iOS doesn't use floating action buttons */}
 
       <CaregiverManageSheet open={manageOpen} onClose={() => setManageOpen(false)} />
 
@@ -336,46 +284,39 @@ export default function CareScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-5"
+            className="absolute inset-0 z-50 bg-black/40 flex items-center justify-center px-5"
             onClick={() => setViewModalOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="bg-card rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl border border-border"
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-card rounded-2xl w-full max-w-sm overflow-hidden border border-border"
               onClick={e => e.stopPropagation()}
             >
               <div className="p-5 pb-3 flex items-center justify-between">
-                <h3 className="text-[18px] font-extrabold text-foreground">Choose Dashboard View</h3>
-                <button onClick={() => setViewModalOpen(false)} className="w-8 h-8 rounded-xl bg-muted/60 flex items-center justify-center touch-target">
+                <h3 className="text-ios-title2 text-foreground">Choose Dashboard View</h3>
+                <button onClick={() => setViewModalOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center touch-target">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
-              <Separator />
-              <div className="p-3 space-y-1">
-                {careViewOptions.map(opt => (
+              <div className="divide-y divide-border/30">
+                {careViewOptions.map(view => (
                   <button
-                    key={opt.id}
-                    onClick={() => selectView(opt.id)}
-                    className="w-full flex items-center gap-3 p-3.5 rounded-xl active:bg-muted/50 transition-colors touch-target"
+                    key={view.id}
+                    onClick={() => selectView(view.id)}
+                    className="w-full flex items-center gap-3 px-5 text-left touch-target"
+                    style={{ minHeight: 56 }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                      <Users className="w-5 h-5 text-primary" />
+                    <Users className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-ios-callout font-medium text-foreground">{view.label}</p>
+                      <p className="text-ios-footnote text-muted-foreground">{view.role}</p>
                     </div>
-                    <div className="flex-1 text-left">
-                      <p className="text-[15px] font-bold text-foreground">{opt.label}</p>
-                      <p className="text-[12px] text-muted-foreground font-medium">{opt.role}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
                   </button>
                 ))}
-              </div>
-              <div className="p-3 border-t border-border">
-                <Button variant="outline" onClick={() => setViewModalOpen(false)} size="lg" className="w-full h-11 rounded-xl text-[15px] font-semibold border-border">
-                  Cancel
-                </Button>
               </div>
             </motion.div>
           </motion.div>

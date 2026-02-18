@@ -5,7 +5,6 @@ import PatientIDCard from '@/components/PatientIDCard';
 import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 export default function TodayScreen() {
@@ -43,19 +42,19 @@ export default function TodayScreen() {
             <p className="text-[28px] text-foreground mt-3 font-bold">{patientName || 'Friend'}</p>
           </div>
 
-          <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-16 text-[22px] font-bold gap-3 rounded-2xl">
-            <User className="w-8 h-8" />
+          <button onClick={() => setShowIDCard(true)} className="w-full py-4 rounded-2xl bg-card text-foreground text-[22px] font-semibold flex items-center justify-center gap-3">
+            <User className="w-7 h-7 text-muted-foreground" />
             View Me
-          </Button>
+          </button>
 
           {pendingMeds.length > 0 ? (
             <div className="ios-card p-8 flex flex-col items-center gap-4">
               <Pill className="w-16 h-16 text-muted-foreground" />
               <h2 className="text-[28px] font-bold text-foreground">Take Your Medicine</h2>
               <p className="text-[20px] text-muted-foreground font-medium">{pendingMeds[0].name} {pendingMeds[0].dosage}</p>
-              <Button onClick={() => markMedicationTaken(pendingMeds[0].id)} size="lg" className="w-full h-16 text-[20px] font-bold rounded-2xl">
+              <button onClick={() => markMedicationTaken(pendingMeds[0].id)} className="w-full py-4 rounded-2xl bg-card text-primary text-[20px] font-semibold">
                 Mark as Taken
-              </Button>
+              </button>
             </div>
           ) : (
             <div className="ios-card p-8 flex flex-col items-center gap-3">
@@ -64,9 +63,9 @@ export default function TodayScreen() {
             </div>
           )}
 
-          <Button variant="destructive" size="lg" className="w-full h-[72px] text-[26px] font-bold sos-pulse rounded-2xl">
+          <button className="w-full py-5 rounded-2xl bg-destructive text-destructive-foreground text-[26px] font-bold">
             Emergency Call
-          </Button>
+          </button>
         </div>
         <PatientIDCard open={showIDCard} onClose={() => setShowIDCard(false)} />
       </div>
@@ -88,10 +87,11 @@ export default function TodayScreen() {
         </div>
 
         <div className="px-4 space-y-3">
-          <Button onClick={() => setShowIDCard(true)} size="lg" className="w-full h-14 text-[18px] font-semibold gap-3 rounded-xl">
-            <User className="w-6 h-6" />
-            View Me
-          </Button>
+          <button onClick={() => setShowIDCard(true)} className="w-full ios-card flex items-center gap-3 px-4 text-left" style={{ minHeight: 56 }}>
+            <User className="w-5 h-5 text-muted-foreground shrink-0" />
+            <span className="text-ios-headline text-foreground flex-1">View Me</span>
+            <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
+          </button>
 
           {/* Pending meds grouped */}
           {pendingMeds.length > 0 && (
@@ -103,9 +103,9 @@ export default function TodayScreen() {
                     <p className="text-ios-headline text-foreground">{med.name}</p>
                     <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
                   </div>
-                  <Button onClick={() => markMedicationTaken(med.id)} className="h-9 px-4 text-[14px] font-semibold shrink-0 rounded-xl">
-                    Take
-                  </Button>
+                  <button onClick={() => markMedicationTaken(med.id)} className="text-primary text-ios-callout font-semibold shrink-0">
+                    Mark as Taken
+                  </button>
                 </div>
               ))}
             </div>
@@ -150,7 +150,7 @@ export default function TodayScreen() {
         </div>
 
         {/* Profile Row */}
-        <div className="px-4 mt-4">
+        <div className="px-4 mt-3">
           <div className="ios-card overflow-hidden">
             <button
               onClick={() => setShowIDCard(true)}
@@ -168,7 +168,7 @@ export default function TodayScreen() {
         </div>
 
         {/* Health Summary — Apple Health grouped list */}
-        <div className="mt-6">
+        <div className="mt-5">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Health Summary</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
             {[
@@ -190,37 +190,31 @@ export default function TodayScreen() {
         </div>
 
         {/* Medications */}
-        <div className="mt-6">
+        <div className="mt-5">
           <div className="px-5 flex items-center justify-between mb-2">
             <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Medications</p>
             <span className="text-ios-footnote text-muted-foreground">{takenMeds.length}/{medications.length} taken</span>
           </div>
           <div className="px-4 mb-2">
-            <Progress value={medProgress} className="h-1.5 rounded-full" />
+            <Progress value={medProgress} className="h-[3px] rounded-full" />
           </div>
 
           {pendingMeds.length > 0 && (
             <div className="px-4">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {pendingMeds.map((med) => (
-                  <div key={med.id} className="px-4 py-3">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-ios-callout font-semibold text-foreground">{med.name}</p>
-                        <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
-                      </div>
+                  <div key={med.id} className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
+                    <Pill className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
+                      <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
                     </div>
-                    {med.instructions && (
-                      <p className="text-ios-caption text-muted-foreground/60 mb-2 pl-8">{med.instructions}</p>
-                    )}
-                    <Button
+                    <button
                       onClick={() => markMedicationTaken(med.id)}
-                      className="w-full h-11 rounded-xl text-[15px] font-semibold gap-2"
+                      className="text-primary text-ios-callout font-semibold shrink-0"
                     >
-                      <Check className="w-4 h-4" />
                       Mark as Taken
-                    </Button>
+                    </button>
                   </div>
                 ))}
               </div>
@@ -254,7 +248,7 @@ export default function TodayScreen() {
         </div>
 
         {/* Today's Activity */}
-        <div className="mt-6 mb-8">
+        <div className="mt-5 mb-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">

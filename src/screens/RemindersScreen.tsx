@@ -65,24 +65,20 @@ export default function RemindersScreen() {
 
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-24 relative">
-      {/* iOS Large Title */}
+      {/* iOS Large Title with + in nav bar */}
       <div className="px-4 pt-4 pb-1 flex items-center justify-between">
         <div>
           <h1 className="text-ios-large-title text-foreground">Reminders</h1>
           <p className="text-ios-subheadline text-muted-foreground mt-1">{scheduled.length} scheduled</p>
         </div>
-        <Button
-          onClick={() => setShowCreate(true)}
-          size="sm"
-          className="h-9 px-3 rounded-full text-ios-footnote font-semibold gap-1"
-        >
-          <Plus className="w-4 h-4" /> New
-        </Button>
+        <button onClick={() => setShowCreate(true)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target">
+          <Plus className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
       {/* Active Reminders */}
       {activeReminders.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-3">
           <p className="text-ios-footnote font-medium text-destructive uppercase tracking-wider mb-2 px-5 flex items-center gap-1.5">
             <AlarmClock className="w-3.5 h-3.5" /> Active Now
           </p>
@@ -94,9 +90,6 @@ export default function RemindersScreen() {
               const IconComp = cfg.icon;
               return (
                 <div key={item.id} className="px-4 py-3">
-                  {reminder.photo_url && (
-                    <img src={reminder.photo_url} alt="" className="w-full h-32 object-cover rounded-xl mb-3" />
-                  )}
                   <div className="flex items-start gap-3">
                     <IconComp className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
@@ -105,21 +98,20 @@ export default function RemindersScreen() {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <Button
+                    <button
                       onClick={() => handleAcknowledge(item.id, reminder.id)}
                       disabled={acknowledge.isPending}
-                      className="flex-1 h-11 rounded-xl font-semibold gap-2"
+                      className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground font-semibold text-ios-callout flex items-center justify-center gap-2"
                     >
                       <Check className="w-4 h-4" /> Done
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       onClick={() => handleSnooze(item.id, reminder.id)}
                       disabled={snooze.isPending}
-                      variant="secondary"
-                      className="flex-1 h-11 rounded-xl font-semibold gap-2"
+                      className="flex-1 h-10 rounded-xl bg-muted text-foreground font-semibold text-ios-callout flex items-center justify-center gap-2"
                     >
                       <Clock className="w-4 h-4" /> 10 Min
-                    </Button>
+                    </button>
                   </div>
                 </div>
               );
@@ -129,7 +121,7 @@ export default function RemindersScreen() {
       )}
 
       {/* Upcoming */}
-      <div className="mt-6">
+      <div className="mt-5">
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5 flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" /> Upcoming
         </p>
@@ -180,7 +172,7 @@ export default function RemindersScreen() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-card rounded-t-2xl w-full p-5 pb-8 shadow-xl"
+              className="bg-card rounded-t-2xl w-full p-5 pb-8"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-center mb-3">
@@ -193,8 +185,8 @@ export default function RemindersScreen() {
                 </button>
               </div>
 
-              {/* Type selector as segmented control */}
-              <div className="flex bg-muted rounded-xl p-1 gap-1 mb-4">
+              {/* Type selector — iOS segmented control */}
+              <div className="flex bg-muted rounded-lg p-0.5 gap-0.5 mb-4">
                 {[
                   { id: 'medication', label: 'Med' },
                   { id: 'meal', label: 'Meal' },
@@ -204,7 +196,7 @@ export default function RemindersScreen() {
                   <button
                     key={t.id}
                     onClick={() => setNewType(t.id)}
-                    className={`flex-1 h-8 rounded-lg text-[12px] font-semibold transition-all ${
+                    className={`flex-1 h-8 rounded-md text-[12px] font-semibold transition-all ${
                       newType === t.id
                         ? 'bg-card text-foreground shadow-sm'
                         : 'text-muted-foreground'
