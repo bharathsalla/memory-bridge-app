@@ -407,7 +407,7 @@ export default function CaregiverDashboard() {
               onClick={() => setRemindersOpen(true)}
               className="w-9 h-9 rounded-full bg-muted flex items-center justify-center touch-target"
             >
-              <Bell className="w-4 h-4 text-muted-foreground" />
+              <Plus className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
         </div>
