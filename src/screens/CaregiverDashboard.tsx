@@ -311,9 +311,8 @@ export default function CaregiverDashboard() {
           </button>
         </div>
 
-
         {/* Greeting + Crisis Forecast Card */}
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-5">
           <div className="ios-card p-4">
             <div className="flex items-start justify-between mb-1">
               <p className="text-[15px] font-semibold text-primary">Good Morning, Sarah</p>

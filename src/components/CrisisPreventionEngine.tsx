@@ -253,7 +253,22 @@ export default function CrisisPreventionEngine() {
 
   return (
     <div className="h-full flex flex-col ios-grouped-bg">
+      {/* Header */}
       <div className="px-4 pt-3 pb-2">
+        <div className="flex items-center gap-3 mb-3">
+          <IconBox Icon={Shield} color={iosColors.red} />
+          <div className="flex-1">
+            <h2 className="text-[16px] font-extrabold text-foreground tracking-tight">Crisis Prevention</h2>
+            <p className="text-[11px] text-muted-foreground font-semibold">AI monitoring · Updated {rand(1, 15)} min ago</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {alertCount > 0 && (
+              <Badge className="bg-destructive text-destructive-foreground border-0 text-[10px] font-bold px-2 py-0.5 shadow-sm">
+                {alertCount} {alertCount === 1 ? 'Alert' : 'Alerts'}
+              </Badge>
+            )}
+          </div>
+        </div>
 
         {/* iOS Segmented Tab Bar */}
         <div className="pb-1">
