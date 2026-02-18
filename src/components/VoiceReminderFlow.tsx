@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, MicOff, Check, Clock, Phone, Eye, RotateCcw,
@@ -240,26 +241,15 @@ export default function VoiceReminderFlow() {
     <div className="h-full flex flex-col bg-background">
       {/* Tab Navigation */}
       <div className="px-3 pt-3 pb-1.5 shrink-0">
-        <div className="flex bg-muted/60 rounded-2xl p-1 gap-0.5">
-          {[
-            { id: 'record' as const, label: 'Record', icon: Mic },
-            { id: 'monitor' as const, label: 'Monitor', icon: BarChart3 },
-            { id: 'escalation' as const, label: 'Alerts', icon: AlertTriangle },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveView(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${
-                activeView === tab.id
-                  ? 'bg-card text-foreground shadow-sm'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          value={activeView}
+          onChange={(v) => setActiveView(v as 'record' | 'monitor' | 'escalation')}
+          items={[
+            { value: 'record', icon: <Mic className="w-3.5 h-3.5" />, label: 'Record' },
+            { value: 'monitor', icon: <BarChart3 className="w-3.5 h-3.5" />, label: 'Monitor' },
+            { value: 'escalation', icon: <AlertTriangle className="w-3.5 h-3.5" />, label: 'Alerts' },
+          ]}
+        />
       </div>
 
       {/* Content */}

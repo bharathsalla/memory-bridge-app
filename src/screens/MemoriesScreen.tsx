@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -282,27 +283,21 @@ export default function MemoriesScreen() {
 
         {/* Source Toggle — iOS segmented control */}
         <div className="mx-4 mt-3">
-          <div className="flex bg-muted rounded-lg p-0.5 gap-0.5">
-            <button
-              onClick={() => setActiveSource('ai')}
-              className={`flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-[13px] font-semibold transition-all ${
-                activeSource === 'ai' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-              }`}
-            >
-              <Brain className="w-3.5 h-3.5" /> AI Curated
-            </button>
-            <button
-              onClick={() => setActiveSource('caregiver')}
-              className={`flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-[13px] font-semibold transition-all relative ${
-                activeSource === 'caregiver' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-              }`}
-            >
-              <UserCheck className="w-3.5 h-3.5" /> From Caregiver
-              {caregiverMemories.some((m: any) => !m.viewed_by_patient) && (
-                <span className="w-2 h-2 rounded-full bg-destructive absolute top-1 right-3" />
-              )}
-            </button>
-          </div>
+          <SegmentedControl
+            value={activeSource}
+            onChange={(v) => setActiveSource(v as 'ai' | 'caregiver')}
+            items={[
+              { value: 'ai', icon: <Brain className="w-3.5 h-3.5" />, label: 'AI Curated' },
+              {
+                value: 'caregiver',
+                icon: <UserCheck className="w-3.5 h-3.5" />,
+                label: 'From Caregiver',
+                badge: caregiverMemories.some((m: any) => !m.viewed_by_patient)
+                  ? <span className="w-2 h-2 rounded-full bg-destructive absolute top-1 right-3" />
+                  : undefined,
+              },
+            ]}
+          />
         </div>
 
         {/* AI Syncing Banner */}
@@ -344,19 +339,12 @@ export default function MemoriesScreen() {
 
             {/* Category Segmented Control */}
             <div className="px-4 mt-3">
-              <div className="flex bg-muted rounded-lg p-0.5 gap-0.5 overflow-x-auto">
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center px-3 h-8 shrink-0 rounded-md text-[12px] font-semibold transition-colors ${
-                      activeCategory === cat.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                value={activeCategory}
+                onChange={setActiveCategory}
+                scrollable
+                items={categories.map(cat => ({ value: cat.id, label: cat.label }))}
+              />
             </div>
 
             {/* AI Memory Pick */}

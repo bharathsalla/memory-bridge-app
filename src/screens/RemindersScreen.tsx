@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Check, Clock, AlarmClock, Plus, Pill, X, Utensils, Footprints } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
@@ -187,25 +188,17 @@ export default function RemindersScreen() {
               </div>
 
               {/* Type selector — iOS segmented control */}
-              <div className="flex bg-muted rounded-lg p-0.5 gap-0.5 mb-4">
-                {[
-                  { id: 'medication', label: 'Med' },
-                  { id: 'meal', label: 'Meal' },
-                  { id: 'exercise', label: 'Walk' },
-                  { id: 'check_in', label: 'Check-in' },
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => setNewType(t.id)}
-                    className={`flex-1 h-8 rounded-md text-[12px] font-semibold transition-all ${
-                      newType === t.id
-                        ? 'bg-card text-foreground shadow-sm'
-                        : 'text-muted-foreground'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+              <div className="mb-4">
+                <SegmentedControl
+                  value={newType}
+                  onChange={setNewType}
+                  items={[
+                    { value: 'medication', label: 'Med' },
+                    { value: 'meal', label: 'Meal' },
+                    { value: 'exercise', label: 'Walk' },
+                    { value: 'check_in', label: 'Check-in' },
+                  ]}
+                />
               </div>
 
               <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Reminder title..." className="h-11 rounded-xl text-ios-callout mb-3" />

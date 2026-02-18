@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { PushNotificationSimulator, BackgroundFetchSimulator, AlexaIntegrationSimulator, PersistentNotificationSimulator } from '@/components/NativeFeatureSimulators';
 import { useApp } from '@/contexts/AppContext';
@@ -375,7 +376,7 @@ export default function CaregiverDashboard() {
         <div className="px-5 mt-3">
           <div className="flex bg-muted rounded-xl p-1 gap-1">
             {['All', 'Today', 'This Week', 'Mine'].map((f, i) => (
-              <button key={f} className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${i === 0 ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}>
+              <button key={f} className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${i === 0 ? 'bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'text-muted-foreground'}`}>
                 {f}
               </button>
             ))}
@@ -517,17 +518,15 @@ export default function CaregiverDashboard() {
           <p className="text-[15px] text-muted-foreground mt-1">AI-powered behavioral insights</p>
         </div>
         <div className="px-5 mt-3">
-          <div className="flex bg-muted rounded-xl p-1 gap-1">
-            {(['7', '30', '90'] as const).map(r => (
-              <button
-                key={r}
-                onClick={() => setReportRange(r)}
-                className={`flex-1 h-9 rounded-lg text-[12px] font-bold transition-all ${reportRange === r ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
-              >
-                {r} days
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            value={reportRange}
+            onChange={(v) => setReportRange(v as '7' | '30' | '90')}
+            items={[
+              { value: '7', label: '7 days' },
+              { value: '30', label: '30 days' },
+              { value: '90', label: '90 days' },
+            ]}
+          />
         </div>
 
         {/* Predictive Insights */}

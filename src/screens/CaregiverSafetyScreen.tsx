@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -167,17 +168,15 @@ export default function CaregiverSafetyScreen() {
 
         {/* Date Selector */}
         <div className="px-5 mb-4">
-          <div className="flex bg-muted rounded-xl p-1 gap-1">
-            {(['today', 'yesterday', 'custom'] as const).map(d => (
-              <button
-                key={d}
-                onClick={() => setHistoryDate(d)}
-                className={`flex-1 py-2 rounded-lg text-[13px] font-bold transition-all ${historyDate === d ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
-              >
-                {d === 'today' ? 'Today' : d === 'yesterday' ? 'Yesterday' : 'Custom'}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            value={historyDate}
+            onChange={(v) => setHistoryDate(v as 'today' | 'yesterday' | 'custom')}
+            items={[
+              { value: 'today', label: 'Today' },
+              { value: 'yesterday', label: 'Yesterday' },
+              { value: 'custom', label: 'Custom' },
+            ]}
+          />
         </div>
 
         {/* Map with Path */}

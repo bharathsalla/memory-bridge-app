@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion } from 'framer-motion';
 import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic, Smile, Edit3, ArrowUpFromLine, AlertCircle, UserCheck, ClipboardList } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
@@ -67,24 +68,15 @@ export default function CaregiverRemindersPanel() {
     <div className="h-full overflow-y-auto warm-gradient pb-6">
       {/* Tabs */}
       <div className="px-4 pt-3 pb-2">
-        <div className="flex bg-muted/50 rounded-2xl p-1">
-          {[
-            { id: 'voice' as const, label: 'Voice', icon: Mic },
-            { id: 'send' as const, label: 'Send', icon: Bell },
-            { id: 'logs' as const, label: 'Activity', icon: Clock },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1 h-9 rounded-xl text-[11px] font-semibold transition-all ${
-                activeTab === tab.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-              }`}
-            >
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          value={activeTab}
+          onChange={(v) => setActiveTab(v as 'voice' | 'send' | 'logs')}
+          items={[
+            { value: 'voice', icon: <Mic className="w-3.5 h-3.5" />, label: 'Voice' },
+            { value: 'send', icon: <Bell className="w-3.5 h-3.5" />, label: 'Send' },
+            { value: 'logs', icon: <Clock className="w-3.5 h-3.5" />, label: 'Activity' },
+          ]}
+        />
       </div>
 
       {/* Voice Tab */}
