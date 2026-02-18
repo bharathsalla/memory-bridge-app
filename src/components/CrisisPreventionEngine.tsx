@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -270,30 +271,20 @@ export default function CrisisPreventionEngine() {
         </div>
 
         {/* iOS Segmented Tab Bar */}
-        <div className="overflow-x-auto pb-1 -mx-1 px-1">
-          <div className="flex bg-muted/60 rounded-2xl p-1 gap-1 min-w-max">
-            {([
-              { id: 'forecast' as CrisisTab, label: 'Forecast', icon: BarChart3 },
-              { id: 'gps' as CrisisTab, label: 'GPS', icon: MapPin },
-              { id: 'weather' as CrisisTab, label: 'Weather', icon: Cloud },
-              { id: 'plan' as CrisisTab, label: 'Plan', icon: Target },
-              { id: 'coach' as CrisisTab, label: 'AI Coach', icon: Bot },
-              { id: 'devices' as CrisisTab, label: 'Devices', icon: Smartphone },
-            ]).map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-card text-foreground shadow-md'
-                    : 'text-muted-foreground hover:text-foreground/70'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="pb-1">
+          <SegmentedControl
+            value={activeTab}
+            onChange={(v) => setActiveTab(v as CrisisTab)}
+            scrollable
+            items={[
+              { value: 'forecast', icon: <BarChart3 className="w-3.5 h-3.5" />, label: 'Forecast' },
+              { value: 'gps', icon: <MapPin className="w-3.5 h-3.5" />, label: 'GPS' },
+              { value: 'weather', icon: <Cloud className="w-3.5 h-3.5" />, label: 'Weather' },
+              { value: 'plan', icon: <Target className="w-3.5 h-3.5" />, label: 'Plan' },
+              { value: 'coach', icon: <Bot className="w-3.5 h-3.5" />, label: 'AI Coach' },
+              { value: 'devices', icon: <Smartphone className="w-3.5 h-3.5" />, label: 'Devices' },
+            ]}
+          />
         </div>
 
         {/* Patient Mode Switcher */}
