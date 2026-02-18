@@ -312,6 +312,20 @@ export default function CaregiverDashboard() {
         </div>
 
 
+        {/* Greeting + Crisis Forecast Card */}
+        <div className="px-4 mb-4">
+          <div className="ios-card p-4">
+            <div className="flex items-start justify-between mb-1">
+              <p className="text-[15px] font-semibold text-primary">Good Morning, Sarah</p>
+              <span className="text-[11px] font-semibold text-primary flex items-center gap-1 bg-primary/8 px-2 py-0.5 rounded-full">
+                <Sparkles className="w-3 h-3" /> AI Active
+              </span>
+            </div>
+            <h2 className="text-[22px] font-bold text-foreground leading-tight">Crisis Forecast</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
+          </div>
+        </div>
+
         {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
 
