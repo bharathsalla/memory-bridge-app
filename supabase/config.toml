@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.caregiver-support]
 verify_jwt = false
+
+[functions.extract-voice-reminder]
+verify_jwt = false

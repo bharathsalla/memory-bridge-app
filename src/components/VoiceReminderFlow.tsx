@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Mic, MicOff, Check, ChevronRight, Clock, Phone, Eye, RotateCcw,
-  AlertTriangle, TrendingUp, Pill, Sun, Volume2, X, Play, Pause,
-  MessageCircle, BarChart3, Bell, Zap, Brain, ArrowRight, Send
+  Mic, MicOff, Check, Clock, Phone, Eye, RotateCcw,
+  AlertTriangle, Pill, Volume2, X,
+  BarChart3, Bell, Zap, Brain, ArrowRight
 } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 // ── Types ──
 interface ExtractedSchedule {
@@ -12,52 +15,8 @@ interface ExtractedSchedule {
   time: string;
   frequency: string;
   trigger: string;
+  patientMessage: string;
   confidence: number;
-}
-
-interface ReminderRecord {
-  id: string;
-  medication: string;
-  time: string;
-  frequency: string;
-  status: 'confirmed' | 'missed' | 'pending' | 'snoozed';
-  adherence: number;
-  lastResponse: string;
-  caregiverName: string;
-}
-
-interface EscalationEvent {
-  id: string;
-  medication: string;
-  time: string;
-  attempts: number;
-  status: 'escalated' | 'resolved' | 'pending';
-  timestamp: string;
-}
-
-// ── Simulated data generators ──
-function generateRecords(): ReminderRecord[] {
-  const meds = ['Blood Pressure Tablet', 'Metformin', 'Aspirin', 'Vitamin D', 'Calcium'];
-  const times = ['8:00 AM', '9:00 AM', '12:00 PM', '2:00 PM', '8:00 PM'];
-  const statuses: ReminderRecord['status'][] = ['confirmed', 'missed', 'pending', 'snoozed'];
-  return meds.slice(0, 3 + Math.floor(Math.random() * 2)).map((med, i) => ({
-    id: `rec-${i}`,
-    medication: med,
-    time: times[i % times.length],
-    frequency: 'Daily',
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    adherence: 70 + Math.floor(Math.random() * 28),
-    lastResponse: ['Took it on time', 'Snoozed 10 min', 'No response', 'Confirmed via voice'][Math.floor(Math.random() * 4)],
-    caregiverName: 'Anitha',
-  }));
-}
-
-function generateEscalations(): EscalationEvent[] {
-  return [
-    { id: 'e1', medication: 'Blood Pressure Tablet', time: '9:00 AM', attempts: 3, status: 'escalated', timestamp: '15 min ago' },
-    { id: 'e2', medication: 'Metformin', time: '2:00 PM', attempts: 2, status: 'resolved', timestamp: 'Yesterday' },
-    { id: 'e3', medication: 'Aspirin', time: '8:00 PM', attempts: 1, status: 'pending', timestamp: '2 days ago' },
-  ];
 }
 
 // ── Recording animation ──
@@ -85,15 +44,17 @@ function RecordingWave({ isRecording }: { isRecording: boolean }) {
 
 // ── Main component ──
 export default function VoiceReminderFlow() {
+  const { voiceReminders, addVoiceReminder } = useApp();
   const [activeView, setActiveView] = useState<'record' | 'monitor' | 'escalation'>('record');
   const [recordingStep, setRecordingStep] = useState<'idle' | 'recording' | 'processing' | 'extracted' | 'confirmed'>('idle');
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [transcript, setTranscript] = useState('');
+  const [liveTranscript, setLiveTranscript] = useState('');
   const [extracted, setExtracted] = useState<ExtractedSchedule | null>(null);
-  const [records] = useState<ReminderRecord[]>(() => generateRecords());
-  const [escalations] = useState<EscalationEvent[]>(() => generateEscalations());
+  const [aiLoading, setAiLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Recording timer
   useEffect(() => {
@@ -105,33 +66,119 @@ export default function VoiceReminderFlow() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isRecording]);
 
+  // Reactivate snoozed reminders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // This is handled in AppContext via the snooze timer
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const startRecording = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({ title: 'Speech not supported', description: 'Use Chrome or Safari for voice recording.', variant: 'destructive' });
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += t + ' ';
+        } else {
+          interim += t;
+        }
+      }
+      setLiveTranscript(finalTranscript + interim);
+      setTranscript(finalTranscript.trim());
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error !== 'no-speech') {
+        toast({ title: 'Recording error', description: event.error, variant: 'destructive' });
+      }
+    };
+
+    recognition.onend = () => {
+      // Will be manually stopped
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
     setIsRecording(true);
     setRecordingStep('recording');
     setElapsed(0);
     setTranscript('');
+    setLiveTranscript('');
     setExtracted(null);
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
     setIsRecording(false);
+
+    const finalText = transcript || liveTranscript;
+    if (!finalText.trim()) {
+      toast({ title: 'No speech detected', description: 'Please try recording again.', variant: 'destructive' });
+      setRecordingStep('idle');
+      return;
+    }
+
+    setTranscript(finalText.trim());
     setRecordingStep('processing');
-    // Simulate AI processing
-    setTimeout(() => {
-      setTranscript("Dad, please take your blood pressure tablet every day at 9 AM after breakfast.");
+    setAiLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-voice-reminder', {
+        body: { transcript: finalText.trim() },
+      });
+
+      if (error) throw error;
+
       setExtracted({
-        medication: 'Blood Pressure Tablet',
-        time: '9:00 AM',
-        frequency: 'Daily',
-        trigger: 'After Breakfast',
-        confidence: 96,
+        medication: data.medication,
+        time: data.time,
+        frequency: data.frequency,
+        trigger: data.trigger,
+        patientMessage: data.patientMessage,
+        confidence: data.confidence,
       });
       setRecordingStep('extracted');
-    }, 2200);
+    } catch (err: any) {
+      console.error('AI extraction failed:', err);
+      toast({ title: 'AI extraction failed', description: err.message || 'Please try again.', variant: 'destructive' });
+      setRecordingStep('idle');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const confirmSchedule = () => {
+    if (!extracted) return;
+    addVoiceReminder({
+      medication: extracted.medication,
+      time: extracted.time,
+      frequency: extracted.frequency,
+      trigger: extracted.trigger,
+      patientMessage: extracted.patientMessage,
+      caregiverName: 'Anitha',
+      transcript: transcript,
+    });
     setRecordingStep('confirmed');
+    toast({ title: '✅ Reminder scheduled!', description: `${extracted.medication} at ${extracted.time}` });
     setTimeout(() => {
       setRecordingStep('idle');
       setActiveView('monitor');
@@ -141,24 +188,24 @@ export default function VoiceReminderFlow() {
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   const statusColor = (s: string) => {
-    if (s === 'confirmed' || s === 'resolved') return 'bg-success/12 text-success';
-    if (s === 'missed' || s === 'escalated') return 'bg-destructive/12 text-destructive';
+    if (s === 'taken') return 'bg-success/12 text-success';
+    if (s === 'missed') return 'bg-destructive/12 text-destructive';
     if (s === 'snoozed') return 'bg-warning/12 text-warning';
-    return 'bg-muted text-muted-foreground';
+    return 'bg-primary/12 text-primary';
   };
 
   const statusIcon = (s: string) => {
-    if (s === 'confirmed' || s === 'resolved') return '✅';
-    if (s === 'missed' || s === 'escalated') return '⚠️';
+    if (s === 'taken') return '✅';
+    if (s === 'missed') return '⚠️';
     if (s === 'snoozed') return '⏰';
-    return '⏳';
+    return '🔔';
   };
 
-  const overallAdherence = records.length > 0
-    ? Math.round(records.reduce((a, r) => a + r.adherence, 0) / records.length)
+  const activeReminders = voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed');
+  const completedReminders = voiceReminders.filter(r => r.status === 'taken');
+  const adherence = voiceReminders.length > 0
+    ? Math.round((completedReminders.length / voiceReminders.length) * 100)
     : 0;
-  const missedCount = records.filter(r => r.status === 'missed').length;
-  const confusionCount = Math.floor(Math.random() * 3) + 1;
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -204,34 +251,25 @@ export default function VoiceReminderFlow() {
                   Good Evening, Anitha 👋
                 </h2>
                 <p className="text-[13px] text-muted-foreground mt-0.5">
-                  Your father has {records.length} reminders today.
+                  Your father has {activeReminders.length} active reminders.
                 </p>
               </div>
 
               {/* Quick Action Buttons */}
               <div className="grid grid-cols-3 gap-2 mb-5">
-                <button
-                  onClick={() => setRecordingStep('idle')}
-                  className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
-                >
+                <button onClick={() => setRecordingStep('idle')} className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                   <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
                     <Mic className="w-5 h-5 text-destructive" />
                   </div>
                   <span className="text-[11px] font-bold text-foreground">Record</span>
                 </button>
-                <button
-                  onClick={() => setActiveView('monitor')}
-                  className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
-                >
+                <button onClick={() => setActiveView('monitor')} className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Clock className="w-5 h-5 text-primary" />
                   </div>
                   <span className="text-[11px] font-bold text-foreground">Schedule</span>
                 </button>
-                <button
-                  onClick={() => setActiveView('monitor')}
-                  className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
-                >
+                <button onClick={() => setActiveView('escalation')} className="ios-card-elevated p-3 flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                   <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
                     <BarChart3 className="w-5 h-5 text-success" />
                   </div>
@@ -250,7 +288,7 @@ export default function VoiceReminderFlow() {
                     </div>
                     <h3 className="text-[17px] font-extrabold text-foreground mb-1">Record a Reminder</h3>
                     <p className="text-[13px] text-muted-foreground text-center mb-5 leading-relaxed max-w-[260px]">
-                      Speak naturally. AI will extract medication, time, and frequency automatically.
+                      Speak naturally. AI will extract medication, time & frequency automatically.
                     </p>
                     <button
                       onClick={startRecording}
@@ -270,9 +308,13 @@ export default function VoiceReminderFlow() {
                       Recording · {formatTime(elapsed)}
                     </div>
                     <RecordingWave isRecording={isRecording} />
-                    <p className="text-[14px] text-muted-foreground mt-4 mb-5 text-center italic">
-                      "Speak your reminder now..."
-                    </p>
+                    <div className="mt-4 mb-5 w-full">
+                      <div className="bg-muted/40 rounded-xl p-3 min-h-[60px]">
+                        <p className="text-[14px] text-foreground italic leading-relaxed">
+                          {liveTranscript || '"Listening..."'}
+                        </p>
+                      </div>
+                    </div>
                     <button
                       onClick={stopRecording}
                       className="w-16 h-16 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center active:scale-90 transition-transform shadow-lg"
@@ -293,6 +335,9 @@ export default function VoiceReminderFlow() {
                     />
                     <h3 className="text-[16px] font-extrabold text-foreground mb-1">AI Processing...</h3>
                     <p className="text-[13px] text-muted-foreground text-center">Extracting schedule from your voice</p>
+                    <div className="bg-muted/40 rounded-xl p-3 mt-4 w-full">
+                      <p className="text-[13px] text-foreground italic">"{transcript}"</p>
+                    </div>
                   </div>
                 )}
 
@@ -314,12 +359,12 @@ export default function VoiceReminderFlow() {
                     </div>
 
                     {/* Extracted fields */}
-                    <div className="space-y-2.5 mb-5">
+                    <div className="space-y-2.5 mb-4">
                       {[
-                        { icon: '💊', label: 'Medication', value: extracted.medication, color: 'bg-primary/8 text-primary' },
-                        { icon: '🕘', label: 'Time', value: extracted.time, color: 'bg-accent/8 text-accent' },
-                        { icon: '🔄', label: 'Frequency', value: extracted.frequency, color: 'bg-lavender/8 text-lavender' },
-                        { icon: '🍳', label: 'Trigger', value: extracted.trigger, color: 'bg-warning/8 text-warning' },
+                        { icon: '💊', label: 'Medication', value: extracted.medication },
+                        { icon: '🕘', label: 'Time', value: extracted.time },
+                        { icon: '🔄', label: 'Frequency', value: extracted.frequency },
+                        { icon: '🍳', label: 'Trigger', value: extracted.trigger },
                       ].map(field => (
                         <div key={field.label} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
                           <span className="text-[18px]">{field.icon}</span>
@@ -330,6 +375,12 @@ export default function VoiceReminderFlow() {
                           <Check className="w-4 h-4 text-success" />
                         </div>
                       ))}
+                    </div>
+
+                    {/* Patient message preview */}
+                    <div className="bg-primary/5 rounded-xl p-3 mb-4 border border-primary/10">
+                      <div className="text-[11px] font-bold text-primary mb-1">🔊 Patient will hear:</div>
+                      <p className="text-[14px] text-foreground italic">"{extracted.patientMessage}"</p>
                     </div>
 
                     <div className="flex gap-2.5">
@@ -362,10 +413,10 @@ export default function VoiceReminderFlow() {
                     </motion.div>
                     <h3 className="text-[18px] font-extrabold text-foreground mb-1">Scheduled! ✨</h3>
                     <p className="text-[13px] text-muted-foreground text-center">
-                      Will repeat daily at 9:00 AM
+                      Reminder synced to patient's device
                     </p>
                     <p className="text-[12px] text-primary font-bold mt-2">
-                      Voice: Anitha (Cloned)
+                      Voice: Anitha's tone
                     </p>
                   </div>
                 )}
@@ -377,14 +428,14 @@ export default function VoiceReminderFlow() {
                   <h3 className="text-[14px] font-extrabold text-foreground mb-3">How It Works</h3>
                   <div className="space-y-2">
                     {[
-                      { step: '1', icon: '🎙', title: 'You Record', desc: 'Speak the reminder naturally' },
-                      { step: '2', icon: '🤖', title: 'AI Extracts', desc: 'Schedule auto-detected' },
-                      { step: '3', icon: '🔔', title: 'Patient Hears', desc: 'Your cloned voice plays' },
-                      { step: '4', icon: '📊', title: 'You Monitor', desc: 'Track adherence in real-time' },
-                      { step: '5', icon: '⚠', title: 'Escalation', desc: 'Get alerted if ignored' },
+                      { icon: '🎙', title: 'You Record', desc: 'Speak the reminder naturally' },
+                      { icon: '🤖', title: 'AI Extracts', desc: 'Schedule auto-detected' },
+                      { icon: '🔔', title: 'Patient Hears', desc: 'Your message plays aloud' },
+                      { icon: '📊', title: 'You Monitor', desc: 'Track adherence in real-time' },
+                      { icon: '⚠', title: 'Escalation', desc: 'Get alerted if ignored' },
                     ].map((s, i) => (
                       <motion.div
-                        key={s.step}
+                        key={s.title}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.06 }}
@@ -418,16 +469,16 @@ export default function VoiceReminderFlow() {
               {/* Stats Cards */}
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="ios-card-elevated p-3 text-center">
-                  <div className="text-[22px] font-extrabold text-success">{overallAdherence}%</div>
+                  <div className="text-[22px] font-extrabold text-success">{adherence}%</div>
                   <div className="text-[10px] font-bold text-muted-foreground mt-0.5">Adherence</div>
                 </div>
                 <div className="ios-card-elevated p-3 text-center">
-                  <div className="text-[22px] font-extrabold text-destructive">{missedCount}</div>
-                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">Missed</div>
+                  <div className="text-[22px] font-extrabold text-primary">{activeReminders.length}</div>
+                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">Active</div>
                 </div>
                 <div className="ios-card-elevated p-3 text-center">
-                  <div className="text-[22px] font-extrabold text-warning">{confusionCount}</div>
-                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">Confusion</div>
+                  <div className="text-[22px] font-extrabold text-success">{completedReminders.length}</div>
+                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">Taken</div>
                 </div>
               </div>
 
@@ -438,7 +489,7 @@ export default function VoiceReminderFlow() {
                   <div>
                     <div className="text-[12px] font-extrabold text-primary mb-0.5">AI Insight</div>
                     <p className="text-[13px] text-foreground leading-relaxed">
-                      "He responds faster when reminder uses slower speech tone. Morning reminders have 94% success rate."
+                      "Patient responds faster when reminder uses a slower, gentle speech tone. Morning reminders have highest success."
                     </p>
                   </div>
                 </div>
@@ -459,58 +510,55 @@ export default function VoiceReminderFlow() {
                     <span className="text-[14px] font-bold text-primary">Playing message from Anitha...</span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <button className="py-3.5 rounded-xl bg-success text-success-foreground font-extrabold text-[15px] flex items-center justify-center gap-2 shadow-sm">
+                    <div className="py-3.5 rounded-xl bg-success text-success-foreground font-extrabold text-[15px] flex items-center justify-center gap-2 shadow-sm">
                       <Check className="w-5 h-5" /> I Took It
-                    </button>
-                    <button className="py-3.5 rounded-xl bg-warning text-warning-foreground font-extrabold text-[15px] flex items-center justify-center gap-2 shadow-sm">
+                    </div>
+                    <div className="py-3.5 rounded-xl bg-warning text-warning-foreground font-extrabold text-[15px] flex items-center justify-center gap-2 shadow-sm">
                       <Clock className="w-5 h-5" /> 10 Min
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Reminder Records */}
-              <h3 className="text-[15px] font-extrabold text-foreground mb-2.5">
-                📋 Active Reminders
-              </h3>
-              <div className="space-y-2">
-                {records.map((rec, i) => (
-                  <motion.div
-                    key={rec.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="ios-card-elevated p-3.5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
-                        <Pill className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[14px] font-bold text-foreground">{rec.medication}</div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {rec.time} · {rec.frequency} · by {rec.caregiverName}
+              {/* All Reminders */}
+              <h3 className="text-[15px] font-extrabold text-foreground mb-2.5">📋 Voice Reminders</h3>
+              {voiceReminders.length === 0 ? (
+                <div className="ios-card-elevated p-8 text-center">
+                  <Mic className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <div className="text-[14px] font-bold text-muted-foreground">No voice reminders yet</div>
+                  <div className="text-[12px] text-muted-foreground/70 mt-1">Record one to get started</div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {voiceReminders.map((rec, i) => (
+                    <motion.div
+                      key={rec.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="ios-card-elevated p-3.5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+                          <Pill className="w-5 h-5 text-primary" />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[14px] font-bold text-foreground">{rec.medication}</div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {rec.time} · {rec.frequency} · by {rec.caregiverName}
+                          </div>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${statusColor(rec.status)}`}>
+                          {statusIcon(rec.status)} {rec.status}
+                        </span>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${statusColor(rec.status)}`}>
-                        {statusIcon(rec.status)} {rec.status}
-                      </span>
-                    </div>
-                    <div className="mt-2.5 flex items-center gap-3">
-                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-success transition-all"
-                          style={{ width: `${rec.adherence}%` }}
-                        />
+                      <div className="mt-2 text-[11px] text-muted-foreground italic">
+                        "{rec.patientMessage}"
                       </div>
-                      <span className="text-[11px] font-bold text-muted-foreground">{rec.adherence}%</span>
-                    </div>
-                    <div className="mt-1.5 text-[11px] text-muted-foreground italic">
-                      Last: {rec.lastResponse}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -523,9 +571,7 @@ export default function VoiceReminderFlow() {
               exit={{ opacity: 0, x: -20 }}
               className="px-4 pt-2"
             >
-              <h2 className="text-[18px] font-extrabold text-foreground mb-1">
-                ⚠ Escalation Center
-              </h2>
+              <h2 className="text-[18px] font-extrabold text-foreground mb-1">⚠ Escalation Center</h2>
               <p className="text-[12px] text-muted-foreground mb-4">
                 Alerts when patient doesn't respond to reminders
               </p>
@@ -535,14 +581,14 @@ export default function VoiceReminderFlow() {
                 <div className="text-[12px] font-extrabold text-foreground mb-3">Escalation Flow</div>
                 <div className="flex items-center gap-1.5">
                   {[
-                    { label: 'Reminder Sent', color: 'bg-primary', icon: '🔔' },
-                    { label: '15 min wait', color: 'bg-warning', icon: '⏱' },
-                    { label: 'Softer Replay', color: 'bg-accent', icon: '🔁' },
-                    { label: 'Alert Caregiver', color: 'bg-destructive', icon: '📱' },
+                    { label: 'Reminder Sent', icon: '🔔' },
+                    { label: '15 min wait', icon: '⏱' },
+                    { label: 'Softer Replay', icon: '🔁' },
+                    { label: 'Alert Caregiver', icon: '📱' },
                   ].map((step, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-lg ${step.color}/15 flex items-center justify-center text-[14px]`}>
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[14px]">
                           {step.icon}
                         </div>
                         <span className="text-[8px] font-bold text-muted-foreground mt-1 text-center leading-tight w-14">
@@ -555,68 +601,52 @@ export default function VoiceReminderFlow() {
                 </div>
               </div>
 
-              {/* Active Escalation Alert */}
-              {escalations.filter(e => e.status === 'escalated').map(esc => (
-                <motion.div
-                  key={esc.id}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="ios-card-elevated border-2 border-destructive/30 p-4 mb-3"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-                      <AlertTriangle className="w-5 h-5 text-destructive" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-[14px] font-extrabold text-destructive">
-                        ⚠ Dad did not confirm his {esc.time} medication
+              {/* Active escalations from voice reminders that are still active */}
+              {activeReminders.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {activeReminders.map(rem => (
+                    <motion.div
+                      key={rem.id}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="ios-card-elevated border-2 border-warning/30 p-4"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
+                          <Bell className="w-5 h-5 text-warning" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-[14px] font-extrabold text-foreground">
+                            {rem.medication} — {rem.time}
+                          </div>
+                          <div className="text-[12px] text-muted-foreground mt-0.5">
+                            Status: {rem.status} · by {rem.caregiverName}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-[12px] text-muted-foreground mt-0.5">
-                        {esc.medication} · {esc.attempts} attempts · {esc.timestamp}
+                      <div className="grid grid-cols-3 gap-2">
+                        <button className="py-2.5 rounded-xl bg-success text-success-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
+                          <Phone className="w-3.5 h-3.5" /> Call
+                        </button>
+                        <button className="py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
+                          <RotateCcw className="w-3.5 h-3.5" /> Replay
+                        </button>
+                        <button className="py-2.5 rounded-xl bg-muted text-muted-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
+                          <Eye className="w-3.5 h-3.5" /> Ignore
+                        </button>
                       </div>
-                    </div>
-                  </div>
-                  <p className="text-[13px] text-foreground mb-3 leading-relaxed">
-                    Would you like to call him?
-                  </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button className="py-2.5 rounded-xl bg-success text-success-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
-                      <Phone className="w-3.5 h-3.5" /> Call
-                    </button>
-                    <button className="py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
-                      <RotateCcw className="w-3.5 h-3.5" /> Replay
-                    </button>
-                    <button className="py-2.5 rounded-xl bg-muted text-muted-foreground font-bold text-[12px] flex items-center justify-center gap-1 active:scale-95 transition-transform">
-                      <Eye className="w-3.5 h-3.5" /> Ignore
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
 
-              {/* All Escalation Events */}
-              <h3 className="text-[14px] font-extrabold text-foreground mb-2.5 mt-4">History</h3>
-              <div className="space-y-2">
-                {escalations.map((esc, i) => (
-                  <motion.div
-                    key={esc.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="ios-card-elevated flex items-center gap-3 p-3.5"
-                  >
-                    <span className="text-[18px]">{statusIcon(esc.status)}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-bold text-foreground">{esc.medication}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {esc.time} · {esc.attempts} attempt{esc.attempts > 1 ? 's' : ''} · {esc.timestamp}
-                      </div>
-                    </div>
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${statusColor(esc.status)}`}>
-                      {esc.status}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
+              {activeReminders.length === 0 && (
+                <div className="ios-card-elevated p-8 text-center">
+                  <Check className="w-10 h-10 text-success/30 mx-auto mb-3" />
+                  <div className="text-[14px] font-bold text-muted-foreground">All clear!</div>
+                  <div className="text-[12px] text-muted-foreground/70 mt-1">No pending escalations</div>
+                </div>
+              )}
 
               {/* Tip */}
               <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/10">
