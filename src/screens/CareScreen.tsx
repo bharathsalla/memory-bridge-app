@@ -78,7 +78,7 @@ export default function CareScreen() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background relative overflow-hidden">
+    <div className="h-full flex flex-col ios-grouped-bg relative overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-br from-primary via-primary to-accent px-5 py-4 shrink-0">
         <div className="flex items-center justify-between">
