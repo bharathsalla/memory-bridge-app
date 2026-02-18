@@ -367,13 +367,22 @@ export default function MemoriesScreen() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
             {/* Slideshow CTA */}
             <div className="px-5 mt-4">
-              <Button
+              <button
                 onClick={() => { setSlideshowActive(true); setIsPlaying(true); setSlideshowIndex(0); }}
-                size="lg"
-                className="w-full h-13 rounded-2xl text-[15px] font-bold gap-2"
+                className="w-full relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground shadow-lg active:scale-[0.97] transition-transform"
               >
-                <Play className="w-5 h-5" /> Play Memory Slideshow
-              </Button>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary-foreground/10 to-primary/0 animate-pulse" />
+                <div className="relative flex items-center justify-center gap-3 py-5 px-6">
+                  <div className="w-14 h-14 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center shadow-inner">
+                    <Play className="w-7 h-7 ml-0.5" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <p className="text-[18px] font-extrabold leading-tight">Play Memory Slideshow</p>
+                    <p className="text-[13px] font-medium text-primary-foreground/70 mt-0.5">{filteredMemories.length} memories · AI curated for you</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-primary-foreground/50" />
+                </div>
+              </button>
             </div>
 
             {/* Category Pills */}
