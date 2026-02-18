@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Smile } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Send, Plus, Check, Heart, ChevronRight, Clock, UserCheck, X, Smile, Shield } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
+import CrisisPreventionEngine from '@/components/CrisisPreventionEngine';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -86,24 +87,30 @@ export default function CareScreen() {
       {/* Tabs — using shadcn Tabs with proper spacing */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <div className="px-5 pt-4 pb-2">
-          <TabsList className="w-full h-12 rounded-xl bg-muted/50 p-1">
-            <TabsTrigger value="chat" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
-              <MessageCircle className="w-4 h-4" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
-              <CheckSquare className="w-4 h-4" />
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
-              <CalendarDays className="w-4 h-4" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="team" className="flex-1 h-10 rounded-lg text-[15px] font-semibold gap-2 data-[state=active]:shadow-sm">
-              <Users className="w-4 h-4" />
-              Team
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="h-12 rounded-xl bg-muted/50 p-1 inline-flex min-w-max w-full">
+              <TabsTrigger value="chat" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
+                <MessageCircle className="w-3.5 h-3.5" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger value="health" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
+                <Shield className="w-3.5 h-3.5" />
+                Health
+              </TabsTrigger>
+              <TabsTrigger value="tasks" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
+                <CheckSquare className="w-3.5 h-3.5" />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
+                <CalendarDays className="w-3.5 h-3.5" />
+                Events
+              </TabsTrigger>
+              <TabsTrigger value="team" className="flex-1 h-10 rounded-lg text-[14px] font-semibold gap-1.5 data-[state=active]:shadow-sm px-3">
+                <Users className="w-3.5 h-3.5" />
+                Team
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
 
         {/* Chat */}
@@ -166,6 +173,11 @@ export default function CareScreen() {
               </Button>
             </div>
           </div>
+        </TabsContent>
+
+        {/* Health - Crisis Prevention */}
+        <TabsContent value="health" className="flex-1 flex flex-col min-h-0 mt-0 overflow-y-auto">
+          <CrisisPreventionEngine />
         </TabsContent>
 
         {/* Tasks */}
