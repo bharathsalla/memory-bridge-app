@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion } from 'framer-motion';
-import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic, Smile, Edit3, ArrowUpFromLine, AlertCircle, UserCheck, ClipboardList } from 'lucide-react';
+import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic, Smile, Edit3, ArrowUpFromLine, AlertCircle, UserCheck, ClipboardList, Sparkles, Loader2 } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { useSendCaregiverReminder, useReminderLogs, useLearnedPatterns, useAnalyzePatterns } from '@/hooks/useReminders';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,7 @@ export default function CaregiverRemindersPanel() {
   const [message, setMessage] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [medName, setMedName] = useState('');
   const [medDosage, setMedDosage] = useState('');
   const [medQty, setMedQty] = useState('');
@@ -54,6 +55,52 @@ export default function CaregiverRemindersPanel() {
     }
   };
 
+  const handleMedicinePhotoExtract = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setExtracting(true);
+    try {
+      // Upload the photo first
+      const filename = `reminders/${Date.now()}-${file.name}`;
+      const { error: uploadErr } = await supabase.storage.from('reminder-photos').upload(filename, file);
+      if (uploadErr) throw uploadErr;
+      const { data: urlData } = supabase.storage.from('reminder-photos').getPublicUrl(filename);
+      setPhotoUrl(urlData.publicUrl);
+
+      // Convert to base64 for AI
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+      });
+      reader.readAsDataURL(file);
+      const base64 = await base64Promise;
+
+      // Call AI extraction
+      const { data, error } = await supabase.functions.invoke('extract-medicine', {
+        body: { imageBase64: base64 },
+      });
+
+      if (error) throw error;
+
+      // Populate fields
+      if (data.name) setMedName(data.name);
+      if (data.dosage) setMedDosage(data.dosage);
+      if (data.qty) setMedQty(data.qty);
+      if (data.instructions) setMedInstructions(data.instructions);
+      if (data.period && ['Morning', 'Afternoon', 'Night'].includes(data.period)) setMedPeriod(data.period);
+      if (data.foodInstruction && ['With Food', 'Without Food', 'Before Food'].includes(data.foodInstruction)) setMedFoodInstruction(data.foodInstruction);
+
+      toast({ title: 'Medicine details extracted!' });
+    } catch (err: any) {
+      toast({ title: 'Extraction failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setExtracting(false);
+    }
+  };
+
   const handleSend = () => {
     let msg: string;
     if (type === 'medication') {
@@ -68,7 +115,7 @@ export default function CaregiverRemindersPanel() {
       { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions: `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`, medTime, medPeriod, medFoodInstruction },
       {
         onSuccess: () => {
-          toast({ title: '✅ Reminder sent!' });
+          toast({ title: 'Reminder sent!' });
           setMessage('');
           setPhotoUrl('');
           setType('medication');
@@ -129,6 +176,20 @@ export default function CaregiverRemindersPanel() {
           {/* Medication-specific fields */}
           {type === 'medication' && (
             <div className="space-y-3">
+              {/* AI Photo Extract Button */}
+              <label className="flex items-center gap-2 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 cursor-pointer active:bg-primary/15 transition-colors">
+                {extracting ? (
+                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-primary" />
+                )}
+                <span className="text-[14px] font-semibold text-primary">
+                  {extracting ? 'AI Extracting...' : 'Scan Medicine Photo (AI)'}
+                </span>
+                <Camera className="w-4 h-4 text-primary ml-auto" />
+                <input type="file" accept="image/*" onChange={handleMedicinePhotoExtract} className="hidden" disabled={extracting} />
+              </label>
+
               <input
                 value={medName}
                 onChange={e => setMedName(e.target.value)}
@@ -238,7 +299,7 @@ export default function CaregiverRemindersPanel() {
           <button
             onClick={handleSend}
             disabled={sendReminder.isPending}
-            className="w-full h-13 rounded-xl bg-success text-success-foreground font-bold text-[16px] flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 touch-target"
+            className="w-full h-13 rounded-xl bg-primary text-primary-foreground font-bold text-[16px] flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 touch-target"
           >
             <Send className="w-5 h-5" />
             {sendReminder.isPending ? 'Sending...' : 'Send Reminder Now'}
@@ -295,11 +356,11 @@ export default function CaregiverRemindersPanel() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[16px] font-bold text-foreground">Learned Patterns</h2>
             <button
-              onClick={() => analyzePatterns.mutate(undefined, { onSuccess: () => toast({ title: '🧠 Analysis complete' }) })}
+              onClick={() => analyzePatterns.mutate(undefined, { onSuccess: () => toast({ title: 'Analysis complete' }) })}
               disabled={analyzePatterns.isPending}
               className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-[12px] font-semibold active:scale-95 transition-transform"
             >
-              {analyzePatterns.isPending ? 'Analyzing...' : '🔄 Refresh'}
+              {analyzePatterns.isPending ? 'Analyzing...' : 'Refresh'}
             </button>
           </div>
           {patterns.length === 0 ? (

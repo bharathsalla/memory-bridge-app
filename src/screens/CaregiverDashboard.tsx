@@ -24,12 +24,19 @@ import {
   PolarAngleAxis, Radar, Legend
 } from 'recharts';
 import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
+import { useScheduledReminders } from '@/hooks/useReminders';
 
 export default function CaregiverDashboard() {
   const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode, setMode, isSOSActive, sosTriggeredLocation, patientLocation, sosHistory, cancelSOS } = useApp();
   const { data: medications = [] } = useMedications();
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
+  const { data: scheduledReminders = [] } = useScheduledReminders();
+  const overdueReminders = scheduledReminders.filter(sr => {
+    if (sr.status !== 'active') return false;
+    const createdAt = sr.created_at ? new Date(sr.created_at).getTime() : 0;
+    return (Date.now() - createdAt) > 2 * 60 * 1000;
+  });
   const stepCount = Number(vitals.find(v => v.type === 'steps')?.value || 0);
   const sleepHours = Number(vitals.find(v => v.type === 'sleep')?.value || 0);
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1', '2']));
@@ -257,6 +264,27 @@ export default function CaregiverDashboard() {
         <div className="mt-6 mb-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Alerts</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
+            {/* Unresponded reminder alerts (from scheduled_reminders) */}
+            {overdueReminders.map((sr) => {
+              const rd = sr.reminders as any;
+              return (
+                <div key={`overdue-${sr.id}`} className="flex items-center gap-3 p-4">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-destructive animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-ios-callout font-bold text-destructive">
+                      Patient Not Responding
+                    </div>
+                    <div className="text-ios-footnote text-foreground mt-0.5">
+                      {rd?.message || 'Reminder'} — No confirmation
+                    </div>
+                    <div className="text-ios-caption text-muted-foreground mt-0.5">
+                      Sent {sr.created_at ? new Date(sr.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : ''}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+                </div>
+              );
+            })}
             {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (
               <div key={sos.id} className="flex items-center gap-3 p-4">
                 <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${sos.resolved ? 'bg-warning' : 'bg-destructive'}`} />
@@ -271,7 +299,6 @@ export default function CaregiverDashboard() {
             ))}
             {/* Dynamic missed medication alerts */}
             {medications.filter(m => !m.taken).map((med) => {
-              // Parse medication time and check if it's overdue
               const now = new Date();
               const medTimeParts = med.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
               let isOverdue = false;
@@ -283,7 +310,6 @@ export default function CaregiverDashboard() {
                 if (period === 'AM' && hours === 12) hours = 0;
                 const medDate = new Date();
                 medDate.setHours(hours, minutes, 0, 0);
-                // Overdue if more than 30 minutes past scheduled time
                 isOverdue = (now.getTime() - medDate.getTime()) > 30 * 60 * 1000;
               }
               if (!isOverdue) return null;

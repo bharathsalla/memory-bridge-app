@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.extract-voice-reminder]
 verify_jwt = false
+
+[functions.extract-medicine]
+verify_jwt = false

@@ -86,11 +86,11 @@ const Index = () => {
     prevSOSRef.current = isSOSActive;
   }, [isSOSActive]);
 
-  // Caregiver alert: check for overdue medications every 15s
+  // Caregiver alert: check for overdue medications immediately on switch & every 10s
   useEffect(() => {
     if (!isCaregiverView) return;
-    const interval = setInterval(() => {
-      // Check scheduled_reminders that are active for more than 2 minutes
+
+    const checkOverdue = () => {
       const overdue = scheduledReminders.find(sr => {
         if (sr.status !== 'active') return false;
         const createdAt = sr.created_at ? new Date(sr.created_at).getTime() : 0;
@@ -103,7 +103,12 @@ const Index = () => {
           time: overdue.next_due_time,
         });
       }
-    }, 15000);
+    };
+
+    // Check immediately on switch
+    checkOverdue();
+
+    const interval = setInterval(checkOverdue, 10000);
     return () => clearInterval(interval);
   }, [isCaregiverView, scheduledReminders]);
 
