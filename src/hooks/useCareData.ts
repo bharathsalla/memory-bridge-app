@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { formatISTTime } from '@/lib/timeUtils';
 
 // ── Types ──
 export interface DbMedication {
@@ -104,7 +105,7 @@ export function useMarkMedicationTaken() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const takenAt = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const takenAt = formatISTTime(new Date());
       
       // Get the medication details first
       const { data: med } = await supabase
@@ -281,7 +282,7 @@ export function useMissedDoseAlerts() {
       if (error) throw error;
       return data as DbMissedDoseAlert[];
     },
-    refetchInterval: 10000,
+    refetchInterval: 3000,
   });
 
   useEffect(() => {

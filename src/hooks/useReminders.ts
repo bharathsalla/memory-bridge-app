@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 export function useReminders() {
   return useQuery({
@@ -17,7 +18,9 @@ export function useReminders() {
 }
 
 export function useScheduledReminders() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ['scheduled_reminders'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,8 +31,20 @@ export function useScheduledReminders() {
       if (error) throw error;
       return data;
     },
-    refetchInterval: 30000,
+    refetchInterval: 5000,
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('scheduled-reminders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scheduled_reminders' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['scheduled_reminders'] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
+
+  return query;
 }
 
 export function useReminderLogs() {
