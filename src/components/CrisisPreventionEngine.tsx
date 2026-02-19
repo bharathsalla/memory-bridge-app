@@ -254,7 +254,7 @@ export default function CrisisPreventionEngine() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg">
       {/* Header */}
-      <div className="pt-3 pb-1 px-[12px] py-[13px]">
+      <div className="pt-3 pb-1" style={{ paddingLeft: 24, paddingRight: 24 }}>
         <div className="flex items-center gap-3 mb-3">
           <IconBox Icon={Shield} color={iosColors.red} />
           <div className="flex-1">
@@ -293,7 +293,7 @@ export default function CrisisPreventionEngine() {
         <AnimatePresence mode="wait">
           {/* ─── FORECAST ─── */}
           {activeTab === 'forecast' &&
-          <motion.div key="forecast" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+          <motion.div key="forecast" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3" style={{ paddingLeft: 24, paddingRight: 24 }}>
 
               {/* Risk Alerts */}
               {alerts.map((alert: any) => {
@@ -431,7 +431,7 @@ export default function CrisisPreventionEngine() {
 
           {/* ─── GPS TAB ─── */}
           {activeTab === 'gps' &&
-          <motion.div key="gps" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+          <motion.div key="gps" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3" style={{ paddingLeft: 24, paddingRight: 24 }}>
               <Card className="border-0 overflow-hidden shadow-none">
                 <div className="bg-muted/30 p-4">
                   <div className="flex items-center gap-2 mb-1">
@@ -502,7 +502,7 @@ export default function CrisisPreventionEngine() {
 
           {/* ─── WEATHER TAB ─── */}
           {activeTab === 'weather' &&
-          <motion.div key="weather" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+          <motion.div key="weather" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3" style={{ paddingLeft: 24, paddingRight: 24 }}>
               <Card className="border-0 overflow-hidden shadow-none">
                 <div className="bg-muted/30 p-4">
                   <div className="flex items-center justify-between">
@@ -585,7 +585,7 @@ export default function CrisisPreventionEngine() {
 
           {/* ─── ACTION PLAN ─── */}
           {activeTab === 'plan' &&
-          <motion.div key="plan" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-3">
+          <motion.div key="plan" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3" style={{ paddingLeft: 24, paddingRight: 24 }}>
               <Card className="border-0 overflow-hidden shadow-none">
                 <div className="bg-muted/30 p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -661,7 +661,7 @@ export default function CrisisPreventionEngine() {
           {/* ─── AI COACH ─── */}
           {activeTab === 'coach' &&
           <motion.div key="coach" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-3">
+              <div className="flex-1 overflow-y-auto space-y-3 pb-3" style={{ paddingLeft: 24, paddingRight: 24 }}>
                 <div className="flex items-center gap-3 p-3 rounded-2xl bg-muted/30">
                   <IconBox Icon={Bot} color={iosColors.blue} />
                   <div>
@@ -737,7 +737,7 @@ export default function CrisisPreventionEngine() {
 
           {/* ─── DEVICES ─── */}
           {activeTab === 'devices' &&
-          <motion.div key="devices" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 space-y-4">
+          <motion.div key="devices" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4" style={{ paddingLeft: 24, paddingRight: 24 }}>
               <Card className="border-0 overflow-hidden shadow-none">
                 <div className="bg-muted/30 p-4">
                   <div className="flex items-center gap-2 mb-1">
