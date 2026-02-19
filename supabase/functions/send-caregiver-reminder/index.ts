@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { type, message, photoUrl, caregiverName } = await req.json();
+    const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions } = await req.json();
 
     // Create the reminder
     const { data: reminder, error: reminderError } = await supabase
@@ -41,21 +41,20 @@ serve(async (req) => {
     // If type is medication, also insert into medications table so it shows on patient's med list
     if (type === "medication") {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
       await supabase.from("medications").insert({
-        name: message || "Medication Reminder",
-        dosage: "As directed",
+        name: medName || message || "Medication Reminder",
+        dosage: medDosage || "As directed",
         time: timeStr,
-        instructions: `Sent by ${caregiverName || "Caregiver"}`,
+        instructions: medInstructions || `Sent by ${caregiverName || "Caregiver"}${medQty ? ` · Qty: ${medQty}` : ""}`,
         taken: false,
       });
     }
 
     // Add to activities so it shows in Today's Activity for both caregiver and patient
-    const nowTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     await supabase.from("activities").insert({
-      description: `${type === "medication" ? "💊" : "🔔"} ${message || "Reminder"} — Sent by ${caregiverName || "Caregiver"}`,
-      time: nowTime,
+      description: `${type === "medication" ? "💊" : "🔔"} ${medName || message || "Reminder"} — Sent by ${caregiverName || "Caregiver"}`,
+      time: new Date().toISOString(),
       icon: type === "medication" ? "💊" : "🔔",
       completed: false,
     });
@@ -75,7 +74,7 @@ serve(async (req) => {
       event_type: "caregiver_triggered",
       timestamp: new Date().toISOString(),
       triggered_by_name: caregiverName || "Caregiver",
-      metadata: { type, message, has_photo: !!photoUrl },
+      metadata: { type, message, has_photo: !!photoUrl, medName, medDosage, medQty },
     });
 
     return new Response(

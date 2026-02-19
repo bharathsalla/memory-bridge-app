@@ -22,6 +22,10 @@ export default function CaregiverRemindersPanel() {
   const [message, setMessage] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [medName, setMedName] = useState('');
+  const [medDosage, setMedDosage] = useState('');
+  const [medQty, setMedQty] = useState('');
+  const [medInstructions, setMedInstructions] = useState('');
 
   const sendReminder = useSendCaregiverReminder();
   const { data: logs = [] } = useReminderLogs();
@@ -48,16 +52,27 @@ export default function CaregiverRemindersPanel() {
   };
 
   const handleSend = () => {
-    const msg = type === 'custom' ? message : (selectedType?.defaultMessage || message);
+    let msg: string;
+    if (type === 'medication') {
+      msg = medName ? `${medName} ${medDosage} ${medQty}`.trim() : (selectedType?.defaultMessage || '');
+    } else if (type === 'custom') {
+      msg = message;
+    } else {
+      msg = selectedType?.defaultMessage || message;
+    }
     if (!msg.trim()) return;
     sendReminder.mutate(
-      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah' },
+      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions },
       {
         onSuccess: () => {
           toast({ title: '✅ Reminder sent!' });
           setMessage('');
           setPhotoUrl('');
           setType('medication');
+          setMedName('');
+          setMedDosage('');
+          setMedQty('');
+          setMedInstructions('');
         },
         onError: (err: any) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
       }
@@ -104,6 +119,38 @@ export default function CaregiverRemindersPanel() {
               </button>
             ))}
           </div>
+
+          {/* Medication-specific fields */}
+          {type === 'medication' && (
+            <div className="space-y-3">
+              <input
+                value={medName}
+                onChange={e => setMedName(e.target.value)}
+                placeholder="Medicine Name (e.g. Lisinopril)"
+                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={medDosage}
+                  onChange={e => setMedDosage(e.target.value)}
+                  placeholder="Dosage (e.g. 10mg)"
+                  className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
+                />
+                <input
+                  value={medQty}
+                  onChange={e => setMedQty(e.target.value)}
+                  placeholder="Qty (e.g. 1 tablet)"
+                  className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
+                />
+              </div>
+              <input
+                value={medInstructions}
+                onChange={e => setMedInstructions(e.target.value)}
+                placeholder="Instructions (e.g. Take with food)"
+                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
+              />
+            </div>
+          )}
 
           {/* Custom message */}
           {type === 'custom' && (
