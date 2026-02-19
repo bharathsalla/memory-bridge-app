@@ -131,38 +131,51 @@ export default function CaregiverRemindersPanel() {
   };
 
   const handleSend = () => {
+    // Require time for ALL types
+    if (!medTime) {
+      toast({ title: 'Time Required', description: 'Please set a date and time for this reminder.', variant: 'destructive' });
+      return;
+    }
+
     let msg: string;
     if (type === 'medication') {
       msg = medName ? `${medName} ${medDosage} ${medQty}`.trim() : (selectedType?.defaultMessage || '');
-    } else if (type === 'custom') {
-      msg = message;
     } else {
-      msg = selectedType?.defaultMessage || message;
+      // For non-medication: use title + message
+      msg = medName || message || selectedType?.defaultMessage || '';
     }
     if (!msg.trim()) return;
 
     // Build dose time as UTC ISO string from local time input
-    let doseTimeUtc: string | undefined;
-    if (medTime) {
-      const [h, m] = medTime.split(':').map(Number);
-      const doseDate = new Date();
+    const [h, m] = medTime.split(':').map(Number);
+    let doseDate: Date;
+    
+    // For non-medication types, use the date field (stored in medDosage) if provided
+    if (type !== 'medication' && medDosage) {
+      doseDate = new Date(`${medDosage}T${medTime}:00`);
+    } else {
+      doseDate = new Date();
       doseDate.setHours(h, m, 0, 0);
-      const diffMs = doseDate.getTime() - Date.now();
-
-      // Block if dose time equals current time (less than 0) or less than 2 min away
-      if (diffMs <= 0) {
-        toast({ title: 'Invalid Time', description: 'Reminder time cannot be the same as the current time. Please choose a future time.', variant: 'destructive' });
-        return;
-      }
-      if (diffMs < 2 * 60 * 1000) {
-        toast({ title: 'Invalid Time', description: 'Dose time must be at least 2 minutes from now. Please choose a later time.', variant: 'destructive' });
-        return;
-      }
-      doseTimeUtc = doseDate.toISOString();
     }
+    
+    const diffMs = doseDate.getTime() - Date.now();
+
+    if (diffMs <= 0) {
+      toast({ title: 'Invalid Time', description: 'Reminder time cannot be in the past. Please choose a future time.', variant: 'destructive' });
+      return;
+    }
+    if (diffMs < 2 * 60 * 1000) {
+      toast({ title: 'Invalid Time', description: 'Reminder must be at least 2 minutes from now.', variant: 'destructive' });
+      return;
+    }
+    const doseTimeUtc = doseDate.toISOString();
+
+    const instrStr = type === 'medication' 
+      ? `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`
+      : medInstructions || '';
 
     sendReminder.mutate(
-      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions: `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`, medTime, medPeriod, medFoodInstruction, doseTimeUtc },
+      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName: medName || msg, medDosage: type === 'medication' ? medDosage : '', medQty, medInstructions: instrStr, medTime, medPeriod, medFoodInstruction, doseTimeUtc },
       {
         onSuccess: () => {
           toast({ title: 'Reminder sent!' });
@@ -294,7 +307,7 @@ export default function CaregiverRemindersPanel() {
                   />
                 </div>
                 <div className="flex items-center px-4" style={{ minHeight: 44 }}>
-                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Time</span>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Time *</span>
                   <input
                     value={medTime}
                     onChange={e => setMedTime(e.target.value)}
@@ -341,15 +354,63 @@ export default function CaregiverRemindersPanel() {
             </div>
           )}
 
-          {/* Custom message */}
-          {type === 'custom' && (
-            <textarea
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Enter your custom message..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30 resize-none"
-            />
+          {/* Non-medication types: meal, exercise, check_in, custom — all require date+time */}
+          {type !== 'medication' && (
+            <div className="space-y-3">
+              {/* Custom message field */}
+              <div className="ios-card overflow-hidden divide-y divide-border/30">
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Title</span>
+                  <input
+                    value={medName}
+                    onChange={e => setMedName(e.target.value)}
+                    placeholder={type === 'meal' ? 'e.g. Lunch' : type === 'exercise' ? 'e.g. Evening Walk' : type === 'check_in' ? 'e.g. Afternoon Check' : 'Reminder title'}
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Message</span>
+                  <input
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                    placeholder={selectedType?.defaultMessage || 'Enter message...'}
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Date *</span>
+                  <input
+                    value={medDosage}
+                    onChange={e => setMedDosage(e.target.value)}
+                    type="date"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Time *</span>
+                  <input
+                    value={medTime}
+                    onChange={e => setMedTime(e.target.value)}
+                    type="time"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              {type === 'custom' && (
+                <div className="ios-card overflow-hidden">
+                  <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                    <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Notes</span>
+                    <input
+                      value={medInstructions}
+                      onChange={e => setMedInstructions(e.target.value)}
+                      placeholder="Additional notes"
+                      className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Photo upload */}

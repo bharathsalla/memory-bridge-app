@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const typeLabels: Record<string, string> = {
+  medication: "Medication",
+  meal: "Meal Time",
+  exercise: "Exercise",
+  check_in: "Check-In",
+  custom: "Reminder",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -24,7 +32,6 @@ serve(async (req) => {
     if (doseTimeUtc) {
       doseDate = new Date(doseTimeUtc);
     } else if (medTime) {
-      // Fallback: parse HH:MM but this will be in server timezone (UTC)
       const [h, m] = medTime.split(":").map(Number);
       doseDate = new Date();
       doseDate.setHours(h, m, 0, 0);
@@ -32,7 +39,6 @@ serve(async (req) => {
         doseDate.setDate(doseDate.getDate() + 1);
       }
     } else {
-      // No specific time — schedule 2 min from now
       doseDate = new Date(Date.now() + 2 * 60 * 1000);
     }
 
@@ -40,12 +46,13 @@ serve(async (req) => {
     const diffMs = doseDate.getTime() - Date.now();
     if (diffMs < 2 * 60 * 1000) {
       return new Response(
-        JSON.stringify({ error: "Dose time must be at least 2 minutes from now." }),
+        JSON.stringify({ error: "Reminder time must be at least 2 minutes from now." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    const typeLabel = typeLabels[type] || "Reminder";
 
     // Build instructions string
     const instrParts: string[] = [];
@@ -56,12 +63,12 @@ serve(async (req) => {
       ? instrParts.join(" · ")
       : `Sent by ${caregiverName || "Caregiver"}`;
 
-    // Create the reminder
+    // Create the reminder — works for ALL types
     const { data: reminder, error: reminderError } = await supabase
       .from("reminders")
       .insert({
         type: type || "custom",
-        title: `🔔 From ${caregiverName || "Caregiver"}`,
+        title: `From ${caregiverName || "Caregiver"}`,
         message: medName || message || "You have a new reminder",
         photo_url: photoUrl || null,
         schedule: { type: "once", times: [doseDate.toISOString()] },
@@ -86,16 +93,16 @@ serve(async (req) => {
       });
     }
 
-    // Add to activities
+    // Add to activities — for ALL types
     await supabase.from("activities").insert({
-      description: `${type === "medication" ? "💊" : "🔔"} ${medName || message || "Reminder"} — Scheduled for ${displayTime} by ${caregiverName || "Caregiver"}`,
+      description: `${typeLabel}: ${medName || message || "Reminder"} — Scheduled for ${displayTime} by ${caregiverName || "Caregiver"}`,
       time: new Date().toISOString(),
-      icon: type === "medication" ? "💊" : "🔔",
+      icon: type,
       completed: false,
     });
 
     // Create scheduled reminder with next_due_time = actual dose time (UTC)
-    // The patient popup will show 2 min before this time
+    // The patient popup will show 2 min before this time for ALL types
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
       next_due_time: doseDate.toISOString(),
