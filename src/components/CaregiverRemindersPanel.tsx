@@ -176,89 +176,98 @@ export default function CaregiverRemindersPanel() {
           {/* Medication-specific fields */}
           {type === 'medication' && (
             <div className="space-y-3">
-              {/* AI Photo Extract Button */}
-              <label className="flex items-center gap-2 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 cursor-pointer active:bg-primary/15 transition-colors">
-                {extracting ? (
-                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 text-primary" />
-                )}
-                <span className="text-[14px] font-semibold text-primary">
-                  {extracting ? 'AI Extracting...' : 'Scan Medicine Photo (AI)'}
-                </span>
-                <Camera className="w-4 h-4 text-primary ml-auto" />
+              {/* AI Photo Extract Button — iOS HIG Primary */}
+              <label className="flex items-center gap-3 w-full px-4 py-3.5 rounded-[14px] bg-primary cursor-pointer active:opacity-90 transition-opacity">
+                <div className="w-[44px] h-[44px] rounded-xl bg-white flex items-center justify-center shrink-0">
+                  {extracting ? (
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  ) : (
+                    <Camera className="w-5 h-5 text-primary" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[15px] font-bold text-primary-foreground block">
+                    {extracting ? 'AI Extracting...' : 'Scan Medicine Photo'}
+                  </span>
+                  <span className="text-[12px] text-primary-foreground/70 block">AI powered recognition</span>
+                </div>
                 <input type="file" accept="image/*" onChange={handleMedicinePhotoExtract} className="hidden" disabled={extracting} />
               </label>
 
-              <input
-                value={medName}
-                onChange={e => setMedName(e.target.value)}
-                placeholder="Medicine Name (e.g. Lisinopril)"
-                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  value={medDosage}
-                  onChange={e => setMedDosage(e.target.value)}
-                  placeholder="Dosage (e.g. 10mg)"
-                  className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
-                />
-                <input
-                  value={medQty}
-                  onChange={e => setMedQty(e.target.value)}
-                  placeholder="Qty (e.g. 1 tablet)"
-                  className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
-                />
+              {/* iOS-style form inputs */}
+              <div className="ios-card overflow-hidden divide-y divide-border/30">
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Name</span>
+                  <input
+                    value={medName}
+                    onChange={e => setMedName(e.target.value)}
+                    placeholder="e.g. Lisinopril"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Dosage</span>
+                  <input
+                    value={medDosage}
+                    onChange={e => setMedDosage(e.target.value)}
+                    placeholder="e.g. 10mg"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Quantity</span>
+                  <input
+                    value={medQty}
+                    onChange={e => setMedQty(e.target.value)}
+                    placeholder="e.g. 1 tablet"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Time</span>
+                  <input
+                    value={medTime}
+                    onChange={e => setMedTime(e.target.value)}
+                    type="time"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none"
+                  />
+                </div>
               </div>
 
-              {/* Timing */}
-              <input
-                value={medTime}
-                onChange={e => setMedTime(e.target.value)}
-                type="time"
-                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground outline-none border border-border/20 focus:border-primary/30"
+              {/* Dose period — iOS Segmented Control */}
+              <SegmentedControl
+                value={medPeriod}
+                onChange={setMedPeriod}
+                items={[
+                  { value: 'Morning', label: 'Morning' },
+                  { value: 'Afternoon', label: 'Afternoon' },
+                  { value: 'Night', label: 'Night' },
+                ]}
               />
 
-              {/* Dose period */}
-              <div className="flex flex-wrap gap-2">
-                {['Morning', 'Afternoon', 'Night'].map(period => (
-                  <button
-                    key={period}
-                    onClick={() => setMedPeriod(period)}
-                    className={`px-3 py-2 rounded-xl text-[13px] font-semibold border-2 transition-all ${
-                      medPeriod === period
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-card text-muted-foreground'
-                    }`}
-                  >
-                    {period === 'Morning' ? '🌅' : period === 'Afternoon' ? '☀️' : '🌙'} {period}
-                  </button>
-                ))}
-              </div>
-
-              {/* With/without food */}
-              <div className="flex gap-2">
-                {['With Food', 'Without Food', 'Before Food'].map(opt => (
-                  <button
-                    key={opt}
-                    onClick={() => setMedFoodInstruction(opt)}
-                    className={`flex-1 px-2 py-2 rounded-xl text-[12px] font-semibold border-2 transition-all ${
-                      medFoodInstruction === opt
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-card text-muted-foreground'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-
-              <input
-                value={medInstructions}
-                onChange={e => setMedInstructions(e.target.value)}
-                placeholder="Additional instructions (optional)"
-                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
+              {/* With/without food — iOS Segmented Control */}
+              <SegmentedControl
+                value={medFoodInstruction}
+                onChange={setMedFoodInstruction}
+                items={[
+                  { value: 'With Food', label: 'With Food' },
+                  { value: 'Without Food', label: 'Without Food' },
+                  { value: 'Before Food', label: 'Before Food' },
+                ]}
               />
+
+              {/* Additional instructions — iOS grouped row */}
+              <div className="ios-card overflow-hidden">
+                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Notes</span>
+                  <input
+                    value={medInstructions}
+                    onChange={e => setMedInstructions(e.target.value)}
+                    placeholder="Additional instructions"
+                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
