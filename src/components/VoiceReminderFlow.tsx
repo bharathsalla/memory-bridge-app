@@ -10,6 +10,7 @@ import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { useApp } from '@/contexts/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useSendCaregiverReminder } from '@/hooks/useReminders';
 
 // ── Types ──
 interface ExtractedSchedule {
@@ -47,6 +48,7 @@ function RecordingWave({ isRecording }: { isRecording: boolean }) {
 // ── Main component ──
 export default function VoiceReminderFlow() {
   const { voiceReminders, addVoiceReminder } = useApp();
+  const sendReminder = useSendCaregiverReminder();
   const [activeView, setActiveView] = useState<'record' | 'monitor' | 'escalation'>('record');
   const [recordingStep, setRecordingStep] = useState<'idle' | 'recording' | 'processing' | 'extracted' | 'confirmed'>('idle');
   const [isRecording, setIsRecording] = useState(false);
@@ -198,22 +200,64 @@ export default function VoiceReminderFlow() {
 
   const confirmSchedule = () => {
     if (!extracted) return;
-    addVoiceReminder({
-      medication: extracted.medication,
-      time: extracted.time,
-      frequency: extracted.frequency,
-      trigger: extracted.trigger,
-      patientMessage: extracted.patientMessage,
-      caregiverName: 'Anitha',
-      transcript: transcript,
-      audioUrl: audioUrl || undefined,
-    });
-    setRecordingStep('confirmed');
-    toast({ title: 'Reminder scheduled!', description: `${extracted.medication} at ${extracted.time}` });
-    setTimeout(() => {
-      setRecordingStep('idle');
-      setActiveView('monitor');
-    }, 2000);
+
+    // Parse extracted time and create a proper scheduled reminder via edge function
+    // This ensures the same popup + timer + missed dose logic applies
+    const timeStr = extracted.time; // e.g. "8:00 AM", "2:30 PM"
+    const now = new Date();
+    const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    let h = 8, m = 0;
+    if (timeParts) {
+      h = parseInt(timeParts[1]);
+      m = parseInt(timeParts[2]);
+      const ampm = timeParts[3]?.toUpperCase();
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+    }
+    const doseDate = new Date();
+    doseDate.setHours(h, m, 0, 0);
+    if (doseDate.getTime() <= Date.now()) doseDate.setDate(doseDate.getDate() + 1);
+    const doseTimeUtc = doseDate.toISOString();
+
+    // Send via the same edge function used by manual reminders
+    sendReminder.mutate(
+      {
+        type: 'medication',
+        message: extracted.medication,
+        caregiverName: 'Anitha',
+        medName: extracted.medication,
+        medDosage: '',
+        medQty: '',
+        medInstructions: extracted.trigger || '',
+        medTime: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`,
+        medPeriod: '',
+        medFoodInstruction: extracted.trigger || '',
+        doseTimeUtc,
+      },
+      {
+        onSuccess: () => {
+          addVoiceReminder({
+            medication: extracted.medication,
+            time: extracted.time,
+            frequency: extracted.frequency,
+            trigger: extracted.trigger,
+            patientMessage: extracted.patientMessage,
+            caregiverName: 'Anitha',
+            transcript: transcript,
+            audioUrl: audioUrl || undefined,
+          });
+          setRecordingStep('confirmed');
+          toast({ title: 'Reminder scheduled!', description: `${extracted.medication} at ${extracted.time} — Timer will trigger 2 min before` });
+          setTimeout(() => {
+            setRecordingStep('idle');
+            setActiveView('monitor');
+          }, 2000);
+        },
+        onError: (err: any) => {
+          toast({ title: 'Failed to schedule', description: err.message, variant: 'destructive' });
+        },
+      }
+    );
   };
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
