@@ -17,7 +17,27 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions } = await req.json();
+    const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions, medTime, medPeriod, medFoodInstruction } = await req.json();
+
+    // Build a display time string
+    let displayTime = "";
+    if (medTime) {
+      const [h, m] = medTime.split(":").map(Number);
+      const d = new Date();
+      d.setHours(h, m, 0, 0);
+      displayTime = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    } else {
+      displayTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    }
+
+    // Build instructions string
+    const instrParts: string[] = [];
+    if (medPeriod) instrParts.push(medPeriod);
+    if (medFoodInstruction) instrParts.push(medFoodInstruction);
+    if (medInstructions) instrParts.push(medInstructions);
+    const fullInstructions = instrParts.length > 0
+      ? instrParts.join(" · ")
+      : `Sent by ${caregiverName || "Caregiver"}`;
 
     // Create the reminder
     const { data: reminder, error: reminderError } = await supabase
@@ -25,7 +45,7 @@ serve(async (req) => {
       .insert({
         type: type || "custom",
         title: `🔔 From ${caregiverName || "Caregiver"}`,
-        message: message || "You have a new reminder",
+        message: medName || message || "You have a new reminder",
         photo_url: photoUrl || null,
         schedule: { type: "once", times: [new Date().toISOString()] },
         priority: "high",
@@ -38,20 +58,18 @@ serve(async (req) => {
 
     if (reminderError) throw reminderError;
 
-    // If type is medication, also insert into medications table so it shows on patient's med list
+    // If type is medication, insert into medications table
     if (type === "medication") {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
       await supabase.from("medications").insert({
         name: medName || message || "Medication Reminder",
         dosage: medDosage || "As directed",
-        time: timeStr,
-        instructions: medInstructions || `Sent by ${caregiverName || "Caregiver"}${medQty ? ` · Qty: ${medQty}` : ""}`,
+        time: displayTime,
+        instructions: fullInstructions + (medQty ? ` · Qty: ${medQty}` : ""),
         taken: false,
       });
     }
 
-    // Add to activities so it shows in Today's Activity for both caregiver and patient
+    // Add to activities
     await supabase.from("activities").insert({
       description: `${type === "medication" ? "💊" : "🔔"} ${medName || message || "Reminder"} — Sent by ${caregiverName || "Caregiver"}`,
       time: new Date().toISOString(),
@@ -59,11 +77,11 @@ serve(async (req) => {
       completed: false,
     });
 
-    // Create scheduled reminder
+    // Create scheduled reminder (status 'active' so patient popup picks it up)
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
       next_due_time: new Date().toISOString(),
-      status: "sent",
+      status: "active",
       last_sent_at: new Date().toISOString(),
       send_count: 1,
     });
@@ -74,7 +92,7 @@ serve(async (req) => {
       event_type: "caregiver_triggered",
       timestamp: new Date().toISOString(),
       triggered_by_name: caregiverName || "Caregiver",
-      metadata: { type, message, has_photo: !!photoUrl, medName, medDosage, medQty },
+      metadata: { type, message, has_photo: !!photoUrl, medName, medDosage, medQty, medPeriod, medFoodInstruction, medTime },
     });
 
     return new Response(
