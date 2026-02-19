@@ -3,24 +3,11 @@ import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { Shield, MapPin, Phone, Check, ChevronRight, User } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
-
-/** Static map using OpenStreetMap tile server (no API key needed) */
-const STATIC_MAP_URL = 'https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=400&height=200&center=lonlat:-122.4194,37.7749&zoom=14&marker=lonlat:-122.4194,37.7749;color:%2334C759;size:medium&apiKey=demo';
-
-function MapPlaceholder() {
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-muted text-muted-foreground gap-2">
-      <MapPin className="w-7 h-7" />
-      <span className="text-xs font-medium">Home · Safe Zone</span>
-      <span className="text-[10px] text-muted-foreground/60">San Francisco, CA</span>
-    </div>
-  );
-}
+import LiveMap from '@/components/ui/LiveMap';
 
 export default function SafetyScreen() {
   const { mode, isSOSActive, triggerSOS, cancelSOS } = useApp();
   const [sosCountdown, setSosCountdown] = useState<number | null>(null);
-  const [mapError, setMapError] = useState(false);
 
   const handleSOS = () => {
     if (isSOSActive) { cancelSOS(); setSosCountdown(null); return; }
@@ -32,17 +19,6 @@ export default function SafetyScreen() {
       });
     }, 1000);
   };
-
-  const mapContent = mapError ? (
-    <MapPlaceholder />
-  ) : (
-    <img
-      src={STATIC_MAP_URL}
-      alt="Map showing home location"
-      className="w-full h-full object-cover"
-      onError={() => setMapError(true)}
-    />
-  );
 
   if (mode === 'essential') {
     return (
@@ -93,8 +69,8 @@ export default function SafetyScreen() {
               <span className="text-ios-callout font-medium text-foreground">Current Location</span>
             </div>
             <div className="px-4 pb-4">
-              <div className="rounded-xl overflow-hidden h-36 bg-muted">
-                {mapContent}
+              <div className="rounded-xl overflow-hidden h-36">
+                <LiveMap height={144} />
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
@@ -144,8 +120,8 @@ export default function SafetyScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Location</p>
         <div className="mx-4 ios-card overflow-hidden">
           <div className="px-4 pt-3 pb-4">
-            <div className="rounded-xl overflow-hidden h-32 relative bg-muted">
-              {mapContent}
+            <div className="rounded-xl overflow-hidden h-40">
+              <LiveMap height={160} />
             </div>
             <div className="flex items-center gap-2 mt-3">
               <MapPin className="w-5 h-5 text-muted-foreground" />
