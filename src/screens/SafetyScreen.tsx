@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Shield, MapPin, Phone, Activity, Check, ChevronRight, User } from 'lucide-react';
+import { Shield, MapPin, Phone, Check, ChevronRight, User } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 
 export default function SafetyScreen() {
@@ -71,7 +71,12 @@ export default function SafetyScreen() {
             </div>
             <div className="px-4 pb-4">
               <div className="rounded-xl overflow-hidden h-36">
-                <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
+              <div className="w-full h-full bg-gradient-to-b from-primary/5 to-primary/10 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="w-8 h-8 text-destructive mx-auto mb-1" />
+                    <span className="text-ios-caption font-semibold text-foreground">Home</span>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
@@ -124,27 +129,19 @@ export default function SafetyScreen() {
         <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Location</p>
         <div className="mx-4 ios-card overflow-hidden">
           <div className="px-4 pt-3 pb-4">
-            <div className="rounded-xl overflow-hidden h-32">
-              <iframe title="Location map" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1278%2C51.5074%2C-0.1178%2C51.5124&layer=mapnik&marker=51.5099%2C-0.1228" className="w-full h-full border-0" />
+            <div className="rounded-xl overflow-hidden h-32 relative bg-muted">
+              <div className="w-full h-full bg-gradient-to-b from-primary/5 to-primary/10 flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="w-8 h-8 text-destructive mx-auto mb-1" />
+                  <span className="text-ios-caption font-semibold text-foreground">Home</span>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2 mt-3">
               <MapPin className="w-5 h-5 text-muted-foreground" />
               <span className="text-ios-subheadline font-semibold text-foreground">Home</span>
               <span className="ml-auto text-ios-caption font-semibold text-muted-foreground">Safe zone</span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Safety Features */}
-      <div className="mt-5">
-        <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Safety Features</p>
-        <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-          <div className="flex items-center gap-3 px-4" style={{ minHeight: 56 }}>
-            <IconBox Icon={Activity} color={iosColors.orange} />
-            <span className="text-ios-callout font-medium text-foreground flex-1">Fall Detection</span>
-            <span className="text-ios-footnote text-muted-foreground">Active</span>
-            <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
           </div>
         </div>
       </div>

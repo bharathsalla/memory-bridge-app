@@ -6,7 +6,7 @@ import { Smartphone, Hand, Users, Mic, Monitor, Brain, Heart, CheckCircle, Arrow
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 import peopleGrid from '@/assets/onboarding-people-grid.jpg';
 
-const steps = ['welcome', 'voiceChoice', 'assess', 'personalize', 'complete'] as const;
+const steps = ['welcome', 'voiceChoice', 'assess', 'personalize'] as const;
 
 /* ── Animated MemoCare Logo ── */
 function MemoCareLogo() {
@@ -339,65 +339,16 @@ export default function OnboardingScreen() {
                 )}
                 <div className="mt-auto pb-8">
                   <button
-                    onClick={() => setStep('complete')}
+                    onClick={() => finish(false)}
                     className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
                   >
-                    Continue
+                    Get Started
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ── Complete ── */}
-          {step === 'complete' && (
-            <div className="flex-1 flex flex-col bg-background">
-              <div className="flex justify-center gap-2.5 pt-14 pb-4">
-                {steps.map((s) => (
-                  <div key={s} className={`h-[5px] rounded-full transition-all duration-500 ${
-                    s === step ? 'w-10 gradient-primary' : steps.indexOf(s) < steps.indexOf(step) ? 'w-[5px] bg-primary/40' : 'w-[5px] bg-border'
-                  }`} />
-                ))}
-              </div>
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-7">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', bounce: 0.5 }}
-                  className="w-28 h-28 rounded-full gradient-success flex items-center justify-center mb-8 shadow-lg"
-                >
-                  <motion.div
-                    initial={{ scale: 0, rotate: -45 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 0.3, type: 'spring' }}
-                  >
-                    <CheckCircle className="w-14 h-14 text-success-foreground" strokeWidth={2} />
-                  </motion.div>
-                </motion.div>
-                <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">
-                  You're all set{name ? `, ${name}` : ''}!
-                </h1>
-                <p className="text-[15px] text-muted-foreground max-w-[280px]">
-                  MemoCare is ready to help you every day.
-                </p>
-                <div className="mt-auto pb-8 w-full space-y-3">
-                  <button
-                    onClick={() => finish(false)}
-                    className="w-full h-14 gradient-primary text-primary-foreground text-[17px] font-bold active:scale-[0.98] transition-transform rounded-2xl shadow-lg"
-                  >
-                    Start Browsing
-                  </button>
-                  <button
-                    onClick={() => finish(true)}
-                    className="w-full h-14 text-secondary text-[17px] font-semibold active:scale-[0.98] transition-transform rounded-2xl flex items-center justify-center gap-3 bg-card shadow-sm"
-                  >
-                    <Mic className="w-5 h-5" />
-                    Start with Voice Care
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </motion.div>
       </AnimatePresence>
     </div>
