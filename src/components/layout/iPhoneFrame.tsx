@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 import { Wifi, Signal, Battery } from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as Sonner } from '@/components/ui/sonner';
 
 interface iPhoneFrameProps {
   children: ReactNode;
@@ -71,6 +73,9 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
           {/* App content */}
           <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: '#F2F2F7' }}>
             {children}
+            {/* Toast containers inside the mobile frame */}
+            <Toaster />
+            <Sonner position="top-center" toastOptions={{ className: 'max-w-[90%] mx-auto' }} />
           </div>
 
           {/* Home Indicator */}

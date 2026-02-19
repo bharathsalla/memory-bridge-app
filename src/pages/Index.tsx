@@ -22,6 +22,7 @@ import PatientReminderPopup from '@/components/PatientReminderPopup';
 import { AlertTriangle, Bell, Phone, X, Pill } from 'lucide-react';
 import { useScheduledReminders } from '@/hooks/useReminders';
 import { useMissedDoseAlerts } from '@/hooks/useCareData';
+import { formatISTTime } from '@/lib/timeUtils';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
