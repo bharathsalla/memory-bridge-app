@@ -49,7 +49,7 @@ const Index = () => {
   const [showReminders, setShowReminders] = React.useState(false);
   const [remindersInitialized, setRemindersInitialized] = React.useState(false);
   const [sosNotification, setSOSNotification] = React.useState(false);
-  const [caregiverMissedAlert, setCaregiverMissedAlert] = React.useState<{ name: string; time: string } | null>(null);
+  const [caregiverMissedAlert, setCaregiverMissedAlert] = React.useState<{ name: string; time: string; id: string } | null>(null);
   const prevSOSRef = useRef(false);
   const prevScheduledCountRef = useRef(0);
   const [patientNotification, setPatientNotification] = React.useState<string | null>(null);
@@ -101,6 +101,7 @@ const Index = () => {
         setCaregiverMissedAlert({
           name: reminderData?.message || 'Medication',
           time: overdue.next_due_time,
+          id: overdue.id,
         });
       }
     };
@@ -142,19 +143,19 @@ const Index = () => {
               }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
-                  <span className="text-[20px]">🚨</span>
-                </div>
+                 <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
+                   <Phone className="w-5 h-5" />
+                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-bold">Emergency SOS Alert!</div>
-                  <div className="text-[12px] opacity-90">📍 {sosTriggeredLocation || patientLocation} — Tap to respond</div>
+                   <div className="text-[14px] font-bold">Emergency SOS Alert!</div>
+                   <div className="text-[12px] opacity-90">{sosTriggeredLocation || patientLocation} — Tap to respond</div>
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setSOSNotification(false); }}
                   className="text-[12px] font-semibold opacity-80 px-2 py-1"
-                >
-                  ✕
-                </button>
+                 >
+                   <X className="w-4 h-4" />
+                 </button>
               </div>
             </motion.div>
           )}
@@ -177,7 +178,7 @@ const Index = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[14px] font-bold">New Reminder</div>
-                  <div className="text-[12px] opacity-90">💊 {patientNotification}</div>
+                  <div className="text-[12px] opacity-90">{patientNotification}</div>
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setPatientNotification(null); }}
@@ -209,10 +210,10 @@ const Index = () => {
                   <Bell className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-bold">⚠ Patient Not Responding!</div>
-                  <div className="text-[12px] opacity-90">
-                    💊 {caregiverMissedAlert.name} — No confirmation yet
-                  </div>
+                   <div className="text-[14px] font-bold">Patient Not Responding!</div>
+                   <div className="text-[12px] opacity-90">
+                     {caregiverMissedAlert.name} — No confirmation yet
+                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
