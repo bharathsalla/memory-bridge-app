@@ -31,40 +31,25 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
-            content: `You are a medical reminder extraction AI for a dementia care app. Extract medication schedule details from caregiver voice transcripts. Always respond using the tool provided.`
+            content: `You are a medical reminder extraction AI for a dementia care app. Extract medication schedule details from caregiver voice transcripts.
+
+You MUST respond with ONLY a valid JSON object (no markdown, no backticks) with these exact fields:
+- medication: string (name of the medication or tablet)
+- time: string (time to take it, e.g. "9:00 AM")
+- frequency: string (how often: Daily, Twice daily, Weekly, etc.)
+- trigger: string (context trigger like "After Breakfast", "Before Sleep")
+- patientMessage: string (a warm, gentle reminder message for the patient)
+- confidence: number (confidence score 0-100)`
           },
           {
             role: "user",
-            content: `Extract the medication reminder details from this caregiver's voice recording transcript:\n\n"${transcript}"`
+            content: `Extract the medication reminder details from this transcript:\n\n"${transcript}"`
           }
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "extract_reminder",
-              description: "Extract medication reminder schedule from transcript",
-              parameters: {
-                type: "object",
-                properties: {
-                  medication: { type: "string", description: "Name of the medication or tablet" },
-                  time: { type: "string", description: "Time to take it, e.g. '9:00 AM'" },
-                  frequency: { type: "string", description: "How often: Daily, Twice daily, Weekly, etc." },
-                  trigger: { type: "string", description: "Context trigger like 'After Breakfast', 'Before Sleep'" },
-                  patientMessage: { type: "string", description: "A warm, gentle reminder message to play to the patient in the caregiver's speaking style. Keep it short and loving, like the original transcript but slightly cleaned up." },
-                  confidence: { type: "number", description: "Confidence score 0-100" }
-                },
-                required: ["medication", "time", "frequency", "trigger", "patientMessage", "confidence"],
-                additionalProperties: false
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "extract_reminder" } },
       }),
     });
 
@@ -87,13 +72,15 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    const content = data.choices?.[0]?.message?.content;
     
-    if (!toolCall) {
-      throw new Error("No tool call in AI response");
+    if (!content) {
+      throw new Error("No content in AI response");
     }
 
-    const extracted = JSON.parse(toolCall.function.arguments);
+    // Clean markdown fences if present
+    const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const extracted = JSON.parse(cleaned);
 
     return new Response(JSON.stringify(extracted), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
