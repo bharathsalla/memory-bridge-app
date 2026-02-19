@@ -141,20 +141,28 @@ export default function CaregiverRemindersPanel() {
     }
     if (!msg.trim()) return;
 
-    // Validate: dose time must be at least 2 minutes in the future
+    // Build dose time as UTC ISO string from local time input
+    let doseTimeUtc: string | undefined;
     if (medTime) {
       const [h, m] = medTime.split(':').map(Number);
       const doseDate = new Date();
       doseDate.setHours(h, m, 0, 0);
       const diffMs = doseDate.getTime() - Date.now();
+
+      // Block if dose time equals current time (less than 0) or less than 2 min away
+      if (diffMs <= 0) {
+        toast({ title: 'Invalid Time', description: 'Reminder time cannot be the same as the current time. Please choose a future time.', variant: 'destructive' });
+        return;
+      }
       if (diffMs < 2 * 60 * 1000) {
         toast({ title: 'Invalid Time', description: 'Dose time must be at least 2 minutes from now. Please choose a later time.', variant: 'destructive' });
         return;
       }
+      doseTimeUtc = doseDate.toISOString();
     }
 
     sendReminder.mutate(
-      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions: `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`, medTime, medPeriod, medFoodInstruction },
+      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions: `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`, medTime, medPeriod, medFoodInstruction, doseTimeUtc },
       {
         onSuccess: () => {
           toast({ title: 'Reminder sent!' });

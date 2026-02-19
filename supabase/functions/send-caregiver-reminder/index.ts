@@ -17,36 +17,35 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions, medTime, medPeriod, medFoodInstruction } = await req.json();
+    const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions, medTime, medPeriod, medFoodInstruction, doseTimeUtc } = await req.json();
 
-    // Build dose time
-    let doseDate = new Date();
-    let displayTime = "";
-
-    if (medTime) {
+    // Use the pre-computed UTC ISO string from the client if available
+    let doseDate: Date;
+    if (doseTimeUtc) {
+      doseDate = new Date(doseTimeUtc);
+    } else if (medTime) {
+      // Fallback: parse HH:MM but this will be in server timezone (UTC)
       const [h, m] = medTime.split(":").map(Number);
+      doseDate = new Date();
       doseDate.setHours(h, m, 0, 0);
-
-      // If time already passed today, schedule for tomorrow
       if (doseDate.getTime() < Date.now()) {
         doseDate.setDate(doseDate.getDate() + 1);
       }
-
-      // Validate: must be at least 2 min in the future
-      const diffMs = doseDate.getTime() - Date.now();
-      if (diffMs < 2 * 60 * 1000) {
-        return new Response(
-          JSON.stringify({ error: "Dose time must be at least 2 minutes from now." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     } else {
-      // No specific time — schedule 2 min from now so popup shows immediately
+      // No specific time — schedule 2 min from now
       doseDate = new Date(Date.now() + 2 * 60 * 1000);
-      displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     }
+
+    // Validate: must be at least 2 min in the future
+    const diffMs = doseDate.getTime() - Date.now();
+    if (diffMs < 2 * 60 * 1000) {
+      return new Response(
+        JSON.stringify({ error: "Dose time must be at least 2 minutes from now." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 
     // Build instructions string
     const instrParts: string[] = [];
@@ -95,7 +94,7 @@ serve(async (req) => {
       completed: false,
     });
 
-    // Create scheduled reminder with next_due_time = actual dose time
+    // Create scheduled reminder with next_due_time = actual dose time (UTC)
     // The patient popup will show 2 min before this time
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
