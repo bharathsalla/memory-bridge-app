@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, ArrowUp, Mic, User, Stethoscope, HeartPulse } from 'lucide-react';
+import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, SendHorizontal, Mic, User, Stethoscope, HeartPulse } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
@@ -185,7 +185,7 @@ export default function CareScreen() {
                     }}
                     className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground touch-target"
                   >
-                    <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+                    <SendHorizontal className="w-4 h-4" strokeWidth={2} />
                   </button>
                 )}
               </div>

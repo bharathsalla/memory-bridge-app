@@ -197,6 +197,7 @@ export function useSendCaregiverReminder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['scheduled_reminders'] });
       qc.invalidateQueries({ queryKey: ['reminder_logs'] });
+      qc.invalidateQueries({ queryKey: ['medications'] });
     },
   });
 }

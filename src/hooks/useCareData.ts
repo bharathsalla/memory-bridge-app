@@ -104,13 +104,36 @@ export function useMarkMedicationTaken() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      const takenAt = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      
+      // Get the medication details first
+      const { data: med } = await supabase
+        .from('medications')
+        .select('name, dosage')
+        .eq('id', id)
+        .single();
+
+      // Mark medication as taken
       const { error } = await supabase
         .from('medications')
-        .update({ taken: true, taken_at: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) })
+        .update({ taken: true, taken_at: takenAt })
         .eq('id', id);
       if (error) throw error;
+
+      // Also add to activities so it shows in Today's Activity (patient + caregiver)
+      if (med) {
+        await supabase.from('activities').insert({
+          description: `${med.name} ${med.dosage} — Taken`,
+          time: takenAt,
+          icon: '💊',
+          completed: true,
+        });
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['medications'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['medications'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
   });
 }
 

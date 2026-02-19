@@ -255,10 +255,42 @@ export default function CaregiverDashboard() {
                 <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
               </div>
             ))}
+            {/* Dynamic missed medication alerts */}
+            {medications.filter(m => !m.taken).map((med) => {
+              // Parse medication time and check if it's overdue
+              const now = new Date();
+              const medTimeParts = med.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+              let isOverdue = false;
+              if (medTimeParts) {
+                let hours = parseInt(medTimeParts[1]);
+                const minutes = parseInt(medTimeParts[2]);
+                const period = medTimeParts[3]?.toUpperCase();
+                if (period === 'PM' && hours !== 12) hours += 12;
+                if (period === 'AM' && hours === 12) hours = 0;
+                const medDate = new Date();
+                medDate.setHours(hours, minutes, 0, 0);
+                // Overdue if more than 30 minutes past scheduled time
+                isOverdue = (now.getTime() - medDate.getTime()) > 30 * 60 * 1000;
+              }
+              if (!isOverdue) return null;
+              return (
+                <div key={`missed-${med.id}`} className="flex items-center gap-3 p-4">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-destructive" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-ios-callout font-medium text-foreground">
+                      Missed: {med.name} {med.dosage}
+                    </div>
+                    <div className="text-ios-footnote text-muted-foreground mt-0.5">
+                      Scheduled at {med.time} — Not taken
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+                </div>
+              );
+            })}
             {[
               { text: 'Medication taken late (15 min)', time: '2 hours ago' },
               { text: 'Mode switch suggested', time: 'Yesterday' },
-              { text: 'Fall detected, resolved', time: 'Feb 10' },
             ].map((alert, i) => (
               <div key={i} className="flex items-center gap-3 p-4">
                 <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-warning" />
