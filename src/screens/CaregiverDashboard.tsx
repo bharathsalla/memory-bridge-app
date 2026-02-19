@@ -44,6 +44,8 @@ export default function CaregiverDashboard() {
   const [manageOpen, setManageOpen] = useState(false);
   const [modeModalOpen, setModeModalOpen] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
+  const [cgActivityFilter, setCgActivityFilter] = useState('all');
+  const [cgAlertFilter, setCgAlertFilter] = useState('all');
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -193,42 +195,77 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        {/* Activity Timeline */}
+        {/* Activity Timeline — Categorized */}
         <div className="mt-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
+          <div className="mx-4 mb-2">
+            <SegmentedControl
+              value={cgActivityFilter}
+              onChange={setCgActivityFilter}
+              items={[
+                { value: 'all', label: 'All' },
+                { value: 'medication', label: 'Medication' },
+                { value: 'meals', label: 'Meals' },
+                { value: 'exercise', label: 'Exercise' },
+              ]}
+            />
+          </div>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-            {[...activities]
-              .sort((a, b) => {
-                // Sort by created_at descending (most recent first)
-                const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                return dateB - dateA;
-              })
-              .map((item, idx) => (
-              <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
-                {item.completed ? (
-                  <IconBox Icon={Check} color={iosColors.green} />
-                ) : (
-                  <IconBox Icon={Clock} color={getColor(idx)} />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</div>
-                  <div className="text-ios-footnote text-muted-foreground mt-0.5">
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-                      : item.time}
+            {(() => {
+              const categorize = (desc: string) => {
+                const d = desc.toLowerCase();
+                if (d.includes('medication') || d.includes('pill') || d.includes('💊') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo')) return 'medication';
+                if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('🍳') || d.includes('food')) return 'meals';
+                if (d.includes('walk') || d.includes('exercise') || d.includes('step') || d.includes('🚶')) return 'exercise';
+                return 'other';
+              };
+
+              const filtered = [...activities]
+                .filter(a => cgActivityFilter === 'all' || categorize(a.description) === cgActivityFilter)
+                .sort((a, b) => {
+                  const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                  const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                  return dateB - dateA;
+                });
+
+              if (filtered.length === 0) {
+                return <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity in this category</div>;
+              }
+
+              return filtered.map((item, idx) => {
+                const cat = categorize(item.description);
+                const iconMap: Record<string, { Icon: typeof Check; color: string }> = {
+                  medication: { Icon: Pill, color: iosColors.orange },
+                  meals: { Icon: Activity, color: iosColors.green },
+                  exercise: { Icon: Footprints, color: iosColors.blue },
+                  other: { Icon: Clock, color: iosColors.teal },
+                };
+                const ci = iconMap[cat] || iconMap.other;
+
+                return (
+                  <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
+                    {item.completed ? (
+                      <IconBox Icon={ci.Icon} color={iosColors.green} />
+                    ) : (
+                      <IconBox Icon={ci.Icon} color={ci.color} />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</div>
+                      <div className="text-ios-footnote text-muted-foreground mt-0.5">
+                        {item.created_at
+                          ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                          : item.time}
+                      </div>
+                    </div>
+                    {item.completed ? (
+                      <span className="text-ios-caption font-semibold text-success shrink-0">Done</span>
+                    ) : (
+                      <span className="text-ios-caption font-medium text-muted-foreground shrink-0">Pending</span>
+                    )}
                   </div>
-                </div>
-                {item.completed ? (
-                  <span className="text-ios-caption font-semibold text-success shrink-0">Done</span>
-                ) : (
-                  <span className="text-ios-caption font-medium text-muted-foreground shrink-0">Pending</span>
-                )}
-              </div>
-            ))}
-            {activities.length === 0 && (
-              <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity yet today</div>
-            )}
+                );
+              });
+            })()}
           </div>
         </div>
 
@@ -260,87 +297,104 @@ export default function CaregiverDashboard() {
           </div>
         </div>
 
-        {/* Alerts — Apple Health grouped list */}
+        {/* Alerts — Categorized with Segmented Tabs */}
         <div className="mt-6 mb-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Alerts</p>
+          <div className="mx-4 mb-2">
+            <SegmentedControl
+              value={cgAlertFilter}
+              onChange={setCgAlertFilter}
+              items={[
+                { value: 'all', label: 'All' },
+                { value: 'urgent', label: 'Urgent' },
+                { value: 'medication', label: 'Medication' },
+                { value: 'system', label: 'System' },
+              ]}
+            />
+          </div>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-            {/* Unresponded reminder alerts (from scheduled_reminders) */}
-            {overdueReminders.map((sr) => {
-              const rd = sr.reminders as any;
-              return (
-                <div key={`overdue-${sr.id}`} className="flex items-center gap-3 p-4">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-destructive animate-pulse" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-ios-callout font-bold text-destructive">
-                      Patient Not Responding
-                    </div>
-                    <div className="text-ios-footnote text-foreground mt-0.5">
-                      {rd?.message || 'Reminder'} — No confirmation
-                    </div>
-                    <div className="text-ios-caption text-muted-foreground mt-0.5">
-                      Sent {sr.created_at ? new Date(sr.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : ''}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
-                </div>
+            {(() => {
+              type AlertItem = { id: string; category: string; severity: 'destructive' | 'warning'; title: string; detail: string; time: string };
+              const allAlerts: AlertItem[] = [];
+
+              // Overdue reminders → urgent
+              overdueReminders.forEach(sr => {
+                const rd = sr.reminders as any;
+                allAlerts.push({
+                  id: `overdue-${sr.id}`,
+                  category: 'urgent',
+                  severity: 'destructive',
+                  title: 'Patient Not Responding',
+                  detail: `${rd?.message || 'Reminder'} — No confirmation`,
+                  time: sr.created_at ? new Date(sr.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
+                });
+              });
+
+              // SOS history → urgent
+              sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).forEach(sos => {
+                allAlerts.push({
+                  id: `sos-${sos.id}`,
+                  category: 'urgent',
+                  severity: sos.resolved ? 'warning' : 'destructive',
+                  title: sos.resolved ? `SOS resolved — ${sos.location}` : `SOS Active — ${sos.location}`,
+                  detail: '',
+                  time: sos.timestamp,
+                });
+              });
+
+              // Missed medications → medication
+              medications.filter(m => !m.taken).forEach(med => {
+                const now = new Date();
+                const medTimeParts = med.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                let isOverdue = false;
+                if (medTimeParts) {
+                  let hours = parseInt(medTimeParts[1]);
+                  const minutes = parseInt(medTimeParts[2]);
+                  const period = medTimeParts[3]?.toUpperCase();
+                  if (period === 'PM' && hours !== 12) hours += 12;
+                  if (period === 'AM' && hours === 12) hours = 0;
+                  const medDate = new Date();
+                  medDate.setHours(hours, minutes, 0, 0);
+                  isOverdue = (now.getTime() - medDate.getTime()) > 30 * 60 * 1000;
+                }
+                if (isOverdue) {
+                  allAlerts.push({
+                    id: `missed-${med.id}`,
+                    category: 'medication',
+                    severity: 'destructive',
+                    title: `Missed: ${med.name} ${med.dosage}`,
+                    detail: `Scheduled at ${med.time} — Not taken`,
+                    time: '',
+                  });
+                }
+              });
+
+              // Static system alerts
+              allAlerts.push(
+                { id: 'sys-1', category: 'system', severity: 'warning', title: 'Medication taken late (15 min)', detail: '', time: '2 hours ago' },
+                { id: 'sys-2', category: 'system', severity: 'warning', title: 'Mode switch suggested', detail: '', time: 'Yesterday' },
               );
-            })}
-            {sosHistory.filter(s => !s.resolved || sosHistory.indexOf(s) < 3).slice(0, 2).map((sos) => (
-              <div key={sos.id} className="flex items-center gap-3 p-4">
-                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${sos.resolved ? 'bg-warning' : 'bg-destructive'}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-ios-callout font-medium text-foreground">
-                    {sos.resolved ? `SOS resolved — ${sos.location}` : `SOS Active — ${sos.location}`}
-                  </div>
-                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{sos.timestamp}</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
-              </div>
-            ))}
-            {/* Dynamic missed medication alerts */}
-            {medications.filter(m => !m.taken).map((med) => {
-              const now = new Date();
-              const medTimeParts = med.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-              let isOverdue = false;
-              if (medTimeParts) {
-                let hours = parseInt(medTimeParts[1]);
-                const minutes = parseInt(medTimeParts[2]);
-                const period = medTimeParts[3]?.toUpperCase();
-                if (period === 'PM' && hours !== 12) hours += 12;
-                if (period === 'AM' && hours === 12) hours = 0;
-                const medDate = new Date();
-                medDate.setHours(hours, minutes, 0, 0);
-                isOverdue = (now.getTime() - medDate.getTime()) > 30 * 60 * 1000;
+
+              const filtered = allAlerts.filter(a => cgAlertFilter === 'all' || a.category === cgAlertFilter);
+
+              if (filtered.length === 0) {
+                return <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No alerts in this category</div>;
               }
-              if (!isOverdue) return null;
-              return (
-                <div key={`missed-${med.id}`} className="flex items-center gap-3 p-4">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-destructive" />
+
+              return filtered.map(alert => (
+                <div key={alert.id} className="flex items-center gap-3 p-4">
+                  <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${alert.severity === 'destructive' ? 'bg-destructive animate-pulse' : 'bg-warning'}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-ios-callout font-medium text-foreground">
-                      Missed: {med.name} {med.dosage}
+                    <div className={`text-ios-callout font-medium ${alert.severity === 'destructive' ? 'text-destructive font-bold' : 'text-foreground'}`}>
+                      {alert.title}
                     </div>
-                    <div className="text-ios-footnote text-muted-foreground mt-0.5">
-                      Scheduled at {med.time} — Not taken
-                    </div>
+                    {alert.detail && <div className="text-ios-footnote text-foreground mt-0.5">{alert.detail}</div>}
+                    {alert.time && <div className="text-ios-caption text-muted-foreground mt-0.5">{alert.time}</div>}
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                 </div>
-              );
-            })}
-            {[
-              { text: 'Medication taken late (15 min)', time: '2 hours ago' },
-              { text: 'Mode switch suggested', time: 'Yesterday' },
-            ].map((alert, i) => (
-              <div key={i} className="flex items-center gap-3 p-4">
-                <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-warning" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-ios-callout font-medium text-foreground">{alert.text}</div>
-                  <div className="text-ios-footnote text-muted-foreground mt-0.5">{alert.time}</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/30 shrink-0" />
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       </div>

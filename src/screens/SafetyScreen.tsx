@@ -70,13 +70,15 @@ export default function SafetyScreen() {
               <span className="text-ios-callout font-medium text-foreground">Current Location</span>
             </div>
             <div className="px-4 pb-4">
-              <div className="rounded-xl overflow-hidden h-36">
-                <iframe
-                  src="https://maps.apple.com/?ll=37.7749,-122.4194&z=15&t=m"
-                  className="w-full h-full border-0"
-                  title="Location Map"
-                  loading="lazy"
-                  style={{ pointerEvents: 'none' }}
+              <div className="rounded-xl overflow-hidden h-36 bg-muted">
+                <img
+                  src={`https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s+34C759(-122.4194,37.7749)/-122.4194,37.7749,14,0/400x200@2x?access_token=pk.eyJ1IjoibG92YWJsZWRlbW8iLCJhIjoiY2x0ZjBrNTBpMDBjMzJrcGR2OHV2MnpneCJ9.demo`}
+                  alt="Map location"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span class="ml-2 text-sm">Home · Safe Zone</span></div>';
+                  }}
                 />
               </div>
               <div className="flex items-center gap-2 mt-3">
@@ -131,12 +133,19 @@ export default function SafetyScreen() {
         <div className="mx-4 ios-card overflow-hidden">
           <div className="px-4 pt-3 pb-4">
             <div className="rounded-xl overflow-hidden h-32 relative bg-muted">
-                <iframe
-                  src="https://maps.apple.com/?ll=37.7749,-122.4194&z=15&t=m"
-                  className="w-full h-full border-0"
-                  title="Location Map"
-                  loading="lazy"
-                  style={{ pointerEvents: 'none' }}
+                <img
+                  src={`https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s+34C759(-122.4194,37.7749)/-122.4194,37.7749,14,0/400x200@2x?access_token=pk.eyJ1IjoibG92YWJsZWRlbW8iLCJhIjoiY2x0ZjBrNTBpMDBjMzJrcGR2OHV2MnpneCJ9.demo`}
+                  alt="Map location"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.target as HTMLImageElement;
+                    el.style.display = 'none';
+                    el.parentElement!.innerHTML = `
+                      <div class="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span class="text-xs font-medium">Home · Safe Zone</span>
+                      </div>`;
+                  }}
                 />
             </div>
             <div className="flex items-center gap-2 mt-3">

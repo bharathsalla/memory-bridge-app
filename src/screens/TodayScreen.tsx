@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart, CalendarDays, Coffee, Dumbbell } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import patientAvatar from '@/assets/patient-avatar.jpg';
@@ -15,6 +16,7 @@ export default function TodayScreen() {
   const { data: vitals = [] } = useVitals();
   const markTaken = useMarkMedicationTaken();
   const [showIDCard, setShowIDCard] = useState(false);
+  const [activityFilter, setActivityFilter] = useState('all');
 
   const stepCount = Number(vitals.find((v) => v.type === 'steps')?.value || 0);
   const sleepHours = Number(vitals.find((v) => v.type === 'sleep')?.value || 0);
@@ -231,14 +233,35 @@ export default function TodayScreen() {
           )}
         </div>
 
-        {/* Today's Activity (completed items only, recent 10) */}
+        {/* Today's Activity — Categorized with Segmented Tabs */}
         <div className="mt-5 mb-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
+          <div className="px-4 mb-2">
+            <SegmentedControl
+              value={activityFilter}
+              onChange={setActivityFilter}
+              items={[
+                { value: 'all', label: 'All' },
+                { value: 'medication', label: 'Medication' },
+                { value: 'meals', label: 'Meals' },
+                { value: 'exercise', label: 'Exercise' },
+              ]}
+            />
+          </div>
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">
               {(() => {
+                const categorize = (desc: string) => {
+                  const d = desc.toLowerCase();
+                  if (d.includes('medication') || d.includes('pill') || d.includes('💊') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo')) return 'medication';
+                  if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('🍳') || d.includes('food')) return 'meals';
+                  if (d.includes('walk') || d.includes('exercise') || d.includes('step') || d.includes('🚶')) return 'exercise';
+                  return 'other';
+                };
+
                 const completedActivities = [...activities]
                   .filter(a => a.completed)
+                  .filter(a => activityFilter === 'all' || categorize(a.description) === activityFilter)
                   .sort((a, b) => {
                     const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
                     const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -248,24 +271,35 @@ export default function TodayScreen() {
 
                 if (completedActivities.length === 0) {
                   return (
-                    <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No completed activity yet today</div>
+                    <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity in this category</div>
                   );
                 }
 
-                return completedActivities.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
-                    <IconBox Icon={Check} color={iosColors.green} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</p>
-                      <p className="text-ios-footnote text-muted-foreground mt-0.5">
-                        {item.created_at
-                          ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-                          : item.time}
-                      </p>
+                const getCategoryIcon = (desc: string) => {
+                  const cat = categorize(desc);
+                  if (cat === 'medication') return { Icon: Pill, color: iosColors.orange };
+                  if (cat === 'meals') return { Icon: Coffee, color: iosColors.green };
+                  if (cat === 'exercise') return { Icon: Footprints, color: iosColors.blue };
+                  return { Icon: Check, color: iosColors.green };
+                };
+
+                return completedActivities.map((item) => {
+                  const catIcon = getCategoryIcon(item.description);
+                  return (
+                    <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
+                      <IconBox Icon={catIcon.Icon} color={catIcon.color} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</p>
+                        <p className="text-ios-footnote text-muted-foreground mt-0.5">
+                          {item.created_at
+                            ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                            : item.time}
+                        </p>
+                      </div>
+                      <span className="text-ios-caption font-semibold text-muted-foreground shrink-0">Done</span>
                     </div>
-                    <span className="text-ios-caption font-semibold text-muted-foreground shrink-0">Done</span>
-                  </div>
-                ));
+                  );
+                });
               })()}
             </div>
           </div>
