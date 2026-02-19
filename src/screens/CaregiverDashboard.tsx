@@ -438,13 +438,18 @@ export default function CaregiverDashboard() {
           <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
 
+        {/* Crisis Forecast Header */}
+        <div className="px-5 mb-4">
+          <h2 className="text-[22px] font-bold text-foreground leading-tight">Crisis Forecast</h2>
+          <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
+        </div>
+
         {/* Patient View — iOS grouped list row */}
-        <div className="px-4 mb-4">
+        <div className="px-5 mb-5">
           <button
             onClick={() => setModeModalOpen(true)}
             className="w-full ios-card flex items-center justify-between px-4 touch-target"
             style={{ minHeight: 52 }}>
-
             <div className="flex items-center gap-3">
               <IconBox Icon={Eye} color={iosColors.blue} size={36} iconSize={18} />
               <span className="text-ios-callout font-medium text-foreground">Patient View</span>
@@ -458,20 +463,6 @@ export default function CaregiverDashboard() {
               <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
             </div>
           </button>
-        </div>
-
-        {/* Greeting + Crisis Forecast Card */}
-        <div className="px-4 mb-5">
-          <div className="ios-card p-4">
-            <div className="flex items-start justify-between mb-1">
-              <p className="text-[15px] font-semibold text-primary">Good Morning, Sarah</p>
-              
-
-
-            </div>
-            <h2 className="text-[22px] font-bold text-foreground leading-tight">Crisis Forecast</h2>
-            <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
-          </div>
         </div>
 
         {/* Crisis Prevention Engine */}
