@@ -20,6 +20,26 @@ export default function PatientReminderPopup() {
   const [timeWaiting, setTimeWaiting] = useState(0);
   const waitTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Re-show snoozed reminders when snooze time expires
+  useEffect(() => {
+    const entries = Object.entries(snoozedUntil);
+    if (entries.length === 0) return;
+
+    const timers = entries.map(([id, until]) => {
+      const remaining = until - Date.now();
+      if (remaining <= 0) return null;
+      return setTimeout(() => {
+        setSnoozedUntil(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+      }, remaining);
+    }).filter(Boolean) as ReturnType<typeof setTimeout>[];
+
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [snoozedUntil]);
+
   const activeReminder = scheduledReminders.find(sr => {
     if (dismissed.has(sr.id)) return false;
     if (sr.status !== 'active' && sr.status !== 'sent') return false;
@@ -49,7 +69,6 @@ export default function PatientReminderPopup() {
     if (!activeReminder || !reminderData) return;
     const startTime = startTimes[activeReminder.id] || Date.now();
 
-    // Dismiss immediately so popup closes
     setDismissed(prev => new Set(prev).add(activeReminder.id));
 
     acknowledgeReminder.mutate({
@@ -74,7 +93,6 @@ export default function PatientReminderPopup() {
   const handleSnooze = () => {
     if (!activeReminder || !reminderData) return;
 
-    // Dismiss immediately, will reappear after snooze period
     setSnoozedUntil(prev => ({ ...prev, [activeReminder.id]: Date.now() + 10 * 60 * 1000 }));
 
     snoozeReminder.mutate({
@@ -102,10 +120,8 @@ export default function PatientReminderPopup() {
         exit={{ opacity: 0 }}
         className="absolute inset-0 z-[100] flex items-end justify-center"
       >
-        {/* Backdrop */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-        {/* iOS bottom sheet */}
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
@@ -114,12 +130,10 @@ export default function PatientReminderPopup() {
           className="relative z-10 w-full bg-card shadow-2xl overflow-hidden"
           style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
         >
-          {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-9 h-1 rounded-full bg-muted-foreground/20" />
           </div>
 
-          {/* Overdue warning */}
           {isOverdue && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
@@ -132,7 +146,6 @@ export default function PatientReminderPopup() {
           )}
 
           <div className="px-5 pt-4 pb-6">
-            {/* Icon */}
             <div className="flex justify-center mb-3">
               <motion.div
                 animate={{ scale: [1, 1.08, 1] }}
@@ -147,16 +160,14 @@ export default function PatientReminderPopup() {
               </motion.div>
             </div>
 
-            {/* Greeting */}
             <h1 className="text-[22px] font-extrabold text-foreground text-center leading-tight">
               {greeting}, {displayName}
             </h1>
             <p className="text-[14px] text-muted-foreground text-center mt-0.5">{timeStr}</p>
 
-            {/* Sender label */}
             <div className="flex items-center justify-center gap-1.5 mt-4 mb-1">
-              <Bell className="w-3.5 h-3.5" style={{ color: iosColors.teal }} />
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: iosColors.teal }}>
+              <Bell className="w-3.5 h-3.5 text-primary" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
                 Reminder
               </span>
             </div>
@@ -166,13 +177,11 @@ export default function PatientReminderPopup() {
               </p>
             )}
 
-            {/* Medication card */}
             <div className="bg-muted/50 rounded-xl p-3.5 mt-3 flex items-center gap-3">
               <IconBox Icon={Pill} color={iosColors.orange} size={44} iconSize={20} />
               <span className="text-[15px] font-bold text-foreground flex-1">{reminderData.message}</span>
             </div>
 
-            {/* Photo */}
             {reminderData.photo_url && (
               <img
                 src={reminderData.photo_url}
@@ -182,7 +191,6 @@ export default function PatientReminderPopup() {
               />
             )}
 
-            {/* Timer badge */}
             <div className="flex items-center justify-center mt-4 mb-4">
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/60">
                 <Clock className="w-3 h-3 text-muted-foreground" />
@@ -192,14 +200,14 @@ export default function PatientReminderPopup() {
               </div>
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons using brand primary & secondary */}
             <div className="grid grid-cols-2 gap-3">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleConfirm}
                 disabled={acknowledgeReminder.isPending}
-                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 text-white disabled:opacity-50"
-                style={{ backgroundColor: iosColors.teal, borderRadius: 14 }}
+                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 bg-primary text-primary-foreground disabled:opacity-50"
+                style={{ borderRadius: 14 }}
               >
                 <Check className="w-5 h-5" />
                 Done
@@ -208,8 +216,8 @@ export default function PatientReminderPopup() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSnooze}
                 disabled={snoozeReminder.isPending}
-                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 text-white disabled:opacity-50"
-                style={{ backgroundColor: iosColors.orange, borderRadius: 14 }}
+                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 bg-secondary text-secondary-foreground disabled:opacity-50"
+                style={{ borderRadius: 14 }}
               >
                 <Clock className="w-5 h-5" />
                 10 Min
