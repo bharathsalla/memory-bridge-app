@@ -252,3 +252,61 @@ export function useDeleteVital() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vitals'] }),
   });
 }
+
+// ── Missed Dose Alerts ──
+export interface DbMissedDoseAlert {
+  id: string;
+  reminder_id: string | null;
+  scheduled_reminder_id: string | null;
+  patient_name: string;
+  medication_name: string;
+  dose_time: string;
+  missed_at: string;
+  acknowledged: boolean;
+  acknowledged_at: string | null;
+  created_at: string;
+}
+
+export function useMissedDoseAlerts() {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['missed_dose_alerts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('missed_dose_alerts')
+        .select('*')
+        .eq('acknowledged', false)
+        .order('missed_at', { ascending: false });
+      if (error) throw error;
+      return data as DbMissedDoseAlert[];
+    },
+    refetchInterval: 10000,
+  });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('missed-dose-alerts-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'missed_dose_alerts' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['missed_dose_alerts'] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
+
+  return query;
+}
+
+export function useAcknowledgeMissedDoseAlert() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('missed_dose_alerts')
+        .update({ acknowledged: true, acknowledged_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['missed_dose_alerts'] }),
+  });
+}

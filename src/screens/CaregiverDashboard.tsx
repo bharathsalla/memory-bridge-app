@@ -23,7 +23,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid,
   PolarAngleAxis, Radar, Legend
 } from 'recharts';
-import { useMedications, useActivities, useVitals } from '@/hooks/useCareData';
+import { useMedications, useActivities, useVitals, useMissedDoseAlerts } from '@/hooks/useCareData';
 import { useScheduledReminders } from '@/hooks/useReminders';
 
 export default function CaregiverDashboard() {
@@ -32,6 +32,7 @@ export default function CaregiverDashboard() {
   const { data: activities = [] } = useActivities();
   const { data: vitals = [] } = useVitals();
   const { data: scheduledReminders = [] } = useScheduledReminders();
+  const { data: missedDoseAlerts = [] } = useMissedDoseAlerts();
   const overdueReminders = scheduledReminders.filter(sr => {
     if (sr.status !== 'active') return false;
     const dueTime = new Date(sr.next_due_time).getTime();
@@ -344,7 +345,19 @@ export default function CaregiverDashboard() {
                 });
               });
 
-              // Missed medications → medication
+              // Missed medications from DB alerts
+              missedDoseAlerts.forEach(alert => {
+                allAlerts.push({
+                  id: `missed-alert-${alert.id}`,
+                  category: 'medication',
+                  severity: 'destructive',
+                  title: `Missed Dose: ${alert.medication_name}`,
+                  detail: `${alert.patient_name} — Scheduled at ${alert.dose_time}`,
+                  time: new Date(alert.missed_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                });
+              });
+
+              // Missed medications from local state (30 min overdue)
               medications.filter(m => !m.taken).forEach(med => {
                 const now = new Date();
                 const medTimeParts = med.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);

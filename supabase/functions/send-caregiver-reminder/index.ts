@@ -21,12 +21,18 @@ serve(async (req) => {
 
     // Build a display time string
     let displayTime = "";
+    let doseDate = new Date();
     if (medTime) {
       const [h, m] = medTime.split(":").map(Number);
-      const d = new Date();
-      d.setHours(h, m, 0, 0);
-      displayTime = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      doseDate.setHours(h, m, 0, 0);
+      // If time already passed today, schedule for tomorrow
+      if (doseDate.getTime() < Date.now()) {
+        doseDate.setDate(doseDate.getDate() + 1);
+      }
+      displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     } else {
+      // No specific time — show immediately (next_due_time = now + 10 min so popup shows now)
+      doseDate = new Date(Date.now() + 10 * 60 * 1000);
       displayTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     }
 
@@ -47,7 +53,7 @@ serve(async (req) => {
         title: `🔔 From ${caregiverName || "Caregiver"}`,
         message: medName || message || "You have a new reminder",
         photo_url: photoUrl || null,
-        schedule: { type: "once", times: [new Date().toISOString()] },
+        schedule: { type: "once", times: [doseDate.toISOString()] },
         priority: "high",
         persistent: true,
         active: true,
@@ -71,16 +77,17 @@ serve(async (req) => {
 
     // Add to activities
     await supabase.from("activities").insert({
-      description: `${type === "medication" ? "💊" : "🔔"} ${medName || message || "Reminder"} — Sent by ${caregiverName || "Caregiver"}`,
+      description: `${type === "medication" ? "💊" : "🔔"} ${medName || message || "Reminder"} — Scheduled for ${displayTime} by ${caregiverName || "Caregiver"}`,
       time: new Date().toISOString(),
       icon: type === "medication" ? "💊" : "🔔",
       completed: false,
     });
 
-    // Create scheduled reminder (status 'active' so patient popup picks it up)
+    // Create scheduled reminder with next_due_time = actual dose time
+    // The patient popup will show 10 min before this time
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
-      next_due_time: new Date().toISOString(),
+      next_due_time: doseDate.toISOString(),
       status: "active",
       last_sent_at: new Date().toISOString(),
       send_count: 1,
@@ -92,11 +99,11 @@ serve(async (req) => {
       event_type: "caregiver_triggered",
       timestamp: new Date().toISOString(),
       triggered_by_name: caregiverName || "Caregiver",
-      metadata: { type, message, has_photo: !!photoUrl, medName, medDosage, medQty, medPeriod, medFoodInstruction, medTime },
+      metadata: { type, message, has_photo: !!photoUrl, medName, medDosage, medQty, medPeriod, medFoodInstruction, medTime, dose_time: doseDate.toISOString() },
     });
 
     return new Response(
-      JSON.stringify({ success: true, reminder }),
+      JSON.stringify({ success: true, reminder, dose_time: doseDate.toISOString() }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {

@@ -224,6 +224,60 @@ export type Database = {
         }
         Relationships: []
       }
+      missed_dose_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          created_at: string | null
+          dose_time: string
+          id: string
+          medication_name: string
+          missed_at: string
+          patient_name: string
+          reminder_id: string | null
+          scheduled_reminder_id: string | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          created_at?: string | null
+          dose_time: string
+          id?: string
+          medication_name: string
+          missed_at?: string
+          patient_name?: string
+          reminder_id?: string | null
+          scheduled_reminder_id?: string | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          created_at?: string | null
+          dose_time?: string
+          id?: string
+          medication_name?: string
+          missed_at?: string
+          patient_name?: string
+          reminder_id?: string | null
+          scheduled_reminder_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missed_dose_alerts_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missed_dose_alerts_scheduled_reminder_id_fkey"
+            columns: ["scheduled_reminder_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reminder_completions: {
         Row: {
           completed_at: string | null

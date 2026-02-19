@@ -27,7 +27,7 @@ function useMedicineAutocomplete(query: string) {
         }
       } catch { /* ignore */ }
       setLoading(false);
-    }, 300);
+    }, 150); // Faster debounce
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 

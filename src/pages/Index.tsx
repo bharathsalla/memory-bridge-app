@@ -19,8 +19,9 @@ import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
 import PatientReminderPopup from '@/components/PatientReminderPopup';
-import { AlertTriangle, Bell, Phone, X } from 'lucide-react';
+import { AlertTriangle, Bell, Phone, X, Pill } from 'lucide-react';
 import { useScheduledReminders } from '@/hooks/useReminders';
+import { useMissedDoseAlerts } from '@/hooks/useCareData';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -46,10 +47,10 @@ const cgNavTitles: Record<string, string> = {
 const Index = () => {
   const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation, cancelSOS } = useApp();
   const { data: scheduledReminders = [] } = useScheduledReminders();
+  const { data: missedDoseAlerts = [] } = useMissedDoseAlerts();
   const [showReminders, setShowReminders] = React.useState(false);
   const [remindersInitialized, setRemindersInitialized] = React.useState(false);
   const [sosNotification, setSOSNotification] = React.useState(false);
-  // Track dismissed caregiver alerts by scheduled_reminder id so they don't keep popping
   const [dismissedCaregiverAlerts, setDismissedCaregiverAlerts] = React.useState<Set<string>>(new Set());
   const [caregiverMissedAlert, setCaregiverMissedAlert] = React.useState<{ name: string; time: string; id: string } | null>(null);
   const prevSOSRef = useRef(false);
@@ -88,34 +89,25 @@ const Index = () => {
     prevSOSRef.current = isSOSActive;
   }, [isSOSActive]);
 
-  // Caregiver alert: only show when next_due_time has passed AND status is still active
-  // AND the caregiver hasn't already dismissed this specific alert
+  // Caregiver alert: show when missed_dose_alerts appear from DB
   useEffect(() => {
     if (!isCaregiverView) return;
 
-    const checkOverdue = () => {
-      const now = Date.now();
-      const overdue = scheduledReminders.find(sr => {
-        if (sr.status !== 'active') return false;
-        if (dismissedCaregiverAlerts.has(sr.id)) return false;
-        const dueTime = new Date(sr.next_due_time).getTime();
-        // Only alert if due time has passed (snooze expired) AND it's been 2+ min past due
-        return now > dueTime && (now - dueTime) > 2 * 60 * 1000;
-      });
-      if (overdue) {
-        const reminderData = overdue.reminders as any;
+    const checkMissed = () => {
+      const unacknowledged = missedDoseAlerts.find(alert => 
+        !dismissedCaregiverAlerts.has(alert.id)
+      );
+      if (unacknowledged) {
         setCaregiverMissedAlert({
-          name: reminderData?.message || 'Medication',
-          time: overdue.next_due_time,
-          id: overdue.id,
+          name: unacknowledged.medication_name,
+          time: unacknowledged.dose_time,
+          id: unacknowledged.id,
         });
       }
     };
 
-    checkOverdue();
-    const interval = setInterval(checkOverdue, 10000);
-    return () => clearInterval(interval);
-  }, [isCaregiverView, scheduledReminders, dismissedCaregiverAlerts]);
+    checkMissed();
+  }, [isCaregiverView, missedDoseAlerts, dismissedCaregiverAlerts]);
 
   // Don't show reminders when switching to caregiver view
   useEffect(() => {
