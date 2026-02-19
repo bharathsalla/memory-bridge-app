@@ -19,10 +19,10 @@ import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid,
-  PolarAngleAxis, Radar, Legend
-} from 'recharts';
+  ChartCard, HealthAreaChart, HealthBarChart, HealthLineChart,
+  HealthRadarChart, HealthDonutChart, HealthStackedBarChart,
+  ChartLegendItem, ChartInsight, ActivityRing, chartColors
+} from '@/components/ui/AppleHealthCharts';
 import { useMedications, useActivities, useVitals, useMissedDoseAlerts } from '@/hooks/useCareData';
 import { useScheduledReminders } from '@/hooks/useReminders';
 import { formatISTTime } from '@/lib/timeUtils';
@@ -723,10 +723,7 @@ export default function CaregiverDashboard() {
       { label: 'Voice Engagement', value: 'Stable', color: 'text-success', bg: 'bg-success/10', detail: 'On-topic speech at 78% average' },
     ];
 
-    const chartTooltipStyle = {
-      contentStyle: { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '11px' },
-      labelStyle: { color: 'hsl(var(--foreground))', fontWeight: 600 },
-    };
+    // Using Apple Health chart components
 
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
@@ -770,103 +767,71 @@ export default function CaregiverDashboard() {
 
         {/* Cognitive & Activity Trends */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-primary" /> Activity & Cognitive Trends
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={180}>
-              <AreaChart data={weeklyActivity}>
-                <defs>
-                  <linearGradient id="gradSteps" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gradCog" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Area type="monotone" dataKey="cogScore" name="Cognitive Score" stroke="hsl(var(--accent))" fill="url(#gradCog)" strokeWidth={2} />
-                <Area type="monotone" dataKey="taskRate" name="Task Rate %" stroke="hsl(var(--primary))" fill="url(#gradSteps)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-            <div className="flex gap-4 mt-2 justify-center">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Task Rate</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-accent" />Cognitive</span>
-            </div>
-          </div>
+          <ChartCard
+            title="Activity & Cognitive Trends"
+            icon={<Activity className="w-4 h-4 text-primary" />}
+            legend={<><ChartLegendItem color={chartColors.teal} label="Task Rate" /><ChartLegendItem color={chartColors.blue} label="Cognitive" /></>}
+          >
+            <HealthAreaChart
+              data={weeklyActivity}
+              dataKey="taskRate"
+              secondaryDataKey="cogScore"
+              color={chartColors.teal}
+              secondaryColor={chartColors.blue}
+              name="Task Rate %"
+              secondaryName="Cognitive Score"
+              height={180}
+            />
+          </ChartCard>
         </div>
 
         {/* Behavioral Radar */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Scan className="w-4 h-4 text-lavender" /> Behavioral Profile
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={200}>
-              <RadarChart data={behaviorRadar}>
-                <PolarGrid stroke="hsl(var(--border))" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Radar name="Baseline" dataKey="baseline" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeDasharray="4 4" />
-                <Radar name="Patient" dataKey="patient" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} strokeWidth={2} />
-                <Tooltip {...chartTooltipStyle} />
-              </RadarChart>
-            </ResponsiveContainer>
-            <div className="flex gap-4 mt-1 justify-center">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Patient</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-muted-foreground" />Baseline</span>
-            </div>
-          </div>
+          <ChartCard
+            title="Behavioral Profile"
+            icon={<Scan className="w-4 h-4 text-lavender" />}
+            legend={<><ChartLegendItem color={chartColors.teal} label="Patient" /><ChartLegendItem color={chartColors.gray} label="Baseline" /></>}
+          >
+            <HealthRadarChart
+              data={behaviorRadar}
+              dataKey="patient"
+              secondaryDataKey="baseline"
+              color={chartColors.teal}
+              secondaryColor={chartColors.gray}
+              name="Patient"
+              secondaryName="Baseline"
+            />
+          </ChartCard>
         </div>
 
         {/* Eye Tracking */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-sage" /> Eye Movement Analysis
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={160}>
-              <LineChart data={eyeTrackingData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Line type="monotone" dataKey="fixations" name="Fixations" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="saccades" name="Saccades" stroke="hsl(var(--warning))" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="dwellTime" name="Dwell (s)" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-            <div className="flex gap-3 mt-2 justify-center flex-wrap">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-primary" />Fixations</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-warning" />Saccades</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-accent" />Dwell Time</span>
-            </div>
-            <div className="mt-3 p-2.5 rounded-xl bg-warning/8 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
-              <span className="text-[11px] text-foreground">Increased dwell time at 1PM suggests confusion during medication reminder screen</span>
-            </div>
-          </div>
+          <ChartCard
+            title="Eye Movement Analysis"
+            icon={<Eye className="w-4 h-4 text-sage" />}
+            legend={<><ChartLegendItem color={chartColors.teal} label="Fixations" /><ChartLegendItem color={chartColors.orange} label="Saccades" /><ChartLegendItem color={chartColors.blue} label="Dwell Time" /></>}
+            insight={<ChartInsight icon={<AlertTriangle className="w-4 h-4 text-warning" />} text="Increased dwell time at 1PM suggests confusion during medication reminder screen" variant="warning" />}
+          >
+            <HealthLineChart
+              data={eyeTrackingData}
+              xKey="time"
+              lines={[
+                { key: 'fixations', color: chartColors.teal, name: 'Fixations' },
+                { key: 'saccades', color: chartColors.orange, name: 'Saccades' },
+                { key: 'dwellTime', color: chartColors.blue, name: 'Dwell (s)' },
+              ]}
+            />
+          </ChartCard>
         </div>
 
         {/* Screen Switching / Tab Behavior */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Monitor className="w-4 h-4 text-destructive" /> Screen Switching Patterns
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={tabSwitching}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Bar dataKey="switches" name="Tab Switches" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} opacity={0.7} />
-              </BarChart>
-            </ResponsiveContainer>
+          <ChartCard
+            title="Screen Switching Patterns"
+            icon={<Monitor className="w-4 h-4 text-destructive" />}
+            insight={<ChartInsight icon={<MousePointer className="w-4 h-4 text-destructive" />} text="Wednesday spike (22 switches) correlates with low cognitive score — possible agitation" variant="destructive" />}
+          >
+            <HealthBarChart data={tabSwitching} dataKey="switches" color={chartColors.red} name="Tab Switches" height={150} />
             <div className="grid grid-cols-2 gap-2 mt-3">
               <div className="p-2.5 rounded-xl bg-muted/50 text-center">
                 <div className="text-[16px] font-bold text-foreground">11</div>
@@ -877,29 +842,14 @@ export default function CaregiverDashboard() {
                 <div className="text-[10px] text-muted-foreground">Avg dwell time</div>
               </div>
             </div>
-            <div className="mt-3 p-2.5 rounded-xl bg-destructive/8 flex items-start gap-2">
-              <MousePointer className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-              <span className="text-[11px] text-foreground">Wednesday spike (22 switches) correlates with low cognitive score — possible agitation</span>
-            </div>
-          </div>
+          </ChartCard>
         </div>
 
         {/* Screen Time Distribution */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Timer className="w-4 h-4 text-primary" /> Screen Time Distribution
-          </h2>
-          <div className="ios-card-elevated p-4">
+          <ChartCard title="Screen Time Distribution" icon={<Timer className="w-4 h-4 text-primary" />}>
             <div className="flex items-center gap-4">
-              <ResponsiveContainer width={120} height={120}>
-                <PieChart>
-                  <Pie data={screenTimeBySection} cx="50%" cy="50%" innerRadius={30} outerRadius={55} paddingAngle={3} dataKey="value">
-                    {screenTimeBySection.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              <HealthDonutChart data={screenTimeBySection} />
               <div className="flex-1 space-y-1.5">
                 {screenTimeBySection.map(s => (
                   <div key={s.name} className="flex items-center justify-between">
@@ -912,36 +862,27 @@ export default function CaregiverDashboard() {
                 ))}
               </div>
             </div>
-          </div>
+          </ChartCard>
         </div>
 
         {/* Voice Over Analysis */}
         <div className="px-5 mt-5">
-          <h2 className="text-ios-title3 text-foreground mb-3 flex items-center gap-2">
-            <Mic className="w-4 h-4 text-secondary" /> Voice Interaction Analysis
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={voicePatterns} stackOffset="expand" barSize={20}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Bar dataKey="onTopic" name="On-Topic" stackId="a" fill="hsl(var(--success))" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="offTopic" name="Off-Topic" stackId="a" fill="hsl(var(--warning))" />
-                <Bar dataKey="silences" name="Long Silences" stackId="a" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="flex gap-3 mt-2 justify-center flex-wrap">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-success" />On-Topic</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-warning" />Off-Topic</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-muted-foreground" />Silences</span>
-            </div>
-            <div className="mt-3 p-2.5 rounded-xl bg-accent/8 flex items-start gap-2">
-              <Mic className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-              <span className="text-[11px] text-foreground">Wednesday: 28% off-topic speech detected — patient discussed unrelated childhood memories during medication prompt</span>
-            </div>
-          </div>
+          <ChartCard
+            title="Voice Interaction Analysis"
+            icon={<Mic className="w-4 h-4 text-secondary" />}
+            legend={<><ChartLegendItem color={chartColors.green} label="On-Topic" /><ChartLegendItem color={chartColors.orange} label="Off-Topic" /><ChartLegendItem color={chartColors.gray} label="Silences" /></>}
+            insight={<ChartInsight icon={<Mic className="w-4 h-4 text-accent" />} text="Wednesday: 28% off-topic speech detected — patient discussed unrelated childhood memories during medication prompt" />}
+          >
+            <HealthStackedBarChart
+              data={voicePatterns}
+              xKey="day"
+              keys={[
+                { key: 'onTopic', color: chartColors.green, name: 'On-Topic' },
+                { key: 'offTopic', color: chartColors.orange, name: 'Off-Topic' },
+                { key: 'silences', color: chartColors.gray, name: 'Long Silences' },
+              ]}
+            />
+          </ChartCard>
         </div>
 
         {/* Incidents */}
