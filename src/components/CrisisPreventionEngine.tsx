@@ -254,8 +254,8 @@ export default function CrisisPreventionEngine() {
   return (
     <div className="h-full flex flex-col ios-grouped-bg">
       {/* Header */}
-      <div className="pt-3 pb-1" style={{ paddingLeft: 24, paddingRight: 24 }}>
-        <div className="flex items-center gap-3 mb-3">
+      <div className="pt-4 pb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
+        <div className="flex items-center gap-3 mb-4">
           <IconBox Icon={Shield} color={iosColors.red} />
           <div className="flex-1">
             <h2 className="text-[16px] font-extrabold text-foreground tracking-tight">Crisis Prevention</h2>
@@ -271,7 +271,7 @@ export default function CrisisPreventionEngine() {
         </div>
 
         {/* iOS Segmented Tab Bar */}
-        <div className="pb-0">
+        <div className="pb-1">
           <SegmentedControl
             value={activeTab}
             onChange={(v) => setActiveTab(v as CrisisTab)}
@@ -284,12 +284,11 @@ export default function CrisisPreventionEngine() {
             { value: 'coach', icon: <Bot className="w-3.5 h-3.5" />, label: 'AI Coach' },
             { value: 'devices', icon: <Smartphone className="w-3.5 h-3.5" />, label: 'Devices' }]
             } />
-
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-6 pt-1">
+      <div className="flex-1 overflow-y-auto pb-6 pt-3">
         <AnimatePresence mode="wait">
           {/* ─── FORECAST ─── */}
           {activeTab === 'forecast' &&
@@ -381,17 +380,15 @@ export default function CrisisPreventionEngine() {
                   part
                   )}
                   </p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
                   { label: '30-day baseline', color: 'bg-primary/10 text-primary border-primary/20' },
                   { label: 'LightGBM v2.1', color: 'bg-accent/10 text-accent border-accent/20' },
-                  { label: 'Trained: 2d ago', color: 'bg-secondary/10 text-secondary border-secondary/20' },
                   { label: `${rand(45, 90)} data points`, color: 'bg-success/10 text-success border-success/20' },
-                  { label: `${rand(3, 8)} crisis logs`, color: 'bg-warning/10 text-warning border-warning/20' },
-                  { label: 'Auto-updating', color: 'bg-destructive/10 text-destructive border-destructive/20' }].
+                  { label: `${rand(3, 8)} crisis logs`, color: 'bg-warning/10 text-warning border-warning/20' }].
                   map((b) =>
-                  <div key={b.label} className={`${b.color} border rounded-lg px-2 py-1.5 text-center`}>
-                        <span className="text-[10px] font-bold">{b.label}</span>
+                  <div key={b.label} className={`${b.color} border rounded-lg px-3 py-2 text-center`}>
+                        <span className="text-[11px] font-semibold">{b.label}</span>
                       </div>
                   )}
                   </div>
