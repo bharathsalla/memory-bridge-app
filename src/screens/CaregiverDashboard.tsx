@@ -432,24 +432,18 @@ export default function CaregiverDashboard() {
 
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
-        {/* iOS Large Title Header */}
-        <div className="px-5 pt-4 pb-3">
+        {/* iOS Large Title Header — 24pt side margins, generous top padding */}
+        <div className="pt-3 pb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
           <h1 className="text-ios-large-title text-foreground">Vitals</h1>
           <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
         </div>
 
-        {/* Crisis Forecast Header */}
-        <div className="px-5 mb-4">
-          <h2 className="text-[22px] font-bold text-foreground leading-tight">Crisis Forecast</h2>
-          <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
-        </div>
-
-        {/* Patient View — iOS grouped list row */}
-        <div className="px-5 mb-5">
+        {/* Patient View — iOS grouped list card */}
+        <div className="mt-3 mb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
           <button
             onClick={() => setModeModalOpen(true)}
             className="w-full ios-card flex items-center justify-between px-4 touch-target"
-            style={{ minHeight: 52 }}>
+            style={{ minHeight: 56 }}>
             <div className="flex items-center gap-3">
               <IconBox Icon={Eye} color={iosColors.blue} size={36} iconSize={18} />
               <span className="text-ios-callout font-medium text-foreground">Patient View</span>
@@ -463,6 +457,12 @@ export default function CaregiverDashboard() {
               <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
             </div>
           </button>
+        </div>
+
+        {/* Section Header — Crisis Forecast */}
+        <div className="pt-4 pb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
+          <h2 className="text-ios-title2 text-foreground">Crisis Forecast</h2>
+          <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
         </div>
 
         {/* Crisis Prevention Engine */}
