@@ -51,6 +51,15 @@ serve(async (req) => {
       });
     }
 
+    // Add to activities so it shows in Today's Activity for both caregiver and patient
+    const nowTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    await supabase.from("activities").insert({
+      description: `${type === "medication" ? "💊" : "🔔"} ${message || "Reminder"} — Sent by ${caregiverName || "Caregiver"}`,
+      time: nowTime,
+      icon: type === "medication" ? "💊" : "🔔",
+      completed: false,
+    });
+
     // Create scheduled reminder
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
