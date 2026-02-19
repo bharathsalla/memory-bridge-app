@@ -192,17 +192,16 @@ export default function TodayScreen() {
           </div>
         </div>
 
-        {/* Medications */}
+        {/* Reminders (pending only) */}
         <div className="mt-5">
           <div className="px-5 flex items-center justify-between mb-2">
-            <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Medications</p>
-            <span className="text-ios-footnote text-muted-foreground">{takenMeds.length}/{medications.length} taken</span>
-          </div>
-          <div className="px-4 mb-2">
-            <Progress value={medProgress} className="h-[3px] rounded-full" />
+            <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Reminders</p>
+            {pendingMeds.length > 0 && (
+              <span className="text-ios-footnote text-muted-foreground">{pendingMeds.length} pending</span>
+            )}
           </div>
 
-          {pendingMeds.length > 0 && (
+          {pendingMeds.length > 0 ? (
             <div className="px-4">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
                 {pendingMeds.map((med) => (
@@ -222,68 +221,52 @@ export default function TodayScreen() {
                 ))}
               </div>
             </div>
-          )}
-
-          {takenMeds.length > 0 && (
-            <div className="px-4 mt-2">
-              <div className="ios-card overflow-hidden divide-y divide-border/30">
-                {takenMeds.map((med) => (
-                  <div key={med.id} className="flex items-center gap-3 px-5 py-3" style={{ minHeight: 56 }}>
-                    <IconBox Icon={Check} color={iosColors.green} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-ios-subheadline text-muted-foreground line-through">{med.name} · {med.dosage}</p>
-                      <p className="text-ios-caption2 text-muted-foreground">Taken at {med.taken_at}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {medications.length === 0 && (
+          ) : (
             <div className="px-4">
-              <div className="ios-card p-8 flex flex-col items-center gap-3">
-                <Pill className="w-10 h-10 text-muted-foreground/20" />
-                <p className="text-ios-subheadline text-muted-foreground">No medications scheduled</p>
+              <div className="ios-card p-6 flex flex-col items-center gap-2">
+                <Check className="w-8 h-8 text-muted-foreground/20" />
+                <p className="text-ios-subheadline text-muted-foreground">All caught up!</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Today's Activity */}
+        {/* Today's Activity (completed items only, recent 10) */}
         <div className="mt-5 mb-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="px-4">
             <div className="ios-card overflow-hidden divide-y divide-border/30">
-              {[...activities]
-                .sort((a, b) => {
-                  const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                  const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                  return dateB - dateA;
-                })
-                .map((item, idx) => (
-                <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
-                  {item.completed ? (
+              {(() => {
+                const completedActivities = [...activities]
+                  .filter(a => a.completed)
+                  .sort((a, b) => {
+                    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                    return dateB - dateA;
+                  })
+                  .slice(0, 10);
+
+                if (completedActivities.length === 0) {
+                  return (
+                    <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No completed activity yet today</div>
+                  );
+                }
+
+                return completedActivities.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
                     <IconBox Icon={Check} color={iosColors.green} />
-                  ) : (
-                    <IconBox Icon={Clock} color={getColor(idx)} />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</p>
-                    <p className="text-ios-footnote text-muted-foreground mt-0.5">
-                      {item.created_at
-                        ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-                        : item.time}
-                    </p>
-                  </div>
-                  {item.completed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</p>
+                      <p className="text-ios-footnote text-muted-foreground mt-0.5">
+                        {item.created_at
+                          ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                          : item.time}
+                      </p>
+                    </div>
                     <span className="text-ios-caption font-semibold text-muted-foreground shrink-0">Done</span>
-                  )}
-                </div>
-              ))}
-              {activities.length === 0 && (
-                <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity yet today</div>
-              )}
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </div>
