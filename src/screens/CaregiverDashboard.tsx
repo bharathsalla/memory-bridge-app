@@ -218,9 +218,9 @@ export default function CaregiverDashboard() {
             {(() => {
               const categorize = (desc: string) => {
                 const d = desc.toLowerCase();
-                if (d.includes('medication') || d.includes('pill') || d.includes('💊') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo')) return 'medication';
-                if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('🍳') || d.includes('food')) return 'meals';
-                if (d.includes('walk') || d.includes('exercise') || d.includes('step') || d.includes('🚶')) return 'exercise';
+                if (d.includes('medication') || d.includes('pill') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo') || d.includes('missed dose')) return 'medication';
+                if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('food')) return 'meals';
+                if (d.includes('walk') || d.includes('exercise') || d.includes('step')) return 'exercise';
                 return 'other';
               };
 
@@ -247,21 +247,25 @@ export default function CaregiverDashboard() {
                 const ci = iconMap[cat] || iconMap.other;
 
                 return (
-                  <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
+                  <div key={item.id} className={`flex items-center gap-3 px-5 ${item.description.toLowerCase().includes('missed') ? 'bg-destructive/8' : ''}`} style={{ minHeight: 72, paddingTop: 14, paddingBottom: 14 }}>
                     {item.completed ? (
                       <IconBox Icon={ci.Icon} color={iosColors.green} />
+                    ) : item.description.toLowerCase().includes('missed') ? (
+                      <IconBox Icon={AlertTriangle} color={iosColors.red} />
                     ) : (
                       <IconBox Icon={ci.Icon} color={ci.color} />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</div>
+                      <div className={`text-ios-callout font-medium leading-snug ${item.description.toLowerCase().includes('missed') ? 'text-destructive font-bold' : 'text-foreground'}`}>{item.description.replace(/[\u{1F300}-\u{1FAD6}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim()}</div>
                       <div className="text-ios-footnote text-muted-foreground mt-0.5">
                         {item.created_at
                           ? formatISTTime(item.created_at)
                           : item.time}
                       </div>
                     </div>
-                    {item.completed ? (
+                    {item.description.toLowerCase().includes('missed') ? (
+                      <span className="text-ios-caption font-bold text-destructive shrink-0">Not Taken</span>
+                    ) : item.completed ? (
                       <span className="text-ios-caption font-semibold text-success shrink-0">Done</span>
                     ) : (
                       <span className="text-ios-caption font-medium text-muted-foreground shrink-0">Pending</span>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, User, MapPin, Phone, Heart, Users, Shield, Copy, Check } from 'lucide-react';
+import { ChevronLeft, User, MapPin, Phone, Heart, Users, Shield, Copy, Check, AlertTriangle } from 'lucide-react';
+import IconBox, { iosColors } from '@/components/ui/IconBox';
 import { useApp } from '@/contexts/AppContext';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 
@@ -75,7 +76,7 @@ export default function PatientIDCard({ open, onClose }: { open: boolean; onClos
                   <p className="text-[16px] text-muted-foreground font-medium">{patientDetails.diagnosis}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="px-3 py-1 rounded-lg bg-destructive/15 text-destructive text-[14px] font-bold">
-                      🩸 {patientDetails.bloodGroup}
+                      {patientDetails.bloodGroup}
                     </span>
                   </div>
                 </div>
@@ -103,7 +104,7 @@ export default function PatientIDCard({ open, onClose }: { open: boolean; onClos
               {/* Allergies */}
               <div className="flex items-start gap-3 py-3 border-t border-border/30">
                 <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-                  <span className="text-[18px]">⚠️</span>
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
                 </div>
                 <div>
                   <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider">Allergies</p>
@@ -114,11 +115,9 @@ export default function PatientIDCard({ open, onClose }: { open: boolean; onClos
 
             {/* Doctor */}
             <div className="mb-5">
-              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">🩺 Primary Doctor</h4>
+              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">Primary Doctor</h4>
               <div className="ios-card-elevated p-4 flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="text-[22px]">👨‍⚕️</span>
-                </div>
+                <IconBox Icon={User} color={iosColors.blue} size={48} iconSize={22} />
                 <div className="flex-1 min-w-0">
                   <p className="text-[17px] font-bold text-foreground">{patientDetails.doctorName}</p>
                   <p className="text-[14px] text-muted-foreground">{patientDetails.doctorPhone}</p>
@@ -134,7 +133,7 @@ export default function PatientIDCard({ open, onClose }: { open: boolean; onClos
 
             {/* Family */}
             <div className="mb-5">
-              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">👨‍👩‍👧 Family Contacts</h4>
+              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">Family Contacts</h4>
               <div className="space-y-2.5">
                 {familyContacts.map(c => (
                   <div key={c.phone} className="ios-card-elevated p-4 flex items-center gap-3.5">
@@ -161,7 +160,7 @@ export default function PatientIDCard({ open, onClose }: { open: boolean; onClos
 
             {/* Friends */}
             <div className="mb-4">
-              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">🤝 Friends & Neighbors</h4>
+              <h4 className="text-[13px] text-muted-foreground font-bold uppercase tracking-wider mb-3 px-1">Friends & Neighbors</h4>
               <div className="space-y-2.5">
                 {friendContacts.map(c => (
                   <div key={c.phone} className="ios-card-elevated p-4 flex items-center gap-3.5">
