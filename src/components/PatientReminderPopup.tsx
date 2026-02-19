@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Clock, Bell, AlertTriangle, Pill } from 'lucide-react';
+import { Check, Timer, Bell, AlertTriangle, Pill } from 'lucide-react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
+import CircularTimer from '@/components/ui/CircularTimer';
 import { useApp } from '@/contexts/AppContext';
 import { useScheduledReminders, useAcknowledgeReminder, useSnoozeReminder } from '@/hooks/useReminders';
 import { useMedications, useMarkMedicationTaken } from '@/hooks/useCareData';
+
+const SNOOZE_MINUTES = 10;
+const SNOOZE_MS = SNOOZE_MINUTES * 60 * 1000;
 
 export default function PatientReminderPopup() {
   const { patientName, isCaregiverView } = useApp();
@@ -19,32 +23,19 @@ export default function PatientReminderPopup() {
   const [startTimes] = useState<Record<string, number>>({});
   const [timeWaiting, setTimeWaiting] = useState(0);
   const waitTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [now, setNow] = useState(Date.now());
 
-  // Re-show snoozed reminders when snooze time expires
+  // Tick every second for snooze expiry checks
   useEffect(() => {
-    const entries = Object.entries(snoozedUntil);
-    if (entries.length === 0) return;
-
-    const timers = entries.map(([id, until]) => {
-      const remaining = until - Date.now();
-      if (remaining <= 0) return null;
-      return setTimeout(() => {
-        setSnoozedUntil(prev => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
-      }, remaining);
-    }).filter(Boolean) as ReturnType<typeof setTimeout>[];
-
-    return () => timers.forEach(t => clearTimeout(t));
-  }, [snoozedUntil]);
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const activeReminder = scheduledReminders.find(sr => {
     if (dismissed.has(sr.id)) return false;
     if (sr.status !== 'active' && sr.status !== 'sent') return false;
     const snoozeEnd = snoozedUntil[sr.id];
-    if (snoozeEnd && Date.now() < snoozeEnd) return false;
+    if (snoozeEnd && now < snoozeEnd) return false;
     return true;
   });
 
@@ -93,21 +84,20 @@ export default function PatientReminderPopup() {
   const handleSnooze = () => {
     if (!activeReminder || !reminderData) return;
 
-    setSnoozedUntil(prev => ({ ...prev, [activeReminder.id]: Date.now() + 10 * 60 * 1000 }));
+    setSnoozedUntil(prev => ({ ...prev, [activeReminder.id]: Date.now() + SNOOZE_MS }));
 
     snoozeReminder.mutate({
       scheduledId: activeReminder.id,
       reminderId: reminderData.id,
-      minutes: 10,
+      minutes: SNOOZE_MINUTES,
     });
   };
 
   const displayName = patientName || 'Friend';
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const greeting = now.getHours() < 12 ? 'Good Morning' : now.getHours() < 17 ? 'Good Afternoon' : 'Good Evening';
+  const currentTime = new Date();
+  const timeStr = currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const greeting = currentTime.getHours() < 12 ? 'Good Morning' : currentTime.getHours() < 17 ? 'Good Afternoon' : 'Good Evening';
   const isOverdue = timeWaiting > 120;
-  const formatWait = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   if (!activeReminder || !reminderData || isCaregiverView) return null;
 
@@ -141,7 +131,7 @@ export default function PatientReminderPopup() {
               className="bg-destructive text-destructive-foreground px-4 py-2 flex items-center gap-2"
             >
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span className="text-[12px] font-bold">No response for {formatWait(timeWaiting)} — Caregiver alerted</span>
+              <span className="text-[12px] font-bold">No response — Caregiver alerted</span>
             </motion.div>
           )}
 
@@ -191,16 +181,17 @@ export default function PatientReminderPopup() {
               />
             )}
 
-            <div className="flex items-center justify-center mt-4 mb-4">
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/60">
-                <Clock className="w-3 h-3 text-muted-foreground" />
-                <span className="text-[11px] font-semibold text-muted-foreground">
-                  Waiting {formatWait(timeWaiting)}
-                </span>
-              </div>
+            {/* iOS-style circular timer */}
+            <div className="flex justify-center mt-4 mb-4">
+              <CircularTimer
+                seconds={timeWaiting}
+                total={600}
+                size={80}
+                label="Waiting for response"
+              />
             </div>
 
-            {/* Action buttons using brand primary & secondary */}
+            {/* Action buttons — Primary solid, Secondary outline */}
             <div className="grid grid-cols-2 gap-3">
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -216,10 +207,10 @@ export default function PatientReminderPopup() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSnooze}
                 disabled={snoozeReminder.isPending}
-                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 bg-secondary text-secondary-foreground disabled:opacity-50"
+                className="py-3.5 font-bold text-[15px] flex items-center justify-center gap-2 border-2 border-primary text-primary bg-transparent disabled:opacity-50"
                 style={{ borderRadius: 14 }}
               >
-                <Clock className="w-5 h-5" />
+                <Timer className="w-5 h-5" />
                 10 Min
               </motion.button>
             </div>
