@@ -8,7 +8,7 @@ import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 import { Progress } from '@/components/ui/progress';
-import { formatISTTime, formatISTDate, getISTHours } from '@/lib/timeUtils';
+import { formatISTTime, formatISTDate, getISTHours, formatTimeToIST } from '@/lib/timeUtils';
 
 export default function TodayScreen() {
   const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
@@ -213,7 +213,7 @@ export default function TodayScreen() {
                     <IconBox Icon={Pill} color={iosColors.orange} />
                     <div className="flex-1 min-w-0">
                       <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
-                      <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time}</p>
+                      <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {formatTimeToIST(med.time)}</p>
                     </div>
                     <button
                       onClick={() => markMedicationTaken(med.id)}
