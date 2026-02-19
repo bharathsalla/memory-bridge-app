@@ -19,21 +19,33 @@ serve(async (req) => {
 
     const { type, message, photoUrl, caregiverName, medName, medDosage, medQty, medInstructions, medTime, medPeriod, medFoodInstruction } = await req.json();
 
-    // Build a display time string
-    let displayTime = "";
+    // Build dose time
     let doseDate = new Date();
+    let displayTime = "";
+
     if (medTime) {
       const [h, m] = medTime.split(":").map(Number);
       doseDate.setHours(h, m, 0, 0);
+
       // If time already passed today, schedule for tomorrow
       if (doseDate.getTime() < Date.now()) {
         doseDate.setDate(doseDate.getDate() + 1);
       }
+
+      // Validate: must be at least 2 min in the future
+      const diffMs = doseDate.getTime() - Date.now();
+      if (diffMs < 2 * 60 * 1000) {
+        return new Response(
+          JSON.stringify({ error: "Dose time must be at least 2 minutes from now." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     } else {
-      // No specific time — show immediately (next_due_time = now + 10 min so popup shows now)
-      doseDate = new Date(Date.now() + 10 * 60 * 1000);
-      displayTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      // No specific time — schedule 2 min from now so popup shows immediately
+      doseDate = new Date(Date.now() + 2 * 60 * 1000);
+      displayTime = doseDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     }
 
     // Build instructions string
@@ -84,7 +96,7 @@ serve(async (req) => {
     });
 
     // Create scheduled reminder with next_due_time = actual dose time
-    // The patient popup will show 10 min before this time
+    // The patient popup will show 2 min before this time
     await supabase.from("scheduled_reminders").insert({
       reminder_id: reminder.id,
       next_due_time: doseDate.toISOString(),
