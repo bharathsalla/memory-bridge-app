@@ -187,7 +187,7 @@ export function useSnoozeReminder() {
 export function useSendCaregiverReminder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { type: string; message: string; photoUrl?: string; caregiverName: string; medName?: string; medDosage?: string; medQty?: string; medInstructions?: string; medTime?: string; medPeriod?: string; medFoodInstruction?: string }) => {
+    mutationFn: async (payload: { type: string; message: string; photoUrl?: string; caregiverName: string; medName?: string; medDosage?: string; medQty?: string; medInstructions?: string; medTime?: string; medPeriod?: string; medFoodInstruction?: string; doseTimeUtc?: string }) => {
       const { data, error } = await supabase.functions.invoke('send-caregiver-reminder', {
         body: payload,
       });
