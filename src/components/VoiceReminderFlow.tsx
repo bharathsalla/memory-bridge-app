@@ -20,6 +20,23 @@ interface ExtractedSchedule {
   trigger: string;
   patientMessage: string;
   confidence: number;
+  autoLabel: string;
+}
+
+// Auto-label detection from transcript
+function detectAutoLabel(text: string): string {
+  const lower = text.toLowerCase();
+  if (/\b(medicine|medication|pill|tablet|capsule|dose|mg|lisinopril|metformin|aspirin)\b/.test(lower)) return 'medication';
+  if (/\b(meal|food|eat|breakfast|lunch|dinner|snack)\b/.test(lower)) return 'meal';
+  if (/\b(exercise|walk|yoga|stretch|workout|gym|jog|run)\b/.test(lower)) return 'exercise';
+  if (/\b(check.?in|how are you|feeling|call|visit)\b/.test(lower)) return 'check_in';
+  return 'custom';
+}
+
+// Detect if transcript contains a time reference
+function hasTimeInTranscript(text: string): boolean {
+  const lower = text.toLowerCase();
+  return /\b(\d{1,2}:\d{2}|\d{1,2}\s*(am|pm|a\.m|p\.m)|morning|afternoon|evening|night|noon|midnight)\b/.test(lower);
 }
 
 // ── Recording animation ──
@@ -58,6 +75,8 @@ export default function VoiceReminderFlow() {
   const [extracted, setExtracted] = useState<ExtractedSchedule | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [manualDate, setManualDate] = useState('');
+  const [manualTime, setManualTime] = useState('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -180,6 +199,9 @@ export default function VoiceReminderFlow() {
 
       if (error) throw error;
 
+      const label = detectAutoLabel(finalText.trim());
+      const timeDetected = hasTimeInTranscript(finalText.trim());
+
       setExtracted({
         medication: data.medication,
         time: data.time,
@@ -187,7 +209,25 @@ export default function VoiceReminderFlow() {
         trigger: data.trigger,
         patientMessage: data.patientMessage,
         confidence: data.confidence,
+        autoLabel: label,
       });
+
+      // Pre-fill date (today) and time if AI found one
+      setManualDate(new Date().toISOString().split('T')[0]);
+      if (timeDetected && data.time) {
+        const tp = data.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+        if (tp) {
+          let hh = parseInt(tp[1]);
+          const mm = parseInt(tp[2]);
+          const ap = tp[3]?.toUpperCase();
+          if (ap === 'PM' && hh < 12) hh += 12;
+          if (ap === 'AM' && hh === 12) hh = 0;
+          setManualTime(`${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`);
+        }
+      } else {
+        setManualTime('');
+      }
+
       setRecordingStep('extracted');
     } catch (err: any) {
       console.error('AI extraction failed:', err);
@@ -201,29 +241,28 @@ export default function VoiceReminderFlow() {
   const confirmSchedule = () => {
     if (!extracted) return;
 
-    // Parse extracted time and create a proper scheduled reminder via edge function
-    // This ensures the same popup + timer + missed dose logic applies
-    const timeStr = extracted.time; // e.g. "8:00 AM", "2:30 PM"
-    const now = new Date();
-    const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-    let h = 8, m = 0;
-    if (timeParts) {
-      h = parseInt(timeParts[1]);
-      m = parseInt(timeParts[2]);
-      const ampm = timeParts[3]?.toUpperCase();
-      if (ampm === 'PM' && h < 12) h += 12;
-      if (ampm === 'AM' && h === 12) h = 0;
+    // Validate mandatory date + time
+    if (!manualDate || !manualTime) {
+      toast({ title: 'Date & Time Required', description: 'Please enter both date and time before scheduling.', variant: 'destructive' });
+      return;
     }
-    const doseDate = new Date();
-    doseDate.setHours(h, m, 0, 0);
-    if (doseDate.getTime() <= Date.now()) doseDate.setDate(doseDate.getDate() + 1);
-    const doseTimeUtc = doseDate.toISOString();
 
-    // Send via the same edge function used by manual reminders
-    // Pass audioUrl as photoUrl so the popup can autoplay caregiver's voice
+    const [y, mo, d] = manualDate.split('-').map(Number);
+    const [h, m] = manualTime.split(':').map(Number);
+    const doseDate = new Date(y, mo - 1, d, h, m, 0, 0);
+    const diffMs = doseDate.getTime() - Date.now();
+
+    if (diffMs < 120000) {
+      toast({ title: 'Invalid Time', description: 'Schedule must be at least 2 minutes from now.', variant: 'destructive' });
+      return;
+    }
+
+    const doseTimeUtc = doseDate.toISOString();
+    const reminderType = extracted.autoLabel || 'custom';
+
     sendReminder.mutate(
       {
-        type: 'medication',
+        type: reminderType,
         message: extracted.medication,
         photoUrl: audioUrl || undefined,
         caregiverName: 'Anitha',
@@ -231,7 +270,7 @@ export default function VoiceReminderFlow() {
         medDosage: '',
         medQty: '',
         medInstructions: extracted.trigger || '',
-        medTime: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`,
+        medTime: manualTime,
         medPeriod: '',
         medFoodInstruction: extracted.trigger || '',
         doseTimeUtc,
@@ -240,7 +279,7 @@ export default function VoiceReminderFlow() {
         onSuccess: () => {
           addVoiceReminder({
             medication: extracted.medication,
-            time: extracted.time,
+            time: `${manualDate} ${manualTime}`,
             frequency: extracted.frequency,
             trigger: extracted.trigger,
             patientMessage: extracted.patientMessage,
@@ -249,7 +288,7 @@ export default function VoiceReminderFlow() {
             audioUrl: audioUrl || undefined,
           });
           setRecordingStep('confirmed');
-          toast({ title: 'Reminder scheduled!', description: `${extracted.medication} at ${extracted.time} — Timer will trigger 2 min before` });
+          toast({ title: 'Reminder scheduled!', description: `${extracted.medication} at ${manualTime} — Timer will trigger 2 min before` });
           setTimeout(() => {
             setRecordingStep('idle');
             setActiveView('monitor');
@@ -410,7 +449,7 @@ export default function VoiceReminderFlow() {
                 {/* EXTRACTED state */}
                 {recordingStep === 'extracted' && extracted && (
                   <div className="p-5">
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <Brain className="w-5 h-5 text-primary" />
                       <h3 className="text-[16px] font-extrabold text-foreground">AI Extracted</h3>
                       <span className="ml-auto px-2.5 py-0.5 rounded-full bg-success/12 text-success text-[11px] font-bold">
@@ -418,27 +457,65 @@ export default function VoiceReminderFlow() {
                       </span>
                     </div>
 
+                    {/* Auto-label badge */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-[11px] font-bold text-muted-foreground">Auto Label:</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[12px] font-bold capitalize">
+                        {extracted.autoLabel.replace('_', ' ')}
+                      </span>
+                    </div>
+
                     {/* Transcript */}
-                    <div className="bg-muted/50 rounded-xl p-3 mb-4">
+                    <div className="bg-muted/50 rounded-xl p-3 mb-3">
                       <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Your Recording</div>
                       <p className="text-[14px] text-foreground italic leading-relaxed">"{transcript}"</p>
                     </div>
 
+                    {/* Mandatory Date & Time Fields */}
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                          Date <span className="text-destructive">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={manualDate}
+                          onChange={e => setManualDate(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl bg-muted/40 text-foreground text-[14px] font-semibold border border-border focus:ring-2 focus:ring-primary/30 outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                          Time <span className="text-destructive">*</span>
+                        </label>
+                        <input
+                          type="time"
+                          value={manualTime}
+                          onChange={e => setManualTime(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl bg-muted/40 text-foreground text-[14px] font-semibold border border-border focus:ring-2 focus:ring-primary/30 outline-none"
+                        />
+                      </div>
+                    </div>
+                    {!manualTime && (
+                      <p className="text-[11px] text-destructive font-semibold mb-3">
+                        Time not detected in voice. Please enter manually.
+                      </p>
+                    )}
+
                     {/* Extracted fields */}
-                    <div className="space-y-2.5 mb-4">
+                    <div className="space-y-2 mb-3">
                       {[
-                        { Icon: Pill, label: 'Medication', value: extracted.medication },
-                        { Icon: Clock, label: 'Time', value: extracted.time },
+                        { Icon: Pill, label: 'Subject', value: extracted.medication },
                         { Icon: RefreshCw, label: 'Frequency', value: extracted.frequency },
-                        { Icon: Coffee, label: 'Trigger', value: extracted.trigger },
+                        { Icon: Coffee, label: 'Instructions', value: extracted.trigger },
                       ].map((field, idx) => (
-                        <div key={field.label} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                          <IconBox Icon={field.Icon} color={getColor(idx)} size={36} iconSize={18} />
+                        <div key={field.label} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/30">
+                          <IconBox Icon={field.Icon} color={getColor(idx)} size={32} iconSize={16} />
                           <div className="flex-1">
-                            <div className="text-[11px] font-bold text-muted-foreground">{field.label}</div>
-                            <div className="text-[14px] font-bold text-foreground">{field.value}</div>
+                            <div className="text-[10px] font-bold text-muted-foreground">{field.label}</div>
+                            <div className="text-[13px] font-bold text-foreground">{field.value}</div>
                           </div>
-                          <Check className="w-4 h-4 text-success" />
+                          <Check className="w-3.5 h-3.5 text-success" />
                         </div>
                       ))}
                     </div>
@@ -446,7 +523,7 @@ export default function VoiceReminderFlow() {
                     {/* Patient message preview */}
                     <div className="bg-primary/5 rounded-xl p-3 mb-4 border border-primary/10">
                       <div className="text-[11px] font-bold text-primary mb-1">Patient will hear:</div>
-                      <p className="text-[14px] text-foreground italic">"{extracted.patientMessage}"</p>
+                      <p className="text-[13px] text-foreground italic">"{extracted.patientMessage}"</p>
                     </div>
 
                     <div className="flex gap-2.5">
@@ -458,7 +535,8 @@ export default function VoiceReminderFlow() {
                       </button>
                       <button
                         onClick={confirmSchedule}
-                        className="flex-[1.5] py-3 rounded-xl bg-success text-success-foreground font-extrabold text-[14px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"
+                        disabled={!manualDate || !manualTime}
+                        className="flex-[1.5] py-3 rounded-xl bg-success text-success-foreground font-extrabold text-[14px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md disabled:opacity-40"
                       >
                         <Check className="w-4 h-4" /> Confirm & Schedule
                       </button>

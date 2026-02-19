@@ -83,7 +83,7 @@ export default function PatientReminderPopup() {
     }
   }, [activeReminder?.id]);
 
-  // Voice playback for voice-recorded reminders, then alert sounds
+  // Voice playback: play 3 times spread across the timer (start, middle, end)
   useEffect(() => {
     if (!activeReminder || isCaregiverView) {
       if (alertIntervalRef.current) { clearInterval(alertIntervalRef.current); alertIntervalRef.current = null; }
@@ -93,37 +93,62 @@ export default function PatientReminderPopup() {
     const hasVoice = reminderData?.photo_url && reminderData.photo_url.startsWith('blob:');
     const alreadyPlayedVoice = voicePlayed.has(activeReminder.id);
 
-    // For voice reminders: play caregiver's actual voice 3 times, then start alert loop
     if (hasVoice && !alreadyPlayedVoice) {
       setIsPlayingVoice(true);
       setVoicePlayed(prev => new Set(prev).add(activeReminder.id));
-      let playCount = 0;
-      const maxPlays = 3;
+
       const audio = new Audio(reminderData.photo_url);
       audioRef.current = audio;
-      
-      const playNext = () => {
+      let playCount = 0;
+      const maxPlays = 3;
+
+      // Calculate intervals: play at start, ~40s in, ~80s in (spread across 120s timer)
+      const intervalGap = 40000; // 40 seconds between plays
+
+      const playOnce = () => {
         playCount++;
-        if (playCount < maxPlays) {
-          setTimeout(() => {
-            audio.currentTime = 0;
-            audio.play().catch(() => {});
-          }, 500); // 500ms gap between replays
-        } else {
+        if (playCount >= maxPlays) {
           setIsPlayingVoice(false);
+        }
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      };
+
+      // Play immediately (1st time)
+      audio.play().catch(() => {});
+      playCount = 1;
+
+      // Schedule 2nd and 3rd plays
+      const timer2 = setTimeout(() => {
+        if (audioRef.current) {
+          setIsPlayingVoice(true);
+          playOnce();
+        }
+      }, intervalGap);
+
+      const timer3 = setTimeout(() => {
+        if (audioRef.current) {
+          setIsPlayingVoice(true);
+          playOnce();
+        }
+      }, intervalGap * 2);
+
+      audio.onended = () => {
+        setIsPlayingVoice(false);
+      };
+
+      // Start alert sounds after first play ends
+      audio.addEventListener('ended', () => {
+        if (!initialAlertFiredRef.current.has(activeReminder.id)) {
+          initialAlertFiredRef.current.add(activeReminder.id);
           triggerAlert();
           alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
         }
-      };
-      
-      audio.onended = playNext;
-      audio.onerror = () => {
-        setIsPlayingVoice(false);
-        triggerAlert();
-        alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
-      };
-      audio.play().catch(() => {});
+      }, { once: true });
+
       return () => {
+        clearTimeout(timer2);
+        clearTimeout(timer3);
         if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
         if (alertIntervalRef.current) { clearInterval(alertIntervalRef.current); alertIntervalRef.current = null; }
       };
