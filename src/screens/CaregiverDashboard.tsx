@@ -190,24 +190,38 @@ export default function CaregiverDashboard() {
         <div className="mt-6">
           <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider mb-2 px-5">Today's Activity</p>
           <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-            {activities.map((item, idx) => (
-              <div key={item.id} className="flex items-center gap-3 px-4" style={{ minHeight: 60 }}>
+            {[...activities]
+              .sort((a, b) => {
+                // Sort by created_at descending (most recent first)
+                const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                return dateB - dateA;
+              })
+              .map((item, idx) => (
+              <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
                 {item.completed ? (
                   <IconBox Icon={Check} color={iosColors.green} />
                 ) : (
                   <IconBox Icon={Clock} color={getColor(idx)} />
                 )}
-                <div className="flex-1">
-                  <div className="text-ios-callout font-medium text-foreground">{item.description}</div>
-                  <div className="text-ios-footnote text-muted-foreground">{item.time}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</div>
+                  <div className="text-ios-footnote text-muted-foreground mt-0.5">
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                      : item.time}
+                  </div>
                 </div>
                 {item.completed ? (
-                  <span className="text-ios-caption font-semibold text-success">Done</span>
+                  <span className="text-ios-caption font-semibold text-success shrink-0">Done</span>
                 ) : (
-                  <span className="text-ios-caption font-medium text-muted-foreground">Pending</span>
+                  <span className="text-ios-caption font-medium text-muted-foreground shrink-0">Pending</span>
                 )}
               </div>
             ))}
+            {activities.length === 0 && (
+              <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity yet today</div>
+            )}
           </div>
         </div>
 
