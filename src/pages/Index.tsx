@@ -213,10 +213,10 @@ const Index = () => {
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-bold">Patient Not Responding!</div>
-                  <div className="text-[12px] opacity-90">
-                    {caregiverMissedAlert.name} — No confirmation after snooze
-                  </div>
+216:                   <div className="text-[14px] font-bold">⚠️ Missed Medication Alert</div>
+217:                   <div className="text-[12px] opacity-90">
+218:                     {caregiverMissedAlert.name} missed at {caregiverMissedAlert.time}
+219:                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
