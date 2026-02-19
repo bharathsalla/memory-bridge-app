@@ -19,7 +19,7 @@ import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
 import PatientReminderPopup from '@/components/PatientReminderPopup';
-import { Bell, Phone, RotateCcw, X } from 'lucide-react';
+import { AlertTriangle, Bell, Phone, X } from 'lucide-react';
 import { useScheduledReminders } from '@/hooks/useReminders';
 
 const navTitles: Record<string, string> = {
@@ -44,11 +44,13 @@ const cgNavTitles: Record<string, string> = {
 };
 
 const Index = () => {
-  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation } = useApp();
+  const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation, cancelSOS } = useApp();
   const { data: scheduledReminders = [] } = useScheduledReminders();
   const [showReminders, setShowReminders] = React.useState(false);
   const [remindersInitialized, setRemindersInitialized] = React.useState(false);
   const [sosNotification, setSOSNotification] = React.useState(false);
+  // Track dismissed caregiver alerts by scheduled_reminder id so they don't keep popping
+  const [dismissedCaregiverAlerts, setDismissedCaregiverAlerts] = React.useState<Set<string>>(new Set());
   const [caregiverMissedAlert, setCaregiverMissedAlert] = React.useState<{ name: string; time: string; id: string } | null>(null);
   const prevSOSRef = useRef(false);
   const prevScheduledCountRef = useRef(0);
@@ -86,15 +88,19 @@ const Index = () => {
     prevSOSRef.current = isSOSActive;
   }, [isSOSActive]);
 
-  // Caregiver alert: check for overdue medications immediately on switch & every 10s
+  // Caregiver alert: only show when next_due_time has passed AND status is still active
+  // AND the caregiver hasn't already dismissed this specific alert
   useEffect(() => {
     if (!isCaregiverView) return;
 
     const checkOverdue = () => {
+      const now = Date.now();
       const overdue = scheduledReminders.find(sr => {
         if (sr.status !== 'active') return false;
-        const createdAt = sr.created_at ? new Date(sr.created_at).getTime() : 0;
-        return (Date.now() - createdAt) > 2 * 60 * 1000;
+        if (dismissedCaregiverAlerts.has(sr.id)) return false;
+        const dueTime = new Date(sr.next_due_time).getTime();
+        // Only alert if due time has passed (snooze expired) AND it's been 2+ min past due
+        return now > dueTime && (now - dueTime) > 2 * 60 * 1000;
       });
       if (overdue) {
         const reminderData = overdue.reminders as any;
@@ -106,12 +112,10 @@ const Index = () => {
       }
     };
 
-    // Check immediately on switch
     checkOverdue();
-
     const interval = setInterval(checkOverdue, 10000);
     return () => clearInterval(interval);
-  }, [isCaregiverView, scheduledReminders]);
+  }, [isCaregiverView, scheduledReminders, dismissedCaregiverAlerts]);
 
   // Don't show reminders when switching to caregiver view
   useEffect(() => {
@@ -119,6 +123,13 @@ const Index = () => {
       setShowReminders(false);
     }
   }, [isCaregiverView]);
+
+  const dismissCaregiverAlert = (id?: string) => {
+    if (id) {
+      setDismissedCaregiverAlerts(prev => new Set(prev).add(id));
+    }
+    setCaregiverMissedAlert(null);
+  };
 
   const appContent = () => {
     if (!onboarded) {
@@ -143,19 +154,19 @@ const Index = () => {
               }}
             >
               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
-                   <Phone className="w-5 h-5" />
-                 </div>
+                <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
+                  <Phone className="w-5 h-5" />
+                </div>
                 <div className="flex-1 min-w-0">
-                   <div className="text-[14px] font-bold">Emergency SOS Alert!</div>
-                   <div className="text-[12px] opacity-90">{sosTriggeredLocation || patientLocation} — Tap to respond</div>
+                  <div className="text-[14px] font-bold">Emergency SOS Alert!</div>
+                  <div className="text-[12px] opacity-90">{sosTriggeredLocation || patientLocation} — Tap to respond</div>
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setSOSNotification(false); }}
-                  className="text-[12px] font-semibold opacity-80 px-2 py-1"
-                 >
-                   <X className="w-4 h-4" />
-                 </button>
+                  className="w-8 h-8 rounded-full bg-destructive-foreground/20 flex items-center justify-center"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </motion.div>
           )}
@@ -182,9 +193,9 @@ const Index = () => {
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setPatientNotification(null); }}
-                  className="text-[12px] font-semibold opacity-80 px-2 py-1"
+                  className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center"
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
@@ -201,33 +212,33 @@ const Index = () => {
               transition={{ type: 'spring', damping: 20 }}
               className="absolute top-0 left-0 right-0 z-[60] bg-destructive text-destructive-foreground p-3 shadow-2xl"
               onClick={() => {
-                setCaregiverMissedAlert(null);
+                dismissCaregiverAlert(caregiverMissedAlert.id);
                 setActiveCaregiverTab('dashboard');
               }}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-destructive-foreground/20 flex items-center justify-center animate-pulse shrink-0">
-                  <Bell className="w-5 h-5" />
+                  <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                   <div className="text-[14px] font-bold">Patient Not Responding!</div>
-                   <div className="text-[12px] opacity-90">
-                     {caregiverMissedAlert.name} — No confirmation yet
-                   </div>
+                  <div className="text-[14px] font-bold">Patient Not Responding!</div>
+                  <div className="text-[12px] opacity-90">
+                    {caregiverMissedAlert.name} — No confirmation after snooze
+                  </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveCaregiverTab('dashboard');
-                      setCaregiverMissedAlert(null);
+                      dismissCaregiverAlert(caregiverMissedAlert.id);
                     }}
                     className="w-8 h-8 rounded-full bg-destructive-foreground/20 flex items-center justify-center"
                   >
                     <Phone className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setCaregiverMissedAlert(null); }}
+                    onClick={(e) => { e.stopPropagation(); dismissCaregiverAlert(caregiverMissedAlert.id); }}
                     className="w-8 h-8 rounded-full bg-destructive-foreground/20 flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />

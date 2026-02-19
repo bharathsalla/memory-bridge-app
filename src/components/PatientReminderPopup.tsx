@@ -19,23 +19,17 @@ export default function PatientReminderPopup() {
   const markMedTaken = useMarkMedicationTaken();
 
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-  const [snoozedUntil, setSnoozedUntil] = useState<Record<string, number>>({});
   const [startTimes] = useState<Record<string, number>>({});
   const [timeWaiting, setTimeWaiting] = useState(0);
   const waitTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [now, setNow] = useState(Date.now());
 
-  // Tick every second for snooze expiry checks
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
+  // Find a reminder that is active AND whose next_due_time has passed
   const activeReminder = scheduledReminders.find(sr => {
     if (dismissed.has(sr.id)) return false;
     if (sr.status !== 'active' && sr.status !== 'sent') return false;
-    const snoozeEnd = snoozedUntil[sr.id];
-    if (snoozeEnd && now < snoozeEnd) return false;
+    // KEY FIX: Only show if next_due_time has passed (i.e., snooze expired)
+    const dueTime = new Date(sr.next_due_time).getTime();
+    if (Date.now() < dueTime) return false;
     return true;
   });
 
@@ -84,7 +78,8 @@ export default function PatientReminderPopup() {
   const handleSnooze = () => {
     if (!activeReminder || !reminderData) return;
 
-    setSnoozedUntil(prev => ({ ...prev, [activeReminder.id]: Date.now() + SNOOZE_MS }));
+    // Immediately dismiss from UI — DB next_due_time handles re-show after 10 min
+    setDismissed(prev => new Set(prev).add(activeReminder.id));
 
     snoozeReminder.mutate({
       scheduledId: activeReminder.id,

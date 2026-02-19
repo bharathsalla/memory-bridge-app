@@ -34,8 +34,10 @@ export default function CaregiverDashboard() {
   const { data: scheduledReminders = [] } = useScheduledReminders();
   const overdueReminders = scheduledReminders.filter(sr => {
     if (sr.status !== 'active') return false;
-    const createdAt = sr.created_at ? new Date(sr.created_at).getTime() : 0;
-    return (Date.now() - createdAt) > 2 * 60 * 1000;
+    const dueTime = new Date(sr.next_due_time).getTime();
+    const now = Date.now();
+    // Only overdue if due time has passed AND it's been 2+ min past due
+    return now > dueTime && (now - dueTime) > 2 * 60 * 1000;
   });
   const stepCount = Number(vitals.find(v => v.type === 'steps')?.value || 0);
   const sleepHours = Number(vitals.find(v => v.type === 'sleep')?.value || 0);
