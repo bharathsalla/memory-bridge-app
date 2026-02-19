@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion } from 'framer-motion';
 import { Send, Camera, Pill, UtensilsCrossed, Footprints, MessageCircle, Heart, Bell, Clock, Check, X, Upload, Brain, TrendingUp, Mic, Smile, Edit3, ArrowUpFromLine, AlertCircle, UserCheck, ClipboardList, Sparkles, Loader2 } from 'lucide-react';
@@ -7,6 +7,32 @@ import { useSendCaregiverReminder, useReminderLogs, useLearnedPatterns, useAnaly
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import VoiceReminderFlow from './VoiceReminderFlow';
+
+function useMedicineAutocomplete(query: string) {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (query.length < 2) { setSuggestions([]); return; }
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('search-medicines', {
+          body: { query },
+        });
+        if (!error && Array.isArray(data)) {
+          setSuggestions(data);
+        }
+      } catch { /* ignore */ }
+      setLoading(false);
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [query]);
+
+  return { suggestions, loading };
+}
 
 const reminderTypes = [
   { value: 'medication', label: 'Medication', Icon: Pill, color: iosColors.orange, defaultMessage: 'Time to take your medication' },
@@ -35,6 +61,9 @@ export default function CaregiverRemindersPanel() {
   const { data: logs = [] } = useReminderLogs();
   const { data: patterns = [] } = useLearnedPatterns();
   const analyzePatterns = useAnalyzePatterns();
+
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { suggestions: medSuggestions, loading: medSearching } = useMedicineAutocomplete(medName);
 
   const selectedType = reminderTypes.find(t => t.value === type);
 
@@ -196,14 +225,34 @@ export default function CaregiverRemindersPanel() {
 
               {/* iOS-style form inputs */}
               <div className="ios-card overflow-hidden divide-y divide-border/30">
-                <div className="flex items-center px-4" style={{ minHeight: 44 }}>
-                  <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Name</span>
-                  <input
-                    value={medName}
-                    onChange={e => setMedName(e.target.value)}
-                    placeholder="e.g. Lisinopril"
-                    className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
-                  />
+                <div className="relative">
+                  <div className="flex items-center px-4" style={{ minHeight: 44 }}>
+                    <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Name</span>
+                    <input
+                      value={medName}
+                      onChange={e => { setMedName(e.target.value); setShowSuggestions(true); }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      placeholder="Type 2+ letters to search..."
+                      className="flex-1 text-ios-callout text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                    />
+                    {medSearching && <Loader2 className="w-3.5 h-3.5 text-muted-foreground animate-spin shrink-0" />}
+                  </div>
+                  {showSuggestions && medSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-50 bg-card border border-border/40 rounded-b-xl shadow-lg max-h-48 overflow-y-auto">
+                      {medSuggestions.map((name, i) => (
+                        <button
+                          key={i}
+                          className="w-full text-left px-4 py-2.5 text-ios-callout text-foreground hover:bg-muted/50 active:bg-muted border-b border-border/10 last:border-0"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => { setMedName(name); setShowSuggestions(false); }}
+                        >
+                          <Pill className="w-3.5 h-3.5 inline mr-2 text-muted-foreground" />
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center px-4" style={{ minHeight: 44 }}>
                   <span className="text-ios-callout text-muted-foreground w-24 shrink-0">Dosage</span>
