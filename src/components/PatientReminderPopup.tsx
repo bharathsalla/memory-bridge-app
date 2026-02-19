@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Pill, UtensilsCrossed, Footprints, Bell, MessageCircle } from 'lucide-react';
+import { Check, Pill, UtensilsCrossed, Footprints, Bell, MessageCircle, Volume2 } from 'lucide-react';
 import { iosColors } from '@/components/ui/IconBox';
 import { useApp } from '@/contexts/AppContext';
 import { useScheduledReminders, useAcknowledgeReminder } from '@/hooks/useReminders';
@@ -53,10 +53,13 @@ export default function PatientReminderPopup() {
 
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(Date.now());
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [voicePlayed, setVoicePlayed] = useState<Set<string>>(new Set());
   const startTimesRef = useRef<Record<string, number>>({});
   const missedHandledRef = useRef<Set<string>>(new Set());
   const alertIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const initialAlertFiredRef = useRef<Set<string>>(new Set());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -80,11 +83,41 @@ export default function PatientReminderPopup() {
     }
   }, [activeReminder?.id]);
 
+  // Voice playback for voice-recorded reminders, then alert sounds
   useEffect(() => {
     if (!activeReminder || isCaregiverView) {
       if (alertIntervalRef.current) { clearInterval(alertIntervalRef.current); alertIntervalRef.current = null; }
       return;
     }
+
+    const hasVoice = reminderData?.photo_url && reminderData.photo_url.startsWith('blob:');
+    const alreadyPlayedVoice = voicePlayed.has(activeReminder.id);
+
+    // For voice reminders: play caregiver's actual voice first, then start alert loop
+    if (hasVoice && !alreadyPlayedVoice) {
+      setIsPlayingVoice(true);
+      setVoicePlayed(prev => new Set(prev).add(activeReminder.id));
+      const audio = new Audio(reminderData.photo_url);
+      audioRef.current = audio;
+      audio.play().catch(() => {});
+      audio.onended = () => {
+        setIsPlayingVoice(false);
+        // Now start alert sounds after voice finishes
+        triggerAlert();
+        alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
+      };
+      audio.onerror = () => {
+        setIsPlayingVoice(false);
+        triggerAlert();
+        alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
+      };
+      return () => {
+        if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+        if (alertIntervalRef.current) { clearInterval(alertIntervalRef.current); alertIntervalRef.current = null; }
+      };
+    }
+
+    // For non-voice reminders: immediate alert sounds
     if (!initialAlertFiredRef.current.has(activeReminder.id)) {
       initialAlertFiredRef.current.add(activeReminder.id);
       triggerAlert();
@@ -238,6 +271,14 @@ export default function PatientReminderPopup() {
             <p className="text-[16px] font-semibold text-center mt-1" style={{ color: iosColors.teal }}>
               {reminderData.message}
             </p>
+
+            {/* Voice playback indicator */}
+            {isPlayingVoice && (
+              <div className="flex items-center gap-2 mt-3 px-4 py-2 rounded-xl bg-primary/8">
+                <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                <span className="text-[13px] font-semibold text-primary">Playing caregiver's voice...</span>
+              </div>
+            )}
 
             <div className="mt-6 mb-2">
               <div className="relative" style={{ width: timerSize, height: timerSize }}>

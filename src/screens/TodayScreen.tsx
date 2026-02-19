@@ -30,11 +30,12 @@ export default function TodayScreen() {
   };
 
   const markMedicationTaken = (id: string) => markTaken.mutate(id);
-  const pendingMeds = medications.filter((m) => !m.taken);
+  // Reminders section: only active/yet-to-take (exclude missed)
+  const activeMeds = medications.filter(m => !m.taken && !m.instructions?.toLowerCase().includes('missed'));
   const takenMeds = medications.filter((m) => m.taken);
+  const pendingMeds = medications.filter((m) => !m.taken);
   const medProgress = medications.length ? Math.round((takenMeds.length / medications.length) * 100) : 0;
   const dateStr = formatISTDate(new Date());
-  const notTakenMeds = medications.filter(m => !m.taken && m.instructions?.toLowerCase().includes('missed'));
 
   // ── Essential Mode ──
   if (mode === 'essential') {
@@ -196,44 +197,37 @@ export default function TodayScreen() {
           </div>
         </div>
 
-        {/* Reminders (pending only) */}
+        {/* Reminders (active/yet-to-take only — taken & missed go to Activity) */}
         <div className="mt-5">
           <div className="px-5 flex items-center justify-between mb-2">
             <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Reminders</p>
-            {pendingMeds.length > 0 && (
-              <span className="text-ios-footnote text-muted-foreground">{pendingMeds.length} pending</span>
+            {activeMeds.length > 0 && (
+              <span className="text-ios-footnote text-muted-foreground">{activeMeds.length} pending</span>
             )}
           </div>
 
-        {pendingMeds.length > 0 ? (
+        {activeMeds.length > 0 ? (
             <div className="px-4">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
-                {pendingMeds.map((med) => {
-                  const isMissed = med.instructions?.toLowerCase().includes('missed');
-                  return (
+                {activeMeds.map((med) => (
                     <div
                       key={med.id}
-                      className={`flex items-center gap-3 px-5 py-4 ${isMissed ? 'bg-destructive/8 border border-destructive/20' : ''}`}
+                      className="flex items-center gap-3 px-5 py-4"
                       style={{ minHeight: 64 }}
                     >
-                      <IconBox Icon={isMissed ? AlertTriangle : Pill} color={isMissed ? iosColors.red : iosColors.orange} />
+                      <IconBox Icon={Pill} color={iosColors.orange} />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-ios-callout font-medium ${isMissed ? 'text-destructive font-bold' : 'text-foreground'}`}>{med.name}</p>
+                        <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
                         <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {formatTimeToIST(med.time)}</p>
                       </div>
-                      {isMissed ? (
-                        <span className="text-ios-caption font-bold text-destructive shrink-0">Not Taken</span>
-                      ) : (
-                        <button
-                          onClick={() => markMedicationTaken(med.id)}
-                          className="text-primary text-ios-callout font-semibold shrink-0"
-                        >
-                          Mark as Taken
-                        </button>
-                      )}
+                      <button
+                        onClick={() => markMedicationTaken(med.id)}
+                        className="text-primary text-ios-callout font-semibold shrink-0"
+                      >
+                        Mark as Taken
+                      </button>
                     </div>
-                  );
-                })}
+                ))}
               </div>
             </div>
           ) : (

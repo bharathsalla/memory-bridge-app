@@ -124,9 +124,9 @@ export function useMarkMedicationTaken() {
       // Also add to activities so it shows in Today's Activity (patient + caregiver)
       if (med) {
         await supabase.from('activities').insert({
-          description: `💊 Medication taken — ${med.name} ${med.dosage}`,
+          description: `Medication taken — ${med.name} ${med.dosage}`,
           time: new Date().toISOString(),
-          icon: '💊',
+          icon: 'Pill',
           completed: true,
         });
       }

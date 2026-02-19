@@ -220,10 +220,12 @@ export default function VoiceReminderFlow() {
     const doseTimeUtc = doseDate.toISOString();
 
     // Send via the same edge function used by manual reminders
+    // Pass audioUrl as photoUrl so the popup can autoplay caregiver's voice
     sendReminder.mutate(
       {
         type: 'medication',
         message: extracted.medication,
+        photoUrl: audioUrl || undefined,
         caregiverName: 'Anitha',
         medName: extracted.medication,
         medDosage: '',
@@ -312,7 +314,7 @@ export default function VoiceReminderFlow() {
               {/* Greeting */}
               <div className="mb-4">
                 <h2 className="text-[20px] font-extrabold text-foreground">
-                  Good Evening, Anitha 👋
+                  Good Evening, Anitha
                 </h2>
                 <p className="text-[13px] text-muted-foreground mt-0.5">
                   Your father has {activeReminders.length} active reminders.
