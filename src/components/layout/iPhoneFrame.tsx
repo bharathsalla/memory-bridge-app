@@ -17,30 +17,27 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
 
   return (
     <div className="h-full w-full flex items-center justify-center bg-black">
-      {/* iPhone 16 Pro — logical resolution 402×874 */}
+      {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
-        className="relative overflow-hidden flex flex-col"
+        className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
         style={{
-          width: 402,
-          height: 874,
           maxHeight: '100dvh',
-          borderRadius: 55,
+          borderRadius: 'var(--frame-radius, 0px)',
           background: '#1C1C1E',
-          boxShadow: '0 0 0 2px #3A3A3C, 0 0 0 4px #1C1C1E, 0 20px 60px rgba(0,0,0,0.6)',
+          boxShadow: 'var(--frame-shadow, none)',
         }}
       >
-        {/* Side buttons — titanium style */}
-        <div className="absolute left-[-2px] top-[155px] w-[2px] h-[32px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="absolute left-[-2px] top-[200px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="absolute left-[-2px] top-[265px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="absolute right-[-2px] top-[210px] w-[2px] h-[76px] rounded-r-sm bg-[#3A3A3C]" />
+        {/* Side buttons — titanium style (desktop only) */}
+        <div className="hidden sm:block absolute left-[-2px] top-[155px] w-[2px] h-[32px] rounded-l-sm bg-[#3A3A3C]" />
+        <div className="hidden sm:block absolute left-[-2px] top-[200px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
+        <div className="hidden sm:block absolute left-[-2px] top-[265px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
+        <div className="hidden sm:block absolute right-[-2px] top-[210px] w-[2px] h-[76px] rounded-r-sm bg-[#3A3A3C]" />
 
         {/* Screen area */}
         <div
-          className="absolute overflow-hidden flex flex-col"
+          className="absolute overflow-hidden flex flex-col inset-0 sm:inset-[3px]"
           style={{
-            inset: 3,
-            borderRadius: 52,
+            borderRadius: 'var(--frame-inner-radius, 0px)',
             backgroundColor: '#F2F2F7',
           }}
         >
@@ -57,9 +54,9 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
             <span className="text-[15px] font-semibold text-foreground tracking-tight" style={{ width: 54 }}>
               {timeStr}
             </span>
-            {/* Dynamic Island */}
+            {/* Dynamic Island (desktop only) */}
             <div
-              className="absolute left-1/2 -translate-x-1/2 bg-black"
+              className="absolute left-1/2 -translate-x-1/2 bg-black hidden sm:block"
               style={{
                 top: 10,
                 width: 126,

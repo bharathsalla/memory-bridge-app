@@ -4,6 +4,12 @@
 
 @layer base {
   :root {
+    /* Frame styling — desktop shows phone frame, mobile goes fullscreen */
+    --frame-radius: 0px;
+    --frame-shadow: none;
+    --frame-inset: 0px;
+    --frame-inner-radius: 0px;
+
     /* iOS 17 System Colors — Apple HIG */
     --background: 240 6% 97%;
     --foreground: 0 0% 0%;
@@ -61,6 +67,16 @@
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04);
     --shadow-elevated: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
     --shadow-glow: 0 0 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Desktop: show phone frame */
+@media (min-width: 640px) {
+  :root {
+    --frame-radius: 55px;
+    --frame-shadow: 0 0 0 2px #3A3A3C, 0 0 0 4px #1C1C1E, 0 20px 60px rgba(0,0,0,0.6);
+    --frame-inset: 3px;
+    --frame-inner-radius: 52px;
   }
 }
 

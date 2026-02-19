@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import PasscodeScreen from '@/components/PasscodeScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
 import NavBar from '@/components/layout/NavBar';
@@ -46,6 +47,7 @@ const cgNavTitles: Record<string, string> = {
 };
 
 const Index = () => {
+  const [unlocked, setUnlocked] = useState(false);
   const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation, cancelSOS } = useApp();
   const { data: scheduledReminders = [] } = useScheduledReminders();
   const { data: missedDoseAlerts = [] } = useMissedDoseAlerts();
@@ -125,6 +127,10 @@ const Index = () => {
   };
 
   const appContent = () => {
+    if (!unlocked) {
+      return <PasscodeScreen onUnlock={() => setUnlocked(true)} />;
+    }
+
     if (!onboarded) {
       return <OnboardingScreen />;
     }
