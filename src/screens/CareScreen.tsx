@@ -38,6 +38,7 @@ const careViewOptions = [
 export default function CareScreen() {
   const { toggleCaregiverView } = useApp();
   const [messageInput, setMessageInput] = useState('');
+  const [chatMessages, setChatMessages] = useState(messages);
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set(['1']));
   const [manageOpen, setManageOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -112,7 +113,7 @@ export default function CareScreen() {
             </div>
 
           <div className="space-y-2">
-              {messages.map((msg) => (
+              {chatMessages.map((msg) => (
                 <div key={msg.id}>
                   {msg.isMine ? (
                     <div className="flex justify-end">
@@ -166,8 +167,25 @@ export default function CareScreen() {
                   </button>
                 )}
                 {messageInput.trim() && (
-                  <button className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground touch-target">
-                    <ArrowUp className="w-4 h-4" />
+                  <button
+                    onClick={() => {
+                      if (!messageInput.trim()) return;
+                      setChatMessages(prev => [...prev, {
+                        id: `msg-${Date.now()}`,
+                        sender: 'You',
+                        text: messageInput.trim(),
+                        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                        isMine: true,
+                      }]);
+                      setMessageInput('');
+                      if (textareaRef.current) {
+                        textareaRef.current.style.height = 'auto';
+                      }
+                      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+                    }}
+                    className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground touch-target"
+                  >
+                    <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
                   </button>
                 )}
               </div>

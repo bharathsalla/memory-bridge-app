@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import IPhoneFrame from '@/components/layout/iPhoneFrame';
@@ -20,6 +20,7 @@ import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
 import PatientReminderPopup from '@/components/PatientReminderPopup';
 import { Bell, Phone, RotateCcw, X } from 'lucide-react';
+import { useScheduledReminders } from '@/hooks/useReminders';
 
 const navTitles: Record<string, string> = {
   today: 'Today',
@@ -44,11 +45,21 @@ const cgNavTitles: Record<string, string> = {
 
 const Index = () => {
   const { onboarded, mode, activePatientTab, activeCaregiverTab, isCaregiverView, toggleCaregiverView, setActivePatientTab, setActiveCaregiverTab, isSOSActive, sosTriggeredLocation, patientLocation, voiceReminders } = useApp();
-  const [showReminders, setShowReminders] = React.useState(true);
+  const { data: scheduledReminders = [] } = useScheduledReminders();
+  const [showReminders, setShowReminders] = React.useState(false);
+  const [remindersInitialized, setRemindersInitialized] = React.useState(false);
   const [sosNotification, setSOSNotification] = React.useState(false);
   const [reminderAlert, setReminderAlert] = React.useState<{ medication: string; time: string; caregiverName: string } | null>(null);
   const prevSOSRef = useRef(false);
   const prevActiveCountRef = useRef(0);
+
+  // Auto-open reminders only when there are active/upcoming reminders (patient view)
+  useEffect(() => {
+    if (!remindersInitialized && onboarded && !isCaregiverView && scheduledReminders.length > 0) {
+      setShowReminders(true);
+      setRemindersInitialized(true);
+    }
+  }, [remindersInitialized, onboarded, isCaregiverView, scheduledReminders]);
 
   // Show mobile notification when SOS is triggered (for caregiver view)
   useEffect(() => {
