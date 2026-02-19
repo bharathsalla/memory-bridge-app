@@ -400,7 +400,7 @@ export default function CrisisPreventionEngine() {
                 <IconBox Icon={BarChart3} color={iosColors.blue} size={28} iconSize={14} />
                 <p className="text-[13px] font-extrabold text-foreground">Live Vitals</p>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {vitals.map((v) => {
                 const diff = Math.abs(v.value - v.baseline);
                 const critical = diff > v.baseline * 0.2;
