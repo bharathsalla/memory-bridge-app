@@ -1,15 +1,19 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Wifi, Signal, Battery } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
+import { getISTStatusBarTime } from '@/lib/timeUtils';
 
 interface iPhoneFrameProps {
   children: ReactNode;
 }
 
 export default function IPhoneFrame({ children }: iPhoneFrameProps) {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const [timeStr, setTimeStr] = useState(getISTStatusBarTime());
+  useEffect(() => {
+    const interval = setInterval(() => setTimeStr(getISTStatusBarTime()), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="h-full w-full flex items-center justify-center bg-black">

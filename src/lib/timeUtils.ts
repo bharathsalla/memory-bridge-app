@@ -1,34 +1,56 @@
 /**
  * IST timezone utility — all display times use India Standard Time (UTC+5:30)
+ * Uses Intl.DateTimeFormat with Asia/Kolkata for correct conversion.
  */
-const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
-/** Convert a UTC date string or Date to IST Date object */
-export function toIST(date: string | Date): Date {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  // Get UTC time, add IST offset
-  return new Date(d.getTime() + IST_OFFSET_MS);
-}
-
-/** Format a UTC date/string as IST time string e.g. "10:30 AM" */
+/** Format a date as IST time string e.g. "10:30 AM" */
 export function formatISTTime(date: string | Date): string {
-  const ist = toIST(date);
-  let hours = ist.getUTCHours();
-  const minutes = ist.getUTCMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-  return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kolkata',
+  });
 }
 
-/** Format a UTC date/string as IST date string e.g. "Monday, February 19" */
+/** Format a date as IST date string e.g. "Monday, February 19" */
 export function formatISTDate(date: string | Date): string {
-  const ist = toIST(date);
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  return `${days[ist.getUTCDay()]}, ${months[ist.getUTCMonth()]} ${ist.getUTCDate()}`;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Kolkata',
+  });
 }
 
 /** Get current IST hours (0-23) */
 export function getISTHours(): number {
-  return toIST(new Date()).getUTCHours();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: 'Asia/Kolkata',
+  }).formatToParts(new Date());
+  return Number(parts.find(p => p.type === 'hour')?.value || 0);
+}
+
+/** Get current IST time string for status bar */
+export function getISTStatusBarTime(): string {
+  return new Date().toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kolkata',
+  });
+}
+
+/** Format a time-only string (e.g. "05:09:00+00") or full date as IST time */
+export function formatTimeToIST(timeStr: string): string {
+  // If it's a time-only string (no date part), prepend today's date
+  if (/^\d{2}:\d{2}/.test(timeStr) && !timeStr.includes('T') && !timeStr.includes('-')) {
+    const today = new Date().toISOString().split('T')[0];
+    return formatISTTime(`${today}T${timeStr}`);
+  }
+  return formatISTTime(timeStr);
 }

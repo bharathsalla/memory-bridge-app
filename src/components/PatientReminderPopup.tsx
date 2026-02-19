@@ -65,13 +65,13 @@ export default function PatientReminderPopup() {
     return () => clearInterval(interval);
   }, []);
 
-  // Find active reminder within 2-min window before dose time
+  // Find active reminder — extend window to doseTime + 2min so missed handler can fire
   const activeReminder = scheduledReminders.find(sr => {
     if (dismissed.has(sr.id)) return false;
     if (sr.status !== 'active' && sr.status !== 'sent') return false;
     const doseTime = new Date(sr.next_due_time).getTime();
     const showTime = doseTime - PRE_DOSE_MINUTES * 60 * 1000;
-    return now >= showTime && now <= doseTime + 5000;
+    return now >= showTime && now <= doseTime + 120000; // keep visible 2min past due for missed handler
   });
 
   const reminderData = activeReminder?.reminders as any;
@@ -112,13 +112,13 @@ export default function PatientReminderPopup() {
     };
   }, [activeReminder?.id, isCaregiverView]);
 
-  // Auto-dismiss when dose time passes (missed) — with guard against double-fire
+  // Auto-trigger missed dose when countdown hits zero
   useEffect(() => {
     if (!activeReminder || !reminderData || isCaregiverView) return;
     if (missedHandledRef.current.has(activeReminder.id)) return;
 
     const doseTime = new Date(activeReminder.next_due_time).getTime();
-    if (now > doseTime + 5000) {
+    if (now > doseTime) {
       missedHandledRef.current.add(activeReminder.id);
       handleMissedDose();
     }
