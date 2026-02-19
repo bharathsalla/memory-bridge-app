@@ -64,7 +64,7 @@ export default function PasscodeScreen({ onUnlock }: PasscodeScreenProps) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col items-center justify-between bg-background" style={{ paddingTop: 60, paddingBottom: 30 }}>
+    <div className="h-full w-full flex flex-col items-center justify-between bg-background overflow-hidden" style={{ paddingTop: 'min(60px, 8vh)', paddingBottom: 'min(30px, 4vh)' }}>
       {/* Title */}
       <div className="flex flex-col items-center gap-6">
         <p className="text-[20px] font-medium text-foreground tracking-tight">Enter Passcode</p>
@@ -75,18 +75,19 @@ export default function PasscodeScreen({ onUnlock }: PasscodeScreenProps) {
       </div>
 
       {/* Keypad */}
-      <div className="flex flex-col gap-[14px] items-center" style={{ marginBottom: 10 }}>
+      <div className="flex flex-col gap-[clamp(8px,2vh,14px)] items-center" style={{ marginBottom: 10 }}>
         {keys.map((row, ri) => (
-          <div key={ri} className="flex items-center gap-[24px]">
+          <div key={ri} className="flex items-center gap-[clamp(16px,5vw,24px)]">
             {row.map((k) => {
-              if (k === '') return <div key="empty" style={{ width: 78, height: 78 }} />;
+              const btnSize = 'clamp(62px, 18vw, 78px)';
+              if (k === '') return <div key="empty" style={{ width: btnSize, height: btnSize }} />;
               if (k === 'del') {
                 return (
                   <button
                     key="del"
                     onClick={handleDelete}
                     className="flex items-center justify-center active:opacity-50 transition-opacity"
-                    style={{ width: 78, height: 78 }}
+                    style={{ width: btnSize, height: btnSize }}
                   >
                     <Delete className="w-7 h-7 text-foreground" />
                   </button>
@@ -97,9 +98,9 @@ export default function PasscodeScreen({ onUnlock }: PasscodeScreenProps) {
                   key={k}
                   onClick={() => handleDigit(k)}
                   className="flex flex-col items-center justify-center rounded-full bg-muted/60 active:bg-muted transition-colors"
-                  style={{ width: 78, height: 78 }}
+                  style={{ width: btnSize, height: btnSize }}
                 >
-                  <span className="text-[32px] font-light text-foreground leading-none">{k}</span>
+                  <span className="text-[clamp(24px,7vw,32px)] font-light text-foreground leading-none">{k}</span>
                   {subLabels[k] && (
                     <span className="text-[10px] font-medium text-muted-foreground tracking-[3px] mt-0.5">{subLabels[k]}</span>
                   )}
