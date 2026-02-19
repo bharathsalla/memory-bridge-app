@@ -205,24 +205,35 @@ export default function TodayScreen() {
             )}
           </div>
 
-          {pendingMeds.length > 0 ? (
+        {pendingMeds.length > 0 ? (
             <div className="px-4">
               <div className="ios-card overflow-hidden divide-y divide-border/30">
-                {pendingMeds.map((med) => (
-                    <div key={med.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 64 }}>
-                    <IconBox Icon={Pill} color={iosColors.orange} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
-                      <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {formatTimeToIST(med.time)}</p>
-                    </div>
-                    <button
-                      onClick={() => markMedicationTaken(med.id)}
-                      className="text-primary text-ios-callout font-semibold shrink-0"
+                {pendingMeds.map((med) => {
+                  const isMissed = med.instructions?.toLowerCase().includes('missed');
+                  return (
+                    <div
+                      key={med.id}
+                      className={`flex items-center gap-3 px-5 py-4 ${isMissed ? 'bg-destructive/8 border border-destructive/20' : ''}`}
+                      style={{ minHeight: 64 }}
                     >
-                      Mark as Taken
-                    </button>
-                  </div>
-                ))}
+                      <IconBox Icon={isMissed ? AlertTriangle : Pill} color={isMissed ? iosColors.red : iosColors.orange} />
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-ios-callout font-medium ${isMissed ? 'text-destructive font-bold' : 'text-foreground'}`}>{med.name}</p>
+                        <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {formatTimeToIST(med.time)}</p>
+                      </div>
+                      {isMissed ? (
+                        <span className="text-ios-caption font-bold text-destructive shrink-0">Not Taken</span>
+                      ) : (
+                        <button
+                          onClick={() => markMedicationTaken(med.id)}
+                          className="text-primary text-ios-callout font-semibold shrink-0"
+                        >
+                          Mark as Taken
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
@@ -255,9 +266,9 @@ export default function TodayScreen() {
               {(() => {
                 const categorize = (desc: string) => {
                   const d = desc.toLowerCase();
-                  if (d.includes('medication') || d.includes('pill') || d.includes('💊') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo')) return 'medication';
-                  if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('🍳') || d.includes('food')) return 'meals';
-                  if (d.includes('walk') || d.includes('exercise') || d.includes('step') || d.includes('🚶')) return 'exercise';
+                  if (d.includes('medication') || d.includes('pill') || d.includes('taken') || d.includes('medicine') || d.includes('metformin') || d.includes('lisinopril') || d.includes('aspirin') || d.includes('dolo') || d.includes('missed dose')) return 'medication';
+                  if (d.includes('breakfast') || d.includes('lunch') || d.includes('dinner') || d.includes('meal') || d.includes('food')) return 'meals';
+                  if (d.includes('walk') || d.includes('exercise') || d.includes('step')) return 'exercise';
                   return 'other';
                 };
 
@@ -287,11 +298,17 @@ export default function TodayScreen() {
                 return allActivities.map((item) => {
                   const catIcon = getCategoryIcon(item.description);
                   const isMissed = item.description.toLowerCase().includes('missed');
+                  // Strip emojis from description
+                  const cleanDesc = item.description.replace(/[\u{1F300}-\u{1FAD6}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
                   return (
-                    <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
+                    <div
+                      key={item.id}
+                      className={`flex items-center gap-3 px-5 ${isMissed ? 'bg-destructive/8' : ''}`}
+                      style={{ minHeight: 72, paddingTop: 14, paddingBottom: 14 }}
+                    >
                       <IconBox Icon={isMissed ? AlertTriangle : catIcon.Icon} color={isMissed ? iosColors.red : catIcon.color} />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-ios-callout font-medium leading-snug ${isMissed ? 'text-destructive font-bold' : 'text-foreground'}`}>{item.description}</p>
+                        <p className={`text-ios-callout font-medium leading-snug ${isMissed ? 'text-destructive font-bold' : 'text-foreground'}`}>{cleanDesc}</p>
                         <p className="text-ios-footnote text-muted-foreground mt-0.5">
                           {item.created_at
                             ? formatISTTime(item.created_at)

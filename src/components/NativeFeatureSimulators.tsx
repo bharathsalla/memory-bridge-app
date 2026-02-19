@@ -390,7 +390,7 @@ export function PersistentNotificationSimulator() {
   const [notifications, setNotifications] = useState([
     {
       id: '1',
-      title: '💊 Medication Reminder',
+      title: 'Medication Reminder',
       message: 'Time to take Lisinopril 10mg — Take 1 tablet with water',
       type: 'medication',
       priority: 'critical',
@@ -400,7 +400,7 @@ export function PersistentNotificationSimulator() {
     },
     {
       id: '2',
-      title: '🍽️ Lunch Time',
+      title: 'Lunch Time',
       message: 'Remember to eat lunch. Sarah prepared soup in the fridge.',
       type: 'meal',
       priority: 'high',
@@ -534,7 +534,7 @@ export function PersistentNotificationSimulator() {
                 </div>
                 <span className="text-[12px] text-white/60 font-medium">MEMOCARE • now</span>
               </div>
-              <div className="text-[18px] font-bold text-white">💊 Medication Reminder</div>
+              <div className="text-[18px] font-bold text-white">Medication Reminder</div>
               <div className="text-[15px] text-white/70 mt-1 leading-relaxed">
                 Time to take Lisinopril 10mg — Take 1 tablet with water
               </div>
@@ -543,7 +543,7 @@ export function PersistentNotificationSimulator() {
                   ✓ Done
                 </button>
                 <button className="flex-1 bg-white/20 rounded-2xl py-3 text-[15px] font-bold text-white active:bg-white/30 transition-colors">
-                  ⏰ Snooze
+                  Snooze
                 </button>
               </div>
             </motion.div>

@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Mic, MicOff, Check, Clock, Phone, Eye, RotateCcw,
-  AlertTriangle, Pill, Volume2, X,
+  Mic, MicOff, Check, Clock, Phone, Eye, RotateCcw, RefreshCw,
+  AlertTriangle, Pill, Volume2, X, Coffee, Timer, Sparkles,
   BarChart3, Bell, Zap, Brain, ArrowRight
 } from 'lucide-react';
+import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import { useApp } from '@/contexts/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -208,7 +209,7 @@ export default function VoiceReminderFlow() {
       audioUrl: audioUrl || undefined,
     });
     setRecordingStep('confirmed');
-    toast({ title: '✅ Reminder scheduled!', description: `${extracted.medication} at ${extracted.time}` });
+    toast({ title: 'Reminder scheduled!', description: `${extracted.medication} at ${extracted.time}` });
     setTimeout(() => {
       setRecordingStep('idle');
       setActiveView('monitor');
@@ -225,10 +226,10 @@ export default function VoiceReminderFlow() {
   };
 
   const statusIcon = (s: string) => {
-    if (s === 'taken') return '✅';
-    if (s === 'missed') return '⚠️';
-    if (s === 'snoozed') return '⏰';
-    return '🔔';
+    if (s === 'taken') return <Check className="w-3 h-3" />;
+    if (s === 'missed') return <AlertTriangle className="w-3 h-3" />;
+    if (s === 'snoozed') return <Clock className="w-3 h-3" />;
+    return <Bell className="w-3 h-3" />;
   };
 
   const activeReminders = voiceReminders.filter(r => r.status === 'active' || r.status === 'snoozed');
@@ -380,13 +381,13 @@ export default function VoiceReminderFlow() {
                     {/* Extracted fields */}
                     <div className="space-y-2.5 mb-4">
                       {[
-                        { icon: '💊', label: 'Medication', value: extracted.medication },
-                        { icon: '🕘', label: 'Time', value: extracted.time },
-                        { icon: '🔄', label: 'Frequency', value: extracted.frequency },
-                        { icon: '🍳', label: 'Trigger', value: extracted.trigger },
-                      ].map(field => (
+                        { Icon: Pill, label: 'Medication', value: extracted.medication },
+                        { Icon: Clock, label: 'Time', value: extracted.time },
+                        { Icon: RefreshCw, label: 'Frequency', value: extracted.frequency },
+                        { Icon: Coffee, label: 'Trigger', value: extracted.trigger },
+                      ].map((field, idx) => (
                         <div key={field.label} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                          <span className="text-[18px]">{field.icon}</span>
+                          <IconBox Icon={field.Icon} color={getColor(idx)} size={36} iconSize={18} />
                           <div className="flex-1">
                             <div className="text-[11px] font-bold text-muted-foreground">{field.label}</div>
                             <div className="text-[14px] font-bold text-foreground">{field.value}</div>
@@ -398,7 +399,7 @@ export default function VoiceReminderFlow() {
 
                     {/* Patient message preview */}
                     <div className="bg-primary/5 rounded-xl p-3 mb-4 border border-primary/10">
-                      <div className="text-[11px] font-bold text-primary mb-1">🔊 Patient will hear:</div>
+                      <div className="text-[11px] font-bold text-primary mb-1">Patient will hear:</div>
                       <p className="text-[14px] text-foreground italic">"{extracted.patientMessage}"</p>
                     </div>
 
@@ -430,7 +431,7 @@ export default function VoiceReminderFlow() {
                     >
                       <Check className="w-10 h-10 text-success" />
                     </motion.div>
-                    <h3 className="text-[18px] font-extrabold text-foreground mb-1">Scheduled! ✨</h3>
+                    <h3 className="text-[18px] font-extrabold text-foreground mb-1">Scheduled!</h3>
                     <p className="text-[13px] text-muted-foreground text-center">
                       Reminder synced to patient's device
                     </p>
@@ -447,11 +448,11 @@ export default function VoiceReminderFlow() {
                   <h3 className="text-[14px] font-extrabold text-foreground mb-3">How It Works</h3>
                   <div className="space-y-2">
                     {[
-                      { icon: '🎙', title: 'You Record', desc: 'Speak the reminder naturally' },
-                      { icon: '🤖', title: 'AI Extracts', desc: 'Schedule auto-detected' },
-                      { icon: '🔔', title: 'Patient Hears', desc: 'Your message plays aloud' },
-                      { icon: '📊', title: 'You Monitor', desc: 'Track adherence in real-time' },
-                      { icon: '⚠', title: 'Escalation', desc: 'Get alerted if ignored' },
+                      { Icon: Mic, title: 'You Record', desc: 'Speak the reminder naturally' },
+                      { Icon: Sparkles, title: 'AI Extracts', desc: 'Schedule auto-detected' },
+                      { Icon: Bell, title: 'Patient Hears', desc: 'Your message plays aloud' },
+                      { Icon: BarChart3, title: 'You Monitor', desc: 'Track adherence in real-time' },
+                      { Icon: AlertTriangle, title: 'Escalation', desc: 'Get alerted if ignored' },
                     ].map((s, i) => (
                       <motion.div
                         key={s.title}
@@ -460,8 +461,8 @@ export default function VoiceReminderFlow() {
                         transition={{ delay: i * 0.06 }}
                         className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/30"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-[16px] shrink-0">
-                          {s.icon}
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <s.Icon className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="text-[13px] font-bold text-foreground">{s.title}</span>
@@ -521,8 +522,8 @@ export default function VoiceReminderFlow() {
               <div className="ios-card-elevated overflow-hidden mb-5">
                 <div className="bg-gradient-to-br from-primary/8 to-accent/5 p-5">
                   <div className="text-center">
-                    <p className="text-[20px] font-extrabold text-foreground mb-1">Good Morning Raghavan ☀</p>
-                    <p className="text-[15px] text-muted-foreground font-bold">🕘 It is 9:00 AM</p>
+                    <p className="text-[20px] font-extrabold text-foreground mb-1">Good Morning Raghavan</p>
+                    <p className="text-[15px] text-muted-foreground font-bold">It is 9:00 AM</p>
                   </div>
                   <div className="mt-4 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10">
                     <Volume2 className="w-5 h-5 text-primary animate-pulse" />
@@ -540,7 +541,7 @@ export default function VoiceReminderFlow() {
               </div>
 
               {/* All Reminders */}
-              <h3 className="text-[15px] font-extrabold text-foreground mb-2.5">📋 Voice Reminders</h3>
+              <h3 className="text-[15px] font-extrabold text-foreground mb-2.5">Voice Reminders</h3>
               {voiceReminders.length === 0 ? (
                 <div className="ios-card-elevated p-8 text-center">
                   <Mic className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
@@ -590,7 +591,7 @@ export default function VoiceReminderFlow() {
               exit={{ opacity: 0, x: -20 }}
               className="px-4 pt-2"
             >
-              <h2 className="text-[18px] font-extrabold text-foreground mb-1">⚠ Escalation Center</h2>
+              <h2 className="text-[18px] font-extrabold text-foreground mb-1">Escalation Center</h2>
               <p className="text-[12px] text-muted-foreground mb-4">
                 Alerts when patient doesn't respond to reminders
               </p>
@@ -600,15 +601,15 @@ export default function VoiceReminderFlow() {
                 <div className="text-[12px] font-extrabold text-foreground mb-3">Escalation Flow</div>
                 <div className="flex items-center gap-1.5">
                   {[
-                    { label: 'Reminder Sent', icon: '🔔' },
-                    { label: '15 min wait', icon: '⏱' },
-                    { label: 'Softer Replay', icon: '🔁' },
-                    { label: 'Alert Caregiver', icon: '📱' },
+                    { label: 'Reminder Sent', Icon: Bell },
+                    { label: '15 min wait', Icon: Timer },
+                    { label: 'Softer Replay', Icon: RefreshCw },
+                    { label: 'Alert Caregiver', Icon: Phone },
                   ].map((step, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <div className="flex flex-col items-center">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[14px]">
-                          {step.icon}
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                          <step.Icon className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <span className="text-[8px] font-bold text-muted-foreground mt-1 text-center leading-tight w-14">
                           {step.label}

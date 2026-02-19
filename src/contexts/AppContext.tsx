@@ -105,11 +105,11 @@ const initialMedications: Medication[] = [
 ];
 
 const initialActivities: ActivityItem[] = [
-  { id: '1', time: '9:00 AM', description: 'Medication taken — Lisinopril', icon: '💊', completed: true },
-  { id: '2', time: '9:30 AM', description: 'Breakfast logged', icon: '🍳', completed: true },
-  { id: '3', time: '10:15 AM', description: 'Walk detected — 1,200 steps', icon: '🚶', completed: true },
-  { id: '4', time: '12:00 PM', description: 'Lunch reminder sent', icon: '🔔', completed: false },
-  { id: '5', time: '2:00 PM', description: 'Medication due — Metformin', icon: '💊', completed: false },
+  { id: '1', time: '9:00 AM', description: 'Medication taken — Lisinopril', icon: 'Pill', completed: true },
+  { id: '2', time: '9:30 AM', description: 'Breakfast logged', icon: 'Coffee', completed: true },
+  { id: '3', time: '10:15 AM', description: 'Walk detected — 1,200 steps', icon: 'Footprints', completed: true },
+  { id: '4', time: '12:00 PM', description: 'Lunch reminder sent', icon: 'Bell', completed: false },
+  { id: '5', time: '2:00 PM', description: 'Medication due — Metformin', icon: 'Pill', completed: false },
 ];
 
 export function AppProvider({ children }: { children: ReactNode }) {

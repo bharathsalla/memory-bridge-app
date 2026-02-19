@@ -200,15 +200,15 @@ export default function PatientReminderPopup() {
     );
     if (matchingMed) {
       await supabase.from('medications').update({
-        instructions: (matchingMed.instructions || '') + ' · ⚠️ MISSED',
+        instructions: (matchingMed.instructions || '') + ' · MISSED',
       }).eq('id', matchingMed.id);
     }
 
     // Add to activities with "Not Taken" label
     await supabase.from('activities').insert({
-      description: `⚠️ Missed dose: ${reminderData.message || 'Medication'} — Not Taken at ${doseTimeStr}`,
+      description: `Missed dose: ${reminderData.message || 'Medication'} — Not Taken at ${doseTimeStr}`,
       time: new Date().toISOString(),
-      icon: '⚠️',
+      icon: 'AlertTriangle',
       completed: false,
     });
   }, [activeReminder, reminderData, patientName, medications]);
