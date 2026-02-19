@@ -71,12 +71,13 @@ export default function SafetyScreen() {
             </div>
             <div className="px-4 pb-4">
               <div className="rounded-xl overflow-hidden h-36">
-              <div className="w-full h-full bg-gradient-to-b from-primary/5 to-primary/10 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="w-8 h-8 text-destructive mx-auto mb-1" />
-                    <span className="text-ios-caption font-semibold text-foreground">Home</span>
-                  </div>
-                </div>
+                <iframe
+                  src="https://maps.apple.com/?ll=37.7749,-122.4194&z=15&t=m"
+                  className="w-full h-full border-0"
+                  title="Location Map"
+                  loading="lazy"
+                  style={{ pointerEvents: 'none' }}
+                />
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
@@ -130,12 +131,13 @@ export default function SafetyScreen() {
         <div className="mx-4 ios-card overflow-hidden">
           <div className="px-4 pt-3 pb-4">
             <div className="rounded-xl overflow-hidden h-32 relative bg-muted">
-              <div className="w-full h-full bg-gradient-to-b from-primary/5 to-primary/10 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-8 h-8 text-destructive mx-auto mb-1" />
-                  <span className="text-ios-caption font-semibold text-foreground">Home</span>
-                </div>
-              </div>
+                <iframe
+                  src="https://maps.apple.com/?ll=37.7749,-122.4194&z=15&t=m"
+                  className="w-full h-full border-0"
+                  title="Location Map"
+                  loading="lazy"
+                  style={{ pointerEvents: 'none' }}
+                />
             </div>
             <div className="flex items-center gap-2 mt-3">
               <MapPin className="w-5 h-5 text-muted-foreground" />

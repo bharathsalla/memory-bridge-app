@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -37,6 +37,19 @@ serve(async (req) => {
       .single();
 
     if (reminderError) throw reminderError;
+
+    // If type is medication, also insert into medications table so it shows on patient's med list
+    if (type === "medication") {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      await supabase.from("medications").insert({
+        name: message || "Medication Reminder",
+        dosage: "As directed",
+        time: timeStr,
+        instructions: `Sent by ${caregiverName || "Caregiver"}`,
+        taken: false,
+      });
+    }
 
     // Create scheduled reminder
     await supabase.from("scheduled_reminders").insert({
