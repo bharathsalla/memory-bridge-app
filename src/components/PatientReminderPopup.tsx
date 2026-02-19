@@ -93,24 +93,36 @@ export default function PatientReminderPopup() {
     const hasVoice = reminderData?.photo_url && reminderData.photo_url.startsWith('blob:');
     const alreadyPlayedVoice = voicePlayed.has(activeReminder.id);
 
-    // For voice reminders: play caregiver's actual voice first, then start alert loop
+    // For voice reminders: play caregiver's actual voice 3 times, then start alert loop
     if (hasVoice && !alreadyPlayedVoice) {
       setIsPlayingVoice(true);
       setVoicePlayed(prev => new Set(prev).add(activeReminder.id));
+      let playCount = 0;
+      const maxPlays = 3;
       const audio = new Audio(reminderData.photo_url);
       audioRef.current = audio;
-      audio.play().catch(() => {});
-      audio.onended = () => {
-        setIsPlayingVoice(false);
-        // Now start alert sounds after voice finishes
-        triggerAlert();
-        alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
+      
+      const playNext = () => {
+        playCount++;
+        if (playCount < maxPlays) {
+          setTimeout(() => {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+          }, 500); // 500ms gap between replays
+        } else {
+          setIsPlayingVoice(false);
+          triggerAlert();
+          alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
+        }
       };
+      
+      audio.onended = playNext;
       audio.onerror = () => {
         setIsPlayingVoice(false);
         triggerAlert();
         alertIntervalRef.current = setInterval(() => triggerAlert(), ALERT_REPEAT_INTERVAL);
       };
+      audio.play().catch(() => {});
       return () => {
         if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
         if (alertIntervalRef.current) { clearInterval(alertIntervalRef.current); alertIntervalRef.current = null; }

@@ -218,7 +218,7 @@ export default function TodayScreen() {
                       <IconBox Icon={Pill} color={iosColors.orange} />
                       <div className="flex-1 min-w-0">
                         <p className="text-ios-callout font-medium text-foreground">{med.name}</p>
-                        <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {formatTimeToIST(med.time)}</p>
+                        <p className="text-ios-footnote text-muted-foreground">{med.dosage} · {med.time ? formatTimeToIST(med.time) : 'No time set'}</p>
                       </div>
                       <button
                         onClick={() => markMedicationTaken(med.id)}

@@ -6,9 +6,8 @@ import {
 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from
-'recharts';
+  ChartCard, HealthAreaChart, HealthBarChart, ChartLegendItem, chartColors
+} from '@/components/ui/AppleHealthCharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,10 +23,7 @@ interface InsightsData {
   recent_memories?: any[];
 }
 
-const chartTooltipStyle = {
-  contentStyle: { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '11px' },
-  labelStyle: { color: 'hsl(var(--foreground))', fontWeight: 600 }
-};
+// Removed old tooltip style — now using Apple Health chart components
 
 export default function CaregiverMemoryInsights() {
   const [data, setData] = useState<InsightsData | null>(null);
@@ -120,51 +116,32 @@ export default function CaregiverMemoryInsights() {
       {/* Engagement Chart */}
       {data.daily_breakdown.length > 0 &&
       <div className="px-5 mt-5">
-          <h2 className="text-[16px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent" /> Weekly Engagement
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={data.daily_breakdown}>
-                <defs>
-                  <linearGradient id="gradScore" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Area type="monotone" dataKey="score" name="Engagement %" stroke="hsl(var(--primary))" fill="url(#gradScore)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartCard title="Weekly Engagement" subtitle="Engagement score trend" icon={<Sparkles className="w-4 h-4 text-accent" />}>
+            <HealthAreaChart data={data.daily_breakdown} dataKey="score" xKey="day" color={chartColors.teal} name="Engagement %" />
+          </ChartCard>
         </div>
       }
 
       {/* Recall Success */}
       {data.daily_breakdown.length > 0 &&
       <div className="px-5 mt-5">
-          <h2 className="text-[16px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <Brain className="w-4 h-4 text-sage" /> Recall Success Rate
-          </h2>
-          <div className="ios-card-elevated p-4">
-            <ResponsiveContainer width="100%" height={130}>
-              <BarChart data={data.daily_breakdown}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip {...chartTooltipStyle} />
-                <Bar dataKey="entries" name="Total Entries" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} opacity={0.3} />
-                <Bar dataKey="recalled" name="Successfully Recalled" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="flex gap-3 mt-2 justify-center">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-muted-foreground/30" />Total</span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><span className="w-2 h-2 rounded-full bg-success" />Recalled</span>
-            </div>
-          </div>
+          <ChartCard
+            title="Recall Success Rate"
+            icon={<Brain className="w-4 h-4 text-sage" />}
+            legend={<><ChartLegendItem color={chartColors.gray} label="Total" /><ChartLegendItem color={chartColors.green} label="Recalled" /></>}
+          >
+            <HealthBarChart
+              data={data.daily_breakdown}
+              dataKey="recalled"
+              secondaryDataKey="entries"
+              xKey="day"
+              color={chartColors.green}
+              secondaryColor={chartColors.gray}
+              name="Successfully Recalled"
+              secondaryName="Total Entries"
+              height={130}
+            />
+          </ChartCard>
         </div>
       }
 

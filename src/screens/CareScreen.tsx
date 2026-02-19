@@ -2,14 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, CalendarDays, CheckSquare, Users, Check, ChevronRight, Clock, UserCheck, X, SendHorizontal, Mic, User, Stethoscope, HeartPulse } from 'lucide-react';
+import { MessageCircle, CalendarDays, Users, Check, ChevronRight, X, SendHorizontal, Mic, User, Stethoscope, HeartPulse } from 'lucide-react';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 import CaregiverManageSheet from '@/components/CaregiverManageSheet';
-import CaregiverMemorySender from '@/components/CaregiverMemorySender';
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 
 const messages = [
@@ -97,10 +94,9 @@ export default function CareScreen() {
             value={activeTab}
             onChange={setActiveTab}
             items={[
-              { value: 'chat', icon: <MessageCircle className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Chat' },
-              { value: 'tasks', icon: <CheckSquare className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Tasks' },
-              { value: 'calendar', icon: <CalendarDays className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Events' },
-              { value: 'team', icon: <Users className="w-3.5 h-3.5" style={{ strokeWidth: 1.5 }} />, label: 'Team' },
+              { value: 'chat', label: 'Chat' },
+              { value: 'calendar', label: 'Events' },
+              { value: 'team', label: 'Team' },
             ]}
           />
         </div>
@@ -189,43 +185,6 @@ export default function CareScreen() {
                   </button>
                 )}
               </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Tasks */}
-        <TabsContent value="tasks" className="flex-1 min-h-0 overflow-y-auto mt-0">
-          <div className="pt-3 pb-24">
-            <div className="px-5 flex items-center justify-between mb-2">
-              <p className="text-ios-footnote font-medium text-muted-foreground uppercase tracking-wider">Today's Tasks</p>
-              <span className="text-ios-footnote text-muted-foreground">{tasksDone.size}/{careTasks.length}</span>
-            </div>
-            <div className="mx-4 ios-card overflow-hidden divide-y divide-border/30">
-              {careTasks.map((task) => (
-                <button
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className="w-full flex items-center gap-3 px-4 text-left touch-target"
-                  style={{ minHeight: 56 }}
-                >
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
-                    tasksDone.has(task.id) ? 'border-primary bg-primary' : 'border-muted-foreground/30'
-                  }`}>
-                    {tasksDone.has(task.id) && <Check className="w-3 h-3 text-primary-foreground" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-ios-callout font-medium ${tasksDone.has(task.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                      {task.title}
-                    </p>
-                    <p className="text-ios-footnote text-muted-foreground">{task.assignee} · {task.time}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <Separator className="my-5 mx-4" />
-            <div className="px-4">
-              <CaregiverMemorySender />
             </div>
           </div>
         </TabsContent>
