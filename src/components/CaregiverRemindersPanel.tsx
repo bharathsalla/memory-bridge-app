@@ -26,6 +26,9 @@ export default function CaregiverRemindersPanel() {
   const [medDosage, setMedDosage] = useState('');
   const [medQty, setMedQty] = useState('');
   const [medInstructions, setMedInstructions] = useState('');
+  const [medTime, setMedTime] = useState('');
+  const [medPeriod, setMedPeriod] = useState('Morning');
+  const [medFoodInstruction, setMedFoodInstruction] = useState('With Food');
 
   const sendReminder = useSendCaregiverReminder();
   const { data: logs = [] } = useReminderLogs();
@@ -62,7 +65,7 @@ export default function CaregiverRemindersPanel() {
     }
     if (!msg.trim()) return;
     sendReminder.mutate(
-      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions },
+      { type, message: msg, photoUrl: photoUrl || undefined, caregiverName: 'Sarah', medName, medDosage, medQty, medInstructions: `${medPeriod} · ${medFoodInstruction}${medInstructions ? ' · ' + medInstructions : ''}`, medTime, medPeriod, medFoodInstruction },
       {
         onSuccess: () => {
           toast({ title: '✅ Reminder sent!' });
@@ -73,6 +76,9 @@ export default function CaregiverRemindersPanel() {
           setMedDosage('');
           setMedQty('');
           setMedInstructions('');
+          setMedTime('');
+          setMedPeriod('Morning');
+          setMedFoodInstruction('With Food');
         },
         onError: (err: any) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
       }
@@ -143,10 +149,53 @@ export default function CaregiverRemindersPanel() {
                   className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
                 />
               </div>
+
+              {/* Timing */}
+              <input
+                value={medTime}
+                onChange={e => setMedTime(e.target.value)}
+                type="time"
+                className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground outline-none border border-border/20 focus:border-primary/30"
+              />
+
+              {/* Dose period */}
+              <div className="flex flex-wrap gap-2">
+                {['Morning', 'Afternoon', 'Night'].map(period => (
+                  <button
+                    key={period}
+                    onClick={() => setMedPeriod(period)}
+                    className={`px-3 py-2 rounded-xl text-[13px] font-semibold border-2 transition-all ${
+                      medPeriod === period
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border bg-card text-muted-foreground'
+                    }`}
+                  >
+                    {period === 'Morning' ? '🌅' : period === 'Afternoon' ? '☀️' : '🌙'} {period}
+                  </button>
+                ))}
+              </div>
+
+              {/* With/without food */}
+              <div className="flex gap-2">
+                {['With Food', 'Without Food', 'Before Food'].map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => setMedFoodInstruction(opt)}
+                    className={`flex-1 px-2 py-2 rounded-xl text-[12px] font-semibold border-2 transition-all ${
+                      medFoodInstruction === opt
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border bg-card text-muted-foreground'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+
               <input
                 value={medInstructions}
                 onChange={e => setMedInstructions(e.target.value)}
-                placeholder="Instructions (e.g. Take with food)"
+                placeholder="Additional instructions (optional)"
                 className="w-full px-4 py-3 rounded-xl bg-muted/50 text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none border border-border/20 focus:border-primary/30"
               />
             </div>
