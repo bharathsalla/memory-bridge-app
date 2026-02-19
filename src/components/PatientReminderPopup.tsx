@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useScheduledReminders, useAcknowledgeReminder } from '@/hooks/useReminders';
 import { useMedications, useMarkMedicationTaken } from '@/hooks/useCareData';
 import { supabase } from '@/integrations/supabase/client';
+import { formatISTTime } from '@/lib/timeUtils';
 
 const PRE_DOSE_MINUTES = 2;
 const COUNTDOWN_SECONDS = 120;
@@ -178,10 +179,10 @@ export default function PatientReminderPopup() {
       metadata: { reason: 'countdown_expired' },
     });
 
-    // Create missed dose alert for caregiver
-    const doseTimeStr = new Date(activeReminder.next_due_time)
-      .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    // Format dose time in IST
+    const doseTimeStr = formatISTTime(activeReminder.next_due_time);
 
+    // Create missed dose alert for caregiver (real-time via subscription)
     await supabase.from('missed_dose_alerts').insert({
       reminder_id: reminderData.id,
       scheduled_reminder_id: activeReminder.id,
@@ -190,14 +191,27 @@ export default function PatientReminderPopup() {
       dose_time: doseTimeStr,
     });
 
-    // Add to activities
+    // Update matching medication to show "Not Taken" with instructions
+    const matchingMed = medications.find(m =>
+      !m.taken && (
+        m.name.toLowerCase().includes(reminderData.message?.toLowerCase()?.split(' ')[0] || '') ||
+        reminderData.message?.toLowerCase()?.includes(m.name.toLowerCase())
+      )
+    );
+    if (matchingMed) {
+      await supabase.from('medications').update({
+        instructions: (matchingMed.instructions || '') + ' · ⚠️ MISSED',
+      }).eq('id', matchingMed.id);
+    }
+
+    // Add to activities with "Not Taken" label
     await supabase.from('activities').insert({
-      description: `⚠️ Missed dose: ${reminderData.message || 'Medication'} at ${doseTimeStr}`,
+      description: `⚠️ Missed dose: ${reminderData.message || 'Medication'} — Not Taken at ${doseTimeStr}`,
       time: new Date().toISOString(),
       icon: '⚠️',
       completed: false,
     });
-  }, [activeReminder, reminderData, patientName]);
+  }, [activeReminder, reminderData, patientName, medications]);
 
   if (!activeReminder || !reminderData || isCaregiverView) return null;
 

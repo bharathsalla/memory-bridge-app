@@ -3,11 +3,12 @@ import { useApp } from '@/contexts/AppContext';
 import ModeBadge from '@/components/layout/ModeBadge';
 import PatientIDCard from '@/components/PatientIDCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
-import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart, CalendarDays, Coffee, Dumbbell } from 'lucide-react';
+import { Pill, Check, Clock, Footprints, Moon, User, ChevronRight, Heart, CalendarDays, Coffee, Dumbbell, AlertTriangle } from 'lucide-react';
 import IconBox, { iosColors, getColor } from '@/components/ui/IconBox';
 import patientAvatar from '@/assets/patient-avatar.jpg';
 import { useMedications, useMarkMedicationTaken, useActivities, useVitals } from '@/hooks/useCareData';
 import { Progress } from '@/components/ui/progress';
+import { formatISTTime, formatISTDate, getISTHours } from '@/lib/timeUtils';
 
 export default function TodayScreen() {
   const { mode, patientName, currentMood, toggleCaregiverView } = useApp();
@@ -22,7 +23,7 @@ export default function TodayScreen() {
   const sleepHours = Number(vitals.find((v) => v.type === 'sleep')?.value || 0);
 
   const greeting = () => {
-    const h = new Date().getHours();
+    const h = getISTHours();
     if (h < 12) return 'Good Morning';
     if (h < 17) return 'Good Afternoon';
     return 'Good Evening';
@@ -32,7 +33,8 @@ export default function TodayScreen() {
   const pendingMeds = medications.filter((m) => !m.taken);
   const takenMeds = medications.filter((m) => m.taken);
   const medProgress = medications.length ? Math.round((takenMeds.length / medications.length) * 100) : 0;
-  const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const dateStr = formatISTDate(new Date());
+  const notTakenMeds = medications.filter(m => !m.taken && m.instructions?.toLowerCase().includes('missed'));
 
   // ── Essential Mode ──
   if (mode === 'essential') {
@@ -259,8 +261,7 @@ export default function TodayScreen() {
                   return 'other';
                 };
 
-                const completedActivities = [...activities]
-                  .filter(a => a.completed)
+                const allActivities = [...activities]
                   .filter(a => activityFilter === 'all' || categorize(a.description) === activityFilter)
                   .sort((a, b) => {
                     const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -269,7 +270,7 @@ export default function TodayScreen() {
                   })
                   .slice(0, 10);
 
-                if (completedActivities.length === 0) {
+                if (allActivities.length === 0) {
                   return (
                     <div className="px-5 py-6 text-center text-ios-footnote text-muted-foreground">No activity in this category</div>
                   );
@@ -283,20 +284,27 @@ export default function TodayScreen() {
                   return { Icon: Check, color: iosColors.green };
                 };
 
-                return completedActivities.map((item) => {
+                return allActivities.map((item) => {
                   const catIcon = getCategoryIcon(item.description);
+                  const isMissed = item.description.toLowerCase().includes('missed');
                   return (
                     <div key={item.id} className="flex items-center gap-3 px-5 py-4" style={{ minHeight: 68 }}>
-                      <IconBox Icon={catIcon.Icon} color={catIcon.color} />
+                      <IconBox Icon={isMissed ? AlertTriangle : catIcon.Icon} color={isMissed ? iosColors.red : catIcon.color} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</p>
+                        <p className={`text-ios-callout font-medium leading-snug ${isMissed ? 'text-destructive font-bold' : 'text-foreground'}`}>{item.description}</p>
                         <p className="text-ios-footnote text-muted-foreground mt-0.5">
                           {item.created_at
-                            ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                            ? formatISTTime(item.created_at)
                             : item.time}
                         </p>
                       </div>
-                      <span className="text-ios-caption font-semibold text-muted-foreground shrink-0">Done</span>
+                      {isMissed ? (
+                        <span className="text-ios-caption font-bold text-destructive shrink-0">Not Taken</span>
+                      ) : item.completed ? (
+                        <span className="text-ios-caption font-semibold text-muted-foreground shrink-0">Done</span>
+                      ) : (
+                        <span className="text-ios-caption font-medium text-muted-foreground shrink-0">Pending</span>
+                      )}
                     </div>
                   );
                 });

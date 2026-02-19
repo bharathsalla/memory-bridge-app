@@ -25,6 +25,7 @@ import {
 } from 'recharts';
 import { useMedications, useActivities, useVitals, useMissedDoseAlerts } from '@/hooks/useCareData';
 import { useScheduledReminders } from '@/hooks/useReminders';
+import { formatISTTime } from '@/lib/timeUtils';
 
 export default function CaregiverDashboard() {
   const { activeCaregiverTab, setActiveCaregiverTab, toggleCaregiverView, currentMood, medicationAdherence, taskCompletionRate, mode, setMode, isSOSActive, sosTriggeredLocation, patientLocation, sosHistory, cancelSOS } = useApp();
@@ -256,7 +257,7 @@ export default function CaregiverDashboard() {
                       <div className="text-ios-callout font-medium text-foreground leading-snug">{item.description}</div>
                       <div className="text-ios-footnote text-muted-foreground mt-0.5">
                         {item.created_at
-                          ? new Date(item.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                          ? formatISTTime(item.created_at)
                           : item.time}
                       </div>
                     </div>
@@ -329,7 +330,7 @@ export default function CaregiverDashboard() {
                   severity: 'destructive',
                   title: 'Patient Not Responding',
                   detail: `${rd?.message || 'Reminder'} — No confirmation`,
-                  time: sr.created_at ? new Date(sr.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
+                  time: sr.created_at ? formatISTTime(sr.created_at) : '',
                 });
               });
 
@@ -353,7 +354,7 @@ export default function CaregiverDashboard() {
                   severity: 'destructive',
                   title: `Missed Dose: ${alert.medication_name}`,
                   detail: `${alert.patient_name} — Scheduled at ${alert.dose_time}`,
-                  time: new Date(alert.missed_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                  time: formatISTTime(alert.missed_at),
                 });
               });
 
