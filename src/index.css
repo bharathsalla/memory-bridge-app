@@ -90,7 +90,8 @@
   }
 
   body {
-    @apply bg-black text-foreground antialiased;
+    @apply text-foreground antialiased;
+    background-color: #F5F5F7;
     /* SF Pro system font stack */
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -98,13 +99,11 @@
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     overscroll-behavior: none;
-    overflow: hidden;
     height: 100dvh;
   }
 
   #root {
     height: 100dvh;
-    overflow: hidden;
   }
 
   h1, h2, h3, h4, h5, h6,
