@@ -468,40 +468,31 @@ export default function CrisisPreventionEngine() {
 
               <SectionHeader>Crisis Forecast</SectionHeader>
 
-              {/* Risk Gauges — Light filled cards */}
+              {/* Risk Gauges — Apple Health Category style cards */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#FFF1EC' },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#F0EDFF' },
-                ].map(g => {
-                  const c = riskColor(g.level);
-                  return (
-                    <div key={g.label} onClick={() => handleTabChange('forecast')}
-                      style={{
-                        background: g.bg, borderRadius: 16, padding: 16, cursor: 'pointer',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
-                      }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                        <g.Icon style={{ width: 14, height: 14, color: c }} strokeWidth={2} />
-                        <div style={{ padding: '3px 10px', borderRadius: 20, backgroundColor: c }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF', textTransform: 'uppercase' }}>
-                            {g.level}
-                          </span>
-                        </div>
-                      </div>
-                      <GaugeArc value={g.value} color={c} size={110} />
-                      <p style={{ fontSize: 36, fontWeight: 800, color: c, marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
-                        {g.value}<span style={{ fontSize: 18, fontWeight: 600 }}>%</span>
-                      </p>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: sys.label, marginTop: 6, letterSpacing: -0.2 }}>{g.label}</p>
-                      <p style={{ fontSize: 12, color: sys.secondaryLabel, marginTop: 2, textAlign: 'center' }}>{g.window}</p>
-                      <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span style={{ fontSize: 12, color: sys.blue, fontWeight: 500 }}>Details</span>
-                        <ChevronRight style={{ width: 12, height: 12, color: sys.blue }} />
-                      </div>
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#F28B54' },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#6C6EC5' },
+                ].map(g => (
+                  <div key={g.label} onClick={() => handleTabChange('forecast')}
+                    style={{
+                      background: g.bg, borderRadius: 14, padding: 16, cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
+                    }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.25)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+                    }}>
+                      <g.Icon style={{ width: 26, height: 26, color: '#FFFFFF' }} strokeWidth={1.8} />
                     </div>
-                  );
-                })}
+                    <GaugeArc value={g.value} color="#FFFFFF" size={100} />
+                    <p style={{ fontSize: 34, fontWeight: 800, color: '#FFFFFF', marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
+                      {g.value}<span style={{ fontSize: 16, fontWeight: 600 }}>%</span>
+                    </p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>{g.label}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2, textAlign: 'center' }}>{g.window}</p>
+                  </div>
+                ))}
               </div>
 
               <SectionHeader>Live Vitals</SectionHeader>
