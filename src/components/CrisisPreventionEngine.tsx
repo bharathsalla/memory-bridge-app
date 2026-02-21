@@ -275,23 +275,6 @@ export default function CrisisPreventionEngine() {
 
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: sys.gray6 }}>
-      {/* ── Nav Bar (iOS: 44px, white blur, separator bottom) ── */}
-      <div style={{
-        height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', background: 'rgba(255,255,255,0.85)', backdropFilter: 'saturate(180%) blur(20px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-        borderBottom: `0.5px solid ${sys.separator}`, position: 'sticky', top: 0, zIndex: 40,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Shield style={{ width: 22, height: 22, color: sys.red }} strokeWidth={2} />
-          <span style={{ fontSize: 17, fontWeight: 700, color: sys.label }}>CrisisGuard</span>
-        </div>
-        <div style={{
-          padding: '4px 10px', borderRadius: 20,
-          border: `1px solid ${sys.green}`, fontSize: 13, fontWeight: 600, color: sys.green,
-        }}>Robert M.</div>
-      </div>
-
       {/* ── Tab Control (iOS segmented, inside page) ── */}
       <div style={{ padding: '8px 16px 0' }}>
         <SegmentedControl
