@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.extract-medicine]
 verify_jwt = false
+
+[functions.crisis-coach]
+verify_jwt = false
