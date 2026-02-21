@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useVitals } from '@/hooks/useCareData';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -33,64 +34,7 @@ const sys = {
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function pick<T>(arr: T[]): T { return arr[rand(0, arr.length - 1)]; }
 
-// ─── Data generators ───
-function generateDashboardData() {
-  const agitationRisk = rand(60, 95);
-  const wanderingRisk = rand(35, 75);
-  return {
-    agitationRisk, wanderingRisk,
-    agitationLevel: agitationRisk > 75 ? 'high' : agitationRisk > 50 ? 'moderate' : 'low',
-    wanderingLevel: wanderingRisk > 75 ? 'high' : wanderingRisk > 50 ? 'moderate' : 'low',
-    agitationWindow: pick(['Tomorrow 4–7 PM', 'Tomorrow 2–5 PM', 'Tonight 8–11 PM']),
-    wanderingWindow: pick(['Tonight 10 PM–2 AM', 'Tomorrow 3–6 AM', 'Tonight 11 PM–3 AM']),
-    heartRate: rand(68, 85), hrv: rand(28, 45), sleepWakeups: rand(2, 6),
-    spo2: rand(94, 99), pressureChange: rand(-12, -4), lastSync: rand(1, 15),
-  };
-}
-
-function generateHRVData() {
-  return [
-    { day: 'Mon', value: rand(50, 58) }, { day: 'Tue', value: rand(46, 54) },
-    { day: 'Wed', value: rand(42, 50) }, { day: 'Thu', value: rand(38, 46) },
-    { day: 'Fri', value: rand(32, 42) }, { day: 'Sat', value: rand(30, 38) },
-    { day: 'Now', value: rand(28, 38) },
-  ];
-}
-
-function generateHRData() {
-  return [
-    { time: '12AM', value: rand(58, 66) }, { time: '3AM', value: rand(68, 78) },
-    { time: '6AM', value: rand(64, 72) }, { time: '9AM', value: rand(68, 76) },
-    { time: '12PM', value: rand(66, 74) }, { time: '3PM', value: rand(74, 82) },
-    { time: '6PM', value: rand(78, 86) }, { time: 'Now', value: rand(74, 84) },
-  ];
-}
-
-function generatePressureData() {
-  return [
-    { time: '36h', value: rand(1011, 1015) }, { time: '30h', value: rand(1010, 1014) },
-    { time: '24h', value: rand(1008, 1012) }, { time: '18h', value: rand(1005, 1009) },
-    { time: '12h', value: rand(1002, 1006) }, { time: '6h', value: rand(1001, 1005) },
-    { time: 'Now', value: rand(999, 1003) },
-  ];
-}
-
-function generateForecastFactors() {
-  return [
-    { label: 'Sleep disruption', weight: rand(82, 96) },
-    { label: 'Low HRV', weight: rand(78, 92) },
-    { label: 'Weather pressure drop', weight: rand(62, 78) },
-    { label: 'Missed medication', weight: rand(55, 72) },
-    { label: 'Unusual movement', weight: rand(42, 60) },
-    { label: 'Temperature change', weight: rand(28, 45) },
-  ];
-}
-
-function generatePredictedVsActual() {
-  return ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7'].map(w => ({
-    week: w, predicted: rand(1, 4), actual: rand(0, 3),
-  }));
-}
+// (Data generators removed — now using real DB vitals + AI risk assessment)
 
 const fallbackTasks = [
   { id: '1', task: 'Call Dr. Martinez — review medication timing', priority: 'HIGH' as const },
@@ -204,24 +148,130 @@ export default function CrisisPreventionEngine() {
     setRefreshKey(k => k + 1);
   }, []);
 
-  // Dynamic data
-  const dashboard = useMemo(() => generateDashboardData(), [refreshKey]);
-  const hrvData = useMemo(() => generateHRVData(), [refreshKey]);
-  const hrData = useMemo(() => generateHRData(), [refreshKey]);
-  const pressureData = useMemo(() => generatePressureData(), [refreshKey]);
-  const forecastFactors = useMemo(() => generateForecastFactors(), [refreshKey]);
-  const predictedVsActual = useMemo(() => generatePredictedVsActual(), [refreshKey]);
+  // ── Fetch real vitals from DB ──
+  const { data: dbVitals = [] } = useVitals();
+
+  // Extract latest values from real vitals
+  const realVitals = useMemo(() => {
+    const latest = (type: string) => {
+      const sorted = dbVitals.filter(v => v.type === type).sort((a, b) => 
+        new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+      );
+      return sorted[0]?.value || null;
+    };
+    const hrvHistory = dbVitals.filter(v => v.type === 'hrv').sort((a, b) => 
+      new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+    );
+    const hrHistory = dbVitals.filter(v => v.type === 'heart_rate').sort((a, b) => 
+      new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+    );
+    const pressureHistory = dbVitals.filter(v => v.type === 'barometric_pressure').sort((a, b) => 
+      new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+    );
+
+    const heartRate = Number(latest('heart_rate')) || 72;
+    const hrv = Number(latest('hrv')) || 38;
+    const spo2 = Number(latest('spo2')) || 96;
+    const sleepWakeups = Number(latest('sleep_wakeups')) || 2;
+    const deepSleep = Number(latest('sleep_deep')) || 1.5;
+    const remSleep = Number(latest('sleep_rem')) || 1.5;
+    const lightSleep = Number(latest('sleep_light')) || 3.0;
+    const awakeSleep = Number(latest('sleep_awake')) || 0.5;
+    const latestPressure = Number(latest('barometric_pressure')) || 1010;
+    const oldestPressure = pressureHistory.length > 1 ? Number(pressureHistory[pressureHistory.length - 1].value) : latestPressure + 8;
+    const pressureChange = latestPressure - oldestPressure;
+
+    // Find most recent sync time
+    const allRecent = dbVitals.filter(v => v.recorded_at).sort((a, b) => 
+      new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+    );
+    const lastSyncMs = allRecent[0] ? Date.now() - new Date(allRecent[0].recorded_at).getTime() : 0;
+    const lastSync = Math.max(1, Math.round(lastSyncMs / 60000));
+
+    return {
+      heartRate, hrv, spo2, sleepWakeups, pressureChange, lastSync,
+      deepSleep, remSleep, lightSleep, awakeSleep, latestPressure,
+      hrvHistory, hrHistory, pressureHistory,
+    };
+  }, [dbVitals]);
+
+  // ── AI Risk Assessment ──
+  const [riskData, setRiskData] = useState<any>(null);
+  const [riskLoading, setRiskLoading] = useState(false);
+
+  useEffect(() => {
+    if (dbVitals.length === 0) return;
+    const fetchRisk = async () => {
+      setRiskLoading(true);
+      try {
+        const context = `REAL VITALS FROM WEARABLE:\n- Heart Rate: ${realVitals.heartRate} bpm\n- HRV: ${realVitals.hrv} ms (baseline: 55 ms)\n- SpO2: ${realVitals.spo2}%\n- Sleep wake-ups last night: ${realVitals.sleepWakeups}\n- Deep sleep: ${realVitals.deepSleep}h, REM: ${realVitals.remSleep}h, Light: ${realVitals.lightSleep}h, Awake: ${realVitals.awakeSleep}h\n- Barometric pressure: ${realVitals.latestPressure} mb (change: ${realVitals.pressureChange} mb over ${realVitals.pressureHistory.length > 1 ? '36h' : '12h'})\n- Last sync: ${realVitals.lastSync} min ago`;
+        const { data, error } = await supabase.functions.invoke('crisis-coach', {
+          body: { message: 'Assess crisis risk from real vitals', context, mode: 'risk-assessment' },
+        });
+        if (!error && data?.risk) {
+          setRiskData(data.risk);
+        }
+      } catch (e) {
+        console.error('Risk assessment failed:', e);
+      } finally {
+        setRiskLoading(false);
+      }
+    };
+    fetchRisk();
+  }, [dbVitals.length, refreshKey]);
+
+  // Combined dashboard: AI risk + real vitals
+  const dashboard = useMemo(() => ({
+    agitationRisk: riskData?.agitationRisk ?? (realVitals.hrv < 40 ? 82 : realVitals.hrv < 50 ? 62 : 35),
+    wanderingRisk: riskData?.wanderingRisk ?? (realVitals.sleepWakeups > 3 ? 65 : 40),
+    agitationLevel: riskData?.agitationLevel ?? (realVitals.hrv < 40 ? 'high' : realVitals.hrv < 50 ? 'moderate' : 'low'),
+    wanderingLevel: riskData?.wanderingLevel ?? (realVitals.sleepWakeups > 3 ? 'moderate' : 'low'),
+    agitationWindow: riskData?.agitationWindow ?? 'Tomorrow 4–7 PM',
+    wanderingWindow: riskData?.wanderingWindow ?? 'Tonight 10 PM–2 AM',
+    heartRate: realVitals.heartRate,
+    hrv: realVitals.hrv,
+    sleepWakeups: realVitals.sleepWakeups,
+    spo2: realVitals.spo2,
+    pressureChange: realVitals.pressureChange,
+    lastSync: realVitals.lastSync,
+  }), [riskData, realVitals]);
+
+  // Chart data from real vitals
+  const hrvData = useMemo(() => {
+    const hist = realVitals.hrvHistory;
+    if (hist.length === 0) return [{ day: 'Now', value: realVitals.hrv }];
+    return hist.slice(0, 7).reverse().map((v, i) => ({
+      day: i === hist.length - 1 ? 'Now' : `${Math.round((Date.now() - new Date(v.recorded_at).getTime()) / 3600000)}h ago`,
+      value: Number(v.value),
+    }));
+  }, [realVitals]);
+
+  const hrData = useMemo(() => {
+    const hist = realVitals.hrHistory;
+    if (hist.length === 0) return [{ time: 'Now', value: realVitals.heartRate }];
+    return hist.slice(0, 8).reverse().map((v, i) => ({
+      time: i === hist.length - 1 ? 'Now' : `${Math.round((Date.now() - new Date(v.recorded_at).getTime()) / 3600000)}h ago`,
+      value: Number(v.value),
+    }));
+  }, [realVitals]);
+
+  const pressureData = useMemo(() => {
+    const hist = realVitals.pressureHistory;
+    if (hist.length === 0) return [{ time: 'Now', value: realVitals.latestPressure }];
+    return hist.slice(0, 7).reverse().map((v, i) => ({
+      time: i === hist.length - 1 ? 'Now' : `${Math.round((Date.now() - new Date(v.recorded_at).getTime()) / 3600000)}h`,
+      value: Number(v.value),
+    }));
+  }, [realVitals]);
+
   const sleepData = useMemo(() => ({
-    deep: (rand(5, 12) / 10).toFixed(1), rem: (rand(8, 16) / 10).toFixed(1),
-    light: (rand(18, 30) / 10).toFixed(1), awake: (rand(10, 20) / 10).toFixed(1),
-  }), [refreshKey]);
+    deep: String(realVitals.deepSleep), rem: String(realVitals.remSleep),
+    light: String(realVitals.lightSleep), awake: String(realVitals.awakeSleep),
+  }), [realVitals]);
   const totalSleep = useMemo(() =>
-    (parseFloat(sleepData.deep) + parseFloat(sleepData.rem) + parseFloat(sleepData.light) + parseFloat(sleepData.awake)).toFixed(1),
-    [sleepData]);
-  const deepPct = useMemo(() => Math.round((parseFloat(sleepData.deep) / parseFloat(totalSleep)) * 100), [sleepData, totalSleep]);
-  const patternMatchCount = useMemo(() => rand(6, 9), [refreshKey]);
-  const patternMatchTotal = useMemo(() => rand(9, 12), [refreshKey]);
-  const patternLeadTime = useMemo(() => rand(28, 42), [refreshKey]);
+    (realVitals.deepSleep + realVitals.remSleep + realVitals.lightSleep + realVitals.awakeSleep).toFixed(1),
+    [realVitals]);
+  const deepPct = useMemo(() => Math.round((realVitals.deepSleep / parseFloat(totalSleep)) * 100), [realVitals, totalSleep]);
 
   const completedCount = tasksDone.size;
   const allComplete = aiTasks.length > 0 && completedCount === aiTasks.length;
@@ -232,7 +282,7 @@ export default function CrisisPreventionEngine() {
     const fetchActionPlan = async () => {
       setTasksLoading(true); setTasksDone(new Set());
       try {
-        const context = `Agitation risk: ${dashboard.agitationRisk}% (${dashboard.agitationLevel}), window: ${dashboard.agitationWindow}. Wandering risk: ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel}), window: ${dashboard.wanderingWindow}. HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep wake-ups: ${dashboard.sleepWakeups}, SpO2: ${dashboard.spo2}%, Pressure: ${dashboard.pressureChange} mb/12h.`;
+        const context = `REAL VITALS: HR ${realVitals.heartRate}bpm, HRV ${realVitals.hrv}ms (baseline 55ms), SpO2 ${realVitals.spo2}%, Sleep wake-ups ${realVitals.sleepWakeups}, Deep sleep ${realVitals.deepSleep}h, Pressure ${realVitals.latestPressure}mb (change ${realVitals.pressureChange}mb). AI Risk: Agitation ${dashboard.agitationRisk}% (${dashboard.agitationLevel}, window: ${dashboard.agitationWindow}), Wandering ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel}, window: ${dashboard.wanderingWindow}).`;
         const { data, error } = await supabase.functions.invoke('crisis-coach', {
           body: { message: 'Generate prevention plan', context, mode: 'action-plan' },
         });
@@ -254,7 +304,7 @@ export default function CrisisPreventionEngine() {
     const fetchForecast = async () => {
       setForecastLoading(true); setForecastError(false);
       try {
-        const context = `Agitation risk: ${dashboard.agitationRisk}% (${dashboard.agitationLevel}), window: ${dashboard.agitationWindow}. Wandering risk: ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel}), window: ${dashboard.wanderingWindow}. HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep wake-ups: ${dashboard.sleepWakeups}, SpO2: ${dashboard.spo2}%, Pressure: ${dashboard.pressureChange} mb/12h. Deep sleep: ${sleepData.deep}h, REM: ${sleepData.rem}h, Light: ${sleepData.light}h.`;
+        const context = `REAL VITALS FROM WEARABLE:\n- Heart Rate: ${realVitals.heartRate} bpm\n- HRV: ${realVitals.hrv} ms (baseline: 55 ms)\n- SpO2: ${realVitals.spo2}%\n- Sleep wake-ups: ${realVitals.sleepWakeups}\n- Deep sleep: ${realVitals.deepSleep}h, REM: ${realVitals.remSleep}h, Light: ${realVitals.lightSleep}h, Awake: ${realVitals.awakeSleep}h\n- Barometric pressure: ${realVitals.latestPressure} mb (change: ${realVitals.pressureChange} mb)\n- AI Risk Assessment: Agitation ${dashboard.agitationRisk}% (${dashboard.agitationLevel}), Wandering ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel})\n- Predicted windows: Agitation ${dashboard.agitationWindow}, Wandering ${dashboard.wanderingWindow}`;
         const { data, error } = await supabase.functions.invoke('crisis-coach', {
           body: { message: 'Generate 48-hour crisis forecast analysis', context, mode: 'forecast' },
         });
@@ -280,7 +330,7 @@ export default function CrisisPreventionEngine() {
   useEffect(() => {
     if (activeTab === 'caregiver' && !coachInitialized) {
       setCoachInitialized(true);
-      const summary = `Based on today's forecast: Agitation risk ${dashboard.agitationRisk}% (${dashboard.agitationWindow}), Wandering risk ${dashboard.wanderingRisk}% (${dashboard.wanderingWindow}). Key vitals — HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep disruptions: ${dashboard.sleepWakeups}, Pressure change: ${dashboard.pressureChange} mb/12h.`;
+      const summary = `Based on REAL vitals: HR ${realVitals.heartRate}bpm, HRV ${realVitals.hrv}ms (baseline 55ms), SpO2 ${realVitals.spo2}%, ${realVitals.sleepWakeups} sleep wake-ups, Deep sleep ${realVitals.deepSleep}h, Pressure ${realVitals.latestPressure}mb (${realVitals.pressureChange}mb change). AI Risk: Agitation ${dashboard.agitationRisk}% (${dashboard.agitationWindow}), Wandering ${dashboard.wanderingRisk}% (${dashboard.wanderingWindow}).`;
       setChatMessages([
         { id: '0', sender: 'coach', text: `👋 Hi Sarah! Here's your crisis briefing:\n\n${summary}\n\nI can help you with today's prevention plan, de-escalation strategies, or answer any questions about Robert's condition.` },
       ]);
@@ -497,7 +547,7 @@ export default function CrisisPreventionEngine() {
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 17, fontWeight: 600, color: sys.red }}>3 Risk Signals Active</p>
                     <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, lineHeight: 1.5 }}>
-                      Poor sleep + Low HRV + Pressure drop → matches {patternMatchCount}/{patternMatchTotal} past crisis signatures.
+                      Poor sleep + Low HRV + Pressure drop → {riskData?.riskSummary || `HRV at ${dashboard.hrv}ms, ${dashboard.sleepWakeups} wake-ups detected.`}
                     </p>
                     <button onClick={() => handleTabChange('forecast')}
                       style={{ fontSize: 17, color: sys.blue, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8, minHeight: 44, padding: 0 }}>
