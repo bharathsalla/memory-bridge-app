@@ -195,6 +195,9 @@ export default function CrisisPreventionEngine() {
   const [chatMessages, setChatMessages] = useState<{ id: string; sender: 'user' | 'coach'; text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [coachInitialized, setCoachInitialized] = useState(false);
+  const [forecastData, setForecastData] = useState<any>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState(false);
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab as CrisisTab);
@@ -244,6 +247,30 @@ export default function CrisisPreventionEngine() {
     };
     fetchActionPlan();
   }, [refreshKey, dashboard.agitationRisk, dashboard.wanderingRisk]);
+
+  // AI Forecast data
+  useEffect(() => {
+    if (activeTab !== 'forecast') return;
+    const fetchForecast = async () => {
+      setForecastLoading(true); setForecastError(false);
+      try {
+        const context = `Agitation risk: ${dashboard.agitationRisk}% (${dashboard.agitationLevel}), window: ${dashboard.agitationWindow}. Wandering risk: ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel}), window: ${dashboard.wanderingWindow}. HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep wake-ups: ${dashboard.sleepWakeups}, SpO2: ${dashboard.spo2}%, Pressure: ${dashboard.pressureChange} mb/12h. Deep sleep: ${sleepData.deep}h, REM: ${sleepData.rem}h, Light: ${sleepData.light}h.`;
+        const { data, error } = await supabase.functions.invoke('crisis-coach', {
+          body: { message: 'Generate 48-hour crisis forecast analysis', context, mode: 'forecast' },
+        });
+        if (!error && data?.forecast) {
+          setForecastData(data.forecast);
+        } else {
+          setForecastError(true);
+        }
+      } catch {
+        setForecastError(true);
+      } finally {
+        setForecastLoading(false);
+      }
+    };
+    fetchForecast();
+  }, [activeTab, refreshKey]);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -309,7 +336,7 @@ export default function CrisisPreventionEngine() {
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: sys.gray6 }}>
       {/* ── Tab Control (iOS segmented, inside page) ── */}
-      <div style={{ padding: '8px 16px 0' }}>
+      <div style={{ padding: '4px 16px 0' }}>
         <SegmentedControl
           value={activeTab}
           onChange={handleTabChange}
@@ -632,115 +659,148 @@ export default function CrisisPreventionEngine() {
           {activeTab === 'forecast' && (
             <motion.div key={`fc-${refreshKey}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
 
-              {/* Header (inline, not card) */}
+              {/* Header */}
               <div style={{ padding: '16px 16px 0' }}>
                 <p style={{ fontSize: 28, fontWeight: 700, color: sys.label }}>48-Hour Forecast</p>
-                <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4 }}>Model last ran: Today 8:00 AM · Next: 2:00 PM</p>
+                <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4 }}>
+                  {forecastData?.model_last_ran ? `Model last ran: ${forecastData.model_last_ran}` : 'Loading forecast model...'}{forecastData?.next_run ? ` · Next: ${forecastData.next_run}` : ''}
+                </p>
               </div>
 
-              <SectionHeader>Why This Alert?</SectionHeader>
+              {forecastLoading ? (
+                <IOSCard style={{ textAlign: 'center', padding: 32 }}>
+                  <Brain style={{ width: 40, height: 40, color: sys.indigo, margin: '0 auto 12px' }} className="animate-pulse" />
+                  <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>Analyzing Crisis Patterns...</p>
+                  <p style={{ fontSize: 13, color: sys.secondaryLabel, marginTop: 4 }}>AI is correlating biometrics, sleep, and environmental data</p>
+                </IOSCard>
+              ) : forecastError ? (
+                <IOSCard style={{ textAlign: 'center', padding: 32 }}>
+                  <AlertTriangle style={{ width: 40, height: 40, color: sys.orange, margin: '0 auto 12px' }} />
+                  <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>Forecast Unavailable</p>
+                  <p style={{ fontSize: 13, color: sys.secondaryLabel, marginTop: 4 }}>Could not generate forecast. Using latest vitals snapshot.</p>
+                  <button onClick={() => setRefreshKey(k => k + 1)}
+                    style={{ fontSize: 17, color: sys.blue, background: 'none', border: 'none', cursor: 'pointer', marginTop: 12, minHeight: 44 }}>
+                    Retry Analysis
+                  </button>
+                </IOSCard>
+              ) : forecastData ? (
+                <>
+                  {/* Summary banner */}
+                  {forecastData.summary && (
+                    <IOSCard style={{ backgroundColor: `${sys.red}14` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <IconContainer color={sys.red}>
+                          <Shield style={{ width: 22, height: 22, color: sys.red }} strokeWidth={2} />
+                        </IconContainer>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: 17, fontWeight: 600, color: sys.red }}>{forecastData.summary}</p>
+                          <p style={{ fontSize: 13, color: sys.secondaryLabel, marginTop: 2 }}>
+                            Confidence: {forecastData.confidence_pct || dashboard.agitationRisk}%
+                          </p>
+                        </div>
+                      </div>
+                    </IOSCard>
+                  )}
 
-              {/* Explainability Card (Fix #19: sentence case, Fix #20: separators, Fix #21: consistent radius, Fix #22: separate label/metric) */}
-              <IOSCard style={{ border: `1px solid ${sys.red}4D` }}>
-                {[
-                  { label: 'Sleep Quality: Poor', Icon: Moon, color: sys.indigo,
-                    detail: `${dashboard.sleepWakeups} wake-ups last night (baseline: 1–2). Only ${deepPct}% deep sleep (usual: 35%). This alone precedes 70% of Robert's agitation episodes.` },
-                  { label: 'HRV: Critically Low', Icon: Activity, color: sys.purple,
-                    detail: `HRV at ${dashboard.hrv} ms vs baseline 55 ms — a ${Math.round((1 - dashboard.hrv / 55) * 100)}% deviation. Sustained 6-day decline indicates accumulated physiological stress.` },
-                  { label: `Pressure Drop: ${dashboard.pressureChange} mb in 12h`, Icon: Cloud, color: sys.blue,
-                    detail: `Rapid barometric drop. Robert has agitated within 24h of this pattern in ${rand(5, 7)} of ${rand(7, 9)} prior occurrences.` },
-                  { label: 'Pattern Match', Icon: Cpu, color: sys.green,
-                    detail: `${dashboard.agitationRisk}% confidence. This triad matches ${patternMatchCount} of Robert's last ${patternMatchTotal} crisis signatures.` },
-                ].map((f, i, arr) => (
-                  <div key={f.label}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0' }}>
-                      <IconContainer color={f.color}>
-                        <f.Icon style={{ width: 22, height: 22, color: f.color }} strokeWidth={1.5} />
+                  <SectionHeader>Why This Alert?</SectionHeader>
+
+                  <IOSCard style={{ border: `1px solid ${sys.red}4D` }}>
+                    {(forecastData.alert_factors || []).map((f: any, i: number, arr: any[]) => {
+                      const iconMap: Record<string, typeof Moon> = { sleep: Moon, hrv: Activity, pressure: Cloud, pattern: Cpu };
+                      const colorMap: Record<string, string> = { indigo: sys.indigo, purple: sys.purple, blue: sys.blue, green: sys.green };
+                      const FIcon = iconMap[f.icon] || Brain;
+                      const fColor = colorMap[f.color] || sys.blue;
+                      return (
+                        <div key={i}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0' }}>
+                            <IconContainer color={fColor}>
+                              <FIcon style={{ width: 22, height: 22, color: fColor }} strokeWidth={1.5} />
+                            </IconContainer>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>{f.label}</p>
+                              <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, lineHeight: 1.5 }}>{f.detail}</p>
+                            </div>
+                          </div>
+                          {i < arr.length - 1 && <RowSep />}
+                        </div>
+                      );
+                    })}
+                  </IOSCard>
+
+                  <SectionHeader>Pattern Match Engine</SectionHeader>
+
+                  <IOSCard>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                      <IconContainer color={sys.green} size={36}>
+                        <Cpu style={{ width: 20, height: 20, color: sys.green }} strokeWidth={1.5} />
                       </IconContainer>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>{f.label}</p>
-                        <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, lineHeight: 1.5 }}>{f.detail}</p>
+                      <span style={{ fontSize: 22, fontWeight: 400, color: sys.label, flex: 1 }}>Pattern Match Engine</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sys.green }} />
+                        <span style={{ fontSize: 12, color: sys.green }}>Live</span>
                       </div>
                     </div>
-                    {i < arr.length - 1 && <RowSep />}
-                  </div>
-                ))}
-              </IOSCard>
 
-              <SectionHeader>Pattern Match Engine</SectionHeader>
+                    <p style={{ fontSize: 17, color: sys.secondaryLabel, lineHeight: 1.6, marginBottom: 16 }}>
+                      The AI compares Robert's <strong style={{ color: sys.label }}>last 48-hour biometric signature</strong> against his personal crisis history (90-day rolling window). This is Robert's own data — not generic dementia statistics.
+                    </p>
 
-              <IOSCard>
-                {/* Header (Fix #23: green dot + "Live" text, not pill) */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <IconContainer color={sys.green} size={36}>
-                    <Cpu style={{ width: 20, height: 20, color: sys.green }} strokeWidth={1.5} />
-                  </IconContainer>
-                  <span style={{ fontSize: 22, fontWeight: 400, color: sys.label, flex: 1 }}>Pattern Match Engine</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sys.green }} />
-                    <span style={{ fontSize: 12, color: sys.green }}>Live</span>
-                  </div>
-                </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {(forecastData.pattern_factors || []).map((f: any, i: number, arr: any[]) => {
+                        const barColor = factorBarColor(f.weight);
+                        return (
+                          <div key={f.label}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                              <span style={{ fontSize: 15, color: sys.label }}>{f.label}</span>
+                              <span style={{ fontSize: 15, fontWeight: 600, color: barColor }}>{f.weight}%</span>
+                            </div>
+                            <div role="progressbar" aria-label={`${f.label}: ${f.weight} percent`}
+                              aria-valuenow={f.weight} aria-valuemin={0} aria-valuemax={100}
+                              style={{ height: 6, borderRadius: 3, backgroundColor: `rgba(120,120,128,0.12)`, overflow: 'hidden' }}>
+                              <motion.div initial={{ width: 0 }} animate={{ width: `${f.weight}%` }}
+                                transition={{ duration: 0.5, ease: 'easeOut' }}
+                                style={{ height: '100%', borderRadius: 3, backgroundColor: barColor }} />
+                            </div>
+                            {i < arr.length - 1 && <div style={{ height: 0.5, backgroundColor: sys.separator, marginTop: 12 }} />}
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                <p style={{ fontSize: 17, color: sys.secondaryLabel, lineHeight: 1.6, marginBottom: 16 }}>
-                  The AI compares Robert's <strong style={{ color: sys.label }}>last 48-hour biometric signature</strong> against his personal crisis history (90-day rolling window). This is Robert's own data — not generic dementia statistics.
-                </p>
-
-                {/* Factor Weight Bars (Fix #24: aria-labels, Fix #28: 6px bar) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {forecastFactors.map((f, i, arr) => {
-                    const barColor = factorBarColor(f.weight);
-                    return (
-                      <div key={f.label}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 15, color: sys.label }}>{f.label}</span>
-                          <span style={{ fontSize: 15, fontWeight: 600, color: barColor }}>{f.weight}%</span>
-                        </div>
-                        <div role="progressbar" aria-label={`${f.label}: ${f.weight} percent`}
-                          aria-valuenow={f.weight} aria-valuemin={0} aria-valuemax={100}
-                          style={{ height: 6, borderRadius: 3, backgroundColor: `rgba(120,120,128,0.12)`, overflow: 'hidden' }}>
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${f.weight}%` }}
-                            transition={{ duration: 0.5, ease: 'easeOut' }}
-                            style={{ height: '100%', borderRadius: 3, backgroundColor: barColor }} />
-                        </div>
-                        {i < arr.length - 1 && <div style={{ height: 0.5, backgroundColor: sys.separator, marginTop: 12 }} />}
+                    {forecastData.pattern_insight && (
+                      <div style={{
+                        marginTop: 16, backgroundColor: sys.gray6, borderRadius: 8,
+                        borderLeft: `4px solid ${sys.indigo}`, padding: '12px 12px 12px 16px',
+                      }}>
+                        <p style={{ fontSize: 13, color: sys.label, lineHeight: 1.6 }}>
+                          {forecastData.pattern_insight} Matched <strong>{forecastData.match_count || 0} of {forecastData.match_total || 0}</strong> past signatures. Average lead time: <strong>{forecastData.lead_time_hours || 0} hours</strong>.
+                        </p>
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </IOSCard>
 
-                {/* Pattern Insight (Fix #25: gray6 bg + indigo left border) */}
-                <div style={{
-                  marginTop: 16, backgroundColor: sys.gray6, borderRadius: 8,
-                  borderLeft: `4px solid ${sys.indigo}`, padding: '12px 12px 12px 16px',
-                }}>
-                  <p style={{ fontSize: 13, color: sys.label, lineHeight: 1.6 }}>
-                    This pattern preceded <strong>{patternMatchCount} of Robert's last {patternMatchTotal} agitation episodes</strong>. Average lead time: <strong>{patternLeadTime} hours</strong>. Confidence elevated — barometric drop matches {rand(5, 7)} prior crises exactly.
-                  </p>
-                </div>
-              </IOSCard>
+                  <SectionHeader>Crisis History</SectionHeader>
 
-              <SectionHeader>Crisis History</SectionHeader>
-
-              {/* Predicted vs Actual (Fix #26-27: 11px labels, visible title) */}
-              <IOSCard>
-                <p style={{ fontSize: 11, fontWeight: 400, color: sys.secondaryLabel, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 12 }}>
-                  Crisis: Predicted vs Actual (7 weeks)
-                </p>
-                <div style={{ height: 140 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={predictedVsActual} barSize={8}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={sys.separator} horizontal vertical={false} />
-                      <XAxis dataKey="week" tick={{ fontSize: 11, fill: sys.secondaryLabel }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: sys.secondaryLabel }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: 12 }} />
-                      <Bar dataKey="predicted" fill={sys.orange} radius={[3, 3, 0, 0]} name="Predicted" />
-                      <Bar dataKey="actual" fill={sys.red} radius={[3, 3, 0, 0]} name="Actual" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </IOSCard>
+                  <IOSCard>
+                    <p style={{ fontSize: 11, fontWeight: 400, color: sys.secondaryLabel, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 12 }}>
+                      Crisis: Predicted vs Actual (7 weeks)
+                    </p>
+                    <div style={{ height: 140 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={forecastData.predicted_vs_actual || []} barSize={8}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={sys.separator} horizontal vertical={false} />
+                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: sys.secondaryLabel }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 11, fill: sys.secondaryLabel }} axisLine={false} tickLine={false} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Legend wrapperStyle={{ fontSize: 12 }} />
+                          <Bar dataKey="predicted" fill={sys.orange} radius={[3, 3, 0, 0]} name="Predicted" />
+                          <Bar dataKey="actual" fill={sys.red} radius={[3, 3, 0, 0]} name="Actual" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </IOSCard>
+                </>
+              ) : null}
             </motion.div>
           )}
 
