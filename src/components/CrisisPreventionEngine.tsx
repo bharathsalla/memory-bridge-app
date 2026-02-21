@@ -91,7 +91,7 @@ const TrendIcon = ({ trend }: { trend: 'up' | 'down' | 'stable' }) => {
 };
 
 // ─── Gauge SVG (pure SVG semicircle) ───
-const GaugeArc = ({ value, color, size = 120 }: { value: number; color: string; size?: number }) => {
+const GaugeArc = ({ value, color, size = 120, trackColor }: { value: number; color: string; size?: number; trackColor?: string }) => {
   const cx = size / 2, cy = size / 2 + 10;
   const r = size / 2 - 12;
   const circumference = Math.PI * r;
@@ -99,9 +99,9 @@ const GaugeArc = ({ value, color, size = 120 }: { value: number; color: string; 
   return (
     <svg width={size} height={size / 2 + 20} viewBox={`0 0 ${size} ${size / 2 + 20}`}>
       <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-        fill="none" stroke={sys.gray6} strokeWidth={12} strokeLinecap="round" />
+        fill="none" stroke={trackColor || sys.gray6} strokeWidth={10} strokeLinecap="round" />
       <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-        fill="none" stroke={color} strokeWidth={12} strokeLinecap="round"
+        fill="none" stroke={color} strokeWidth={10} strokeLinecap="round"
         strokeDasharray={circumference} strokeDashoffset={offset}
         style={{ transition: 'stroke-dashoffset 0.8s ease-out' }} />
     </svg>
@@ -471,21 +471,15 @@ export default function CrisisPreventionEngine() {
               {/* Risk Gauges — Apple Health Category style cards */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#F28B54' },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#6C6EC5' },
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, bg: '#F28B54' },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, bg: '#6C6EC5' },
                 ].map(g => (
                   <div key={g.label} onClick={() => handleTabChange('forecast')}
                     style={{
                       background: g.bg, borderRadius: 14, padding: 16, cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
                     }}>
-                    <div style={{
-                      width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.25)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10,
-                    }}>
-                      <g.Icon style={{ width: 26, height: 26, color: '#FFFFFF' }} strokeWidth={1.8} />
-                    </div>
-                    <GaugeArc value={g.value} color="#FFFFFF" size={100} />
+                    <GaugeArc value={g.value} color="#FFFFFF" size={100} trackColor="rgba(255,255,255,0.2)" />
                     <p style={{ fontSize: 34, fontWeight: 800, color: '#FFFFFF', marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
                       {g.value}<span style={{ fontSize: 16, fontWeight: 600 }}>%</span>
                     </p>
