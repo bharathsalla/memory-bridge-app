@@ -192,10 +192,9 @@ export default function CrisisPreventionEngine() {
   const [severity, setSeverity] = useState(5);
   const [crisisLogged, setCrisisLogged] = useState(false);
   const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<{ id: string; sender: 'user' | 'coach'; text: string }[]>([
-    { id: '0', sender: 'coach', text: "I'm here to help you navigate today's alerts. What's on your mind?" },
-  ]);
+  const [chatMessages, setChatMessages] = useState<{ id: string; sender: 'user' | 'coach'; text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [coachInitialized, setCoachInitialized] = useState(false);
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab as CrisisTab);
@@ -250,14 +249,32 @@ export default function CrisisPreventionEngine() {
     setTasksDone(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
 
-  const sendCoachMessage = async () => {
-    if (!chatInput.trim() || chatLoading) return;
-    const userText = chatInput;
-    setChatMessages(prev => [...prev, { id: Date.now().toString(), sender: 'user', text: userText }]);
+  // Initialize AI Coach with today's prevention context
+  useEffect(() => {
+    if (activeTab === 'caregiver' && !coachInitialized) {
+      setCoachInitialized(true);
+      const summary = `Based on today's forecast: Agitation risk ${dashboard.agitationRisk}% (${dashboard.agitationWindow}), Wandering risk ${dashboard.wanderingRisk}% (${dashboard.wanderingWindow}). Key vitals — HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep disruptions: ${dashboard.sleepWakeups}, Pressure change: ${dashboard.pressureChange} mb/12h.`;
+      setChatMessages([
+        { id: '0', sender: 'coach', text: `👋 Hi Sarah! Here's your crisis briefing:\n\n${summary}\n\nI can help you with today's prevention plan, de-escalation strategies, or answer any questions about Robert's condition.` },
+      ]);
+    }
+  }, [activeTab, coachInitialized, dashboard]);
+
+  const coachPrompts = [
+    "What should I do during tomorrow's high-risk window?",
+    "How can I de-escalate if Robert becomes agitated?",
+    "Summarize today's prevention plan",
+    "What do the HRV numbers mean for Robert?",
+  ];
+
+  const sendCoachMessage = async (overrideText?: string) => {
+    const text = overrideText || chatInput.trim();
+    if (!text || chatLoading) return;
+    setChatMessages(prev => [...prev, { id: Date.now().toString(), sender: 'user', text }]);
     setChatInput(''); setChatLoading(true);
     try {
-      const context = `Agitation risk: ${dashboard.agitationRisk}%, Wandering: ${dashboard.wanderingRisk}%, HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep: ${dashboard.sleepWakeups} wake-ups.`;
-      const { data, error } = await supabase.functions.invoke('crisis-coach', { body: { message: userText, context } });
+      const context = `Agitation risk: ${dashboard.agitationRisk}%, Wandering: ${dashboard.wanderingRisk}%, HR: ${dashboard.heartRate}bpm, HRV: ${dashboard.hrv}ms, Sleep: ${dashboard.sleepWakeups} wake-ups. Action plan tasks: ${aiTasks.map(t => t.task).join('; ')}`;
+      const { data, error } = await supabase.functions.invoke('crisis-coach', { body: { message: text, context } });
       const reply = error ? "I'm having trouble connecting. Try again." : data?.reply || "Could you rephrase that?";
       setChatMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: 'coach', text: reply }]);
     } catch {
@@ -265,7 +282,23 @@ export default function CrisisPreventionEngine() {
     } finally { setChatLoading(false); }
   };
 
-  const logCrisis = () => { if (crisisType) setCrisisLogged(true); };
+  const [crisisLogging, setCrisisLogging] = useState(false);
+  const logCrisis = async () => {
+    if (!crisisType || crisisLogging) return;
+    setCrisisLogging(true);
+    try {
+      await supabase.from('activities').insert({
+        description: `🚨 Crisis logged: ${crisisType} — Severity ${severity}/10`,
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        completed: true,
+        icon: '🚨',
+      });
+      setCrisisLogged(true);
+      toast({ title: 'Crisis event logged', description: `${crisisType} · Severity ${severity}/10 — AI model will update.` });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to log crisis event. Please try again.', variant: 'destructive' });
+    } finally { setCrisisLogging(false); }
+  };
   const resetCrisisLog = () => { setCrisisType(null); setSeverity(5); setCrisisLogged(false); };
 
   const riskColor = (level: string) => level === 'high' ? sys.red : level === 'moderate' ? sys.orange : sys.green;
@@ -802,7 +835,6 @@ export default function CrisisPreventionEngine() {
 
               <SectionHeader>Care Team</SectionHeader>
 
-              {/* Care Team (Fix #33: 40px avatars) */}
               <IOSCard style={{ padding: 0 }}>
                 {careTeam.map((p, i) => (
                   <div key={p.name}>
@@ -826,69 +858,8 @@ export default function CrisisPreventionEngine() {
                 ))}
               </IOSCard>
 
-              <SectionHeader>Log a Crisis Event</SectionHeader>
-
-              {/* Crisis Log (Fix #34: disabled button state, Fix #35: live slider, Fix #36: segmented picker) */}
-              <IOSCard>
-                <p style={{ fontSize: 13, color: sys.secondaryLabel, marginBottom: 12 }}>
-                  Each log trains the AI to predict future events more accurately.
-                </p>
-
-                {crisisLogged ? (
-                  <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <CheckCircle2 style={{ width: 40, height: 40, color: sys.green, margin: '0 auto 12px' }} />
-                    <p style={{ fontSize: 17, fontWeight: 600, color: sys.green }}>Crisis logged — AI model updated</p>
-                    <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, textTransform: 'capitalize' }}>{crisisType} · Severity {severity}/10</p>
-                    <button onClick={resetCrisisLog}
-                      style={{ fontSize: 17, color: sys.blue, background: 'none', border: 'none', cursor: 'pointer', marginTop: 12, minHeight: 44 }}>
-                      Log another event
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    {/* Segmented Picker (Fix #36: native segmented style, not 3 separate buttons) */}
-                    <div style={{ backgroundColor: sys.gray6, borderRadius: 8, padding: 2, display: 'flex', marginBottom: 16 }}>
-                      {['Agitation', 'Wandering', 'Aggression'].map(type => (
-                        <button key={type} onClick={() => setCrisisType(type)}
-                          style={{
-                            flex: 1, height: 32, borderRadius: 6, fontSize: 13, fontWeight: 600,
-                            border: 'none', cursor: 'pointer',
-                            backgroundColor: crisisType === type ? '#FFFFFF' : 'transparent',
-                            color: crisisType === type ? sys.label : sys.secondaryLabel,
-                            boxShadow: crisisType === type ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                            transition: 'all 0.15s',
-                          }}>{type}</button>
-                      ))}
-                    </div>
-
-                    {/* Severity Slider (Fix #35: live label update) */}
-                    <p style={{ fontSize: 17, fontWeight: 600, color: sys.label, marginBottom: 8 }}>
-                      Severity: {severity}/10
-                    </p>
-                    <input type="range" min={1} max={10} value={severity}
-                      onChange={e => setSeverity(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: sys.blue, minHeight: 44 }}
-                      aria-label={`Severity: ${severity} out of 10`} />
-
-                    {/* Log Button (Fix #34: gray/disabled when no type, red when type selected) */}
-                    <button onClick={logCrisis} disabled={!crisisType}
-                      style={{
-                        width: '100%', height: 50, borderRadius: 12, marginTop: 16,
-                        fontSize: 17, fontWeight: 600, border: 'none', cursor: crisisType ? 'pointer' : 'default',
-                        backgroundColor: crisisType ? sys.red : sys.gray6,
-                        color: crisisType ? '#FFFFFF' : sys.gray,
-                        opacity: crisisType ? 1 : 0.4,
-                        transition: 'all 0.2s',
-                      }}>
-                      Log Crisis Event
-                    </button>
-                  </>
-                )}
-              </IOSCard>
-
               <SectionHeader>AI Crisis Coach</SectionHeader>
 
-              {/* AI Chat (Fix #37-40: contrast, blue send, sender alignment, brain icon) */}
               <IOSCard>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                   <IconContainer color={sys.purple} size={36}>
@@ -897,7 +868,8 @@ export default function CrisisPreventionEngine() {
                   <span style={{ fontSize: 20, fontWeight: 600, color: sys.label }}>AI Crisis Coach</span>
                 </div>
 
-                <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* Chat messages */}
+                <div style={{ maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {chatMessages.map(m => (
                     <div key={m.id} style={{
                       display: 'flex', flexDirection: 'column',
@@ -911,7 +883,7 @@ export default function CrisisPreventionEngine() {
                       </span>
                       <div style={{
                         padding: '12px 14px', maxWidth: '85%',
-                        borderRadius: 18,
+                        borderRadius: 18, whiteSpace: 'pre-line',
                         ...(m.sender === 'user'
                           ? { backgroundColor: sys.blue, color: '#FFFFFF', borderTopRightRadius: 4 }
                           : { backgroundColor: sys.gray6, color: sys.label, borderTopLeftRadius: 4 }),
@@ -929,8 +901,23 @@ export default function CrisisPreventionEngine() {
                   )}
                 </div>
 
-                {/* Input (Fix #37: contrast placeholder, Fix #38: systemBlue send button) */}
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                {/* Predefined quick prompts */}
+                {chatMessages.length <= 1 && !chatLoading && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                    {coachPrompts.map((prompt, i) => (
+                      <button key={i} onClick={() => sendCoachMessage(prompt)}
+                        style={{
+                          padding: '8px 14px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+                          backgroundColor: `${sys.blue}12`, color: sys.blue,
+                          border: `1px solid ${sys.blue}30`, cursor: 'pointer',
+                          textAlign: 'left', lineHeight: 1.3,
+                        }}>{prompt}</button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Custom input */}
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <input value={chatInput} onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendCoachMessage()}
                     placeholder="Ask about today's forecast..."
@@ -939,7 +926,7 @@ export default function CrisisPreventionEngine() {
                       backgroundColor: sys.gray6, border: 'none', outline: 'none',
                       fontSize: 15, color: sys.label,
                     }} />
-                  <button onClick={sendCoachMessage} disabled={chatLoading || !chatInput.trim()}
+                  <button onClick={() => sendCoachMessage()} disabled={chatLoading || !chatInput.trim()}
                     style={{
                       width: 32, height: 32, borderRadius: 16, flexShrink: 0,
                       backgroundColor: sys.blue, border: 'none', cursor: 'pointer',
@@ -950,6 +937,62 @@ export default function CrisisPreventionEngine() {
                     <ArrowUpRight style={{ width: 16, height: 16, color: '#FFFFFF', transform: 'rotate(-45deg)' }} />
                   </button>
                 </div>
+              </IOSCard>
+
+              <SectionHeader>Log a Crisis Event</SectionHeader>
+
+              <IOSCard>
+                <p style={{ fontSize: 13, color: sys.secondaryLabel, marginBottom: 12 }}>
+                  Each log trains the AI to predict future events more accurately.
+                </p>
+
+                {crisisLogged ? (
+                  <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                    <CheckCircle2 style={{ width: 40, height: 40, color: sys.green, margin: '0 auto 12px' }} />
+                    <p style={{ fontSize: 17, fontWeight: 600, color: sys.green }}>Crisis logged — AI model updated</p>
+                    <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, textTransform: 'capitalize' }}>{crisisType} · Severity {severity}/10</p>
+                    <button onClick={resetCrisisLog}
+                      style={{ fontSize: 17, color: sys.blue, background: 'none', border: 'none', cursor: 'pointer', marginTop: 12, minHeight: 44 }}>
+                      Log another event
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ backgroundColor: sys.gray6, borderRadius: 8, padding: 2, display: 'flex', marginBottom: 16 }}>
+                      {['Agitation', 'Wandering', 'Aggression'].map(type => (
+                        <button key={type} onClick={() => setCrisisType(type)}
+                          style={{
+                            flex: 1, height: 32, borderRadius: 6, fontSize: 13, fontWeight: 600,
+                            border: 'none', cursor: 'pointer',
+                            backgroundColor: crisisType === type ? '#FFFFFF' : 'transparent',
+                            color: crisisType === type ? sys.label : sys.secondaryLabel,
+                            boxShadow: crisisType === type ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                            transition: 'all 0.15s',
+                          }}>{type}</button>
+                      ))}
+                    </div>
+
+                    <p style={{ fontSize: 17, fontWeight: 600, color: sys.label, marginBottom: 8 }}>
+                      Severity: {severity}/10
+                    </p>
+                    <input type="range" min={1} max={10} value={severity}
+                      onChange={e => setSeverity(Number(e.target.value))}
+                      style={{ width: '100%', accentColor: sys.blue, minHeight: 44 }}
+                      aria-label={`Severity: ${severity} out of 10`} />
+
+                    <button onClick={logCrisis} disabled={!crisisType || crisisLogging}
+                      style={{
+                        width: '100%', height: 50, borderRadius: 12, marginTop: 16,
+                        fontSize: 17, fontWeight: 600, border: 'none', cursor: crisisType ? 'pointer' : 'default',
+                        backgroundColor: crisisType ? sys.red : sys.gray6,
+                        color: crisisType ? '#FFFFFF' : sys.gray,
+                        opacity: crisisType ? 1 : 0.4,
+                        transition: 'all 0.2s',
+                      }}>
+                      {crisisLogging ? 'Logging...' : 'Log Crisis Event'}
+                    </button>
+                  </>
+                )}
               </IOSCard>
             </motion.div>
           )}
