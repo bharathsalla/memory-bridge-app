@@ -468,33 +468,42 @@ export default function CrisisPreventionEngine() {
 
               <SectionHeader>Crisis Forecast</SectionHeader>
 
-              {/* Risk Gauges (Fix #4: 44px tap, Fix #5: rounded numerals, Fix #6: grouped bg) */}
+              {/* Risk Gauges — Enhanced cards with gradient borders */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow },
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin },
                 ].map(g => {
                   const c = riskColor(g.level);
+                  const bgGrad = g.level === 'high' ? 'linear-gradient(145deg, #FFF5F5, #FFFFFF)' : g.level === 'moderate' ? 'linear-gradient(145deg, #FFF8F0, #FFFFFF)' : 'linear-gradient(145deg, #F0FFF4, #FFFFFF)';
                   return (
                     <div key={g.label} onClick={() => handleTabChange('forecast')}
                       style={{
-                        background: '#FFFFFF', borderRadius: 12, padding: 16, cursor: 'pointer',
+                        background: bgGrad, borderRadius: 16, padding: 16, cursor: 'pointer',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
+                        border: `1.5px solid ${c}30`,
+                        boxShadow: `0 4px 16px ${c}15, 0 1px 3px rgba(0,0,0,0.04)`,
+                        transition: 'transform 0.15s, box-shadow 0.15s',
                       }}>
-                      {/* Badge (Fix #30: white text on colored bg for contrast) */}
-                      <div style={{ padding: '4px 10px', borderRadius: 20, backgroundColor: c, marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF', textTransform: 'uppercase' }}>
-                          {g.level} risk
-                        </span>
+                      {/* Icon + Badge */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                        <g.Icon style={{ width: 14, height: 14, color: c }} strokeWidth={2} />
+                        <div style={{ padding: '3px 10px', borderRadius: 20, backgroundColor: c }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF', textTransform: 'uppercase' }}>
+                            {g.level}
+                          </span>
+                        </div>
                       </div>
-                      <GaugeArc value={g.value} color={c} size={120} />
-                      <p style={{ fontSize: 34, fontWeight: 800, color: c, marginTop: -8, fontVariantNumeric: 'tabular-nums' }}>
-                        {g.value}%
+                      <GaugeArc value={g.value} color={c} size={110} />
+                      <p style={{ fontSize: 36, fontWeight: 800, color: c, marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
+                        {g.value}<span style={{ fontSize: 18, fontWeight: 600 }}>%</span>
                       </p>
-                      <p style={{ fontSize: 11, color: sys.secondaryLabel }}>likelihood</p>
-                      <p style={{ fontSize: 17, fontWeight: 600, color: sys.label, marginTop: 8 }}>{g.label}</p>
-                      <p style={{ fontSize: 15, color: sys.secondaryLabel }}>{g.window}</p>
-                      <ChevronRight style={{ width: 16, height: 16, color: sys.gray, marginTop: 4 }} />
+                      <p style={{ fontSize: 15, fontWeight: 700, color: sys.label, marginTop: 6, letterSpacing: -0.2 }}>{g.label}</p>
+                      <p style={{ fontSize: 12, color: sys.secondaryLabel, marginTop: 2, textAlign: 'center' }}>{g.window}</p>
+                      <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <span style={{ fontSize: 12, color: sys.blue, fontWeight: 500 }}>Details</span>
+                        <ChevronRight style={{ width: 12, height: 12, color: sys.blue }} />
+                      </div>
                     </div>
                   );
                 })}

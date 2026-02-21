@@ -5,6 +5,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import { VoiceOverProvider } from "@/contexts/VoiceOverContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import TabletVitals from "./pages/TabletVitals";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => (
           <HashRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/tablet-vitals" element={<TabletVitals />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
