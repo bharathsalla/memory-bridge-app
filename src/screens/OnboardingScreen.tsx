@@ -53,7 +53,7 @@ function MemoCareLogo() {
 }
 
 export default function OnboardingScreen() {
-  const { completeOnboarding } = useApp();
+  const { completeOnboarding, toggleCaregiverView } = useApp();
   const { startVoiceOver, setOnboardingStep, setInputCallback, isVoiceOverActive, highlightedInputId } = useVoiceOver();
   const [step, setStep] = useState<typeof steps[number]>('welcome');
   const [name, setName] = useState('');
@@ -181,7 +181,7 @@ export default function OnboardingScreen() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
-                  onClick={() => { setSelectedMode('full'); setStep('personalize'); }}
+                  onClick={() => { completeOnboarding('Friend', 'full'); toggleCaregiverView(); }}
                   className="w-full h-12 text-muted-foreground text-[16px] font-semibold rounded-2xl active:text-foreground transition-colors"
                 >
                   I'm a caregiver
