@@ -9,7 +9,7 @@ import {
   Watch, BarChart3, Target, ArrowUp, ArrowDown,
   CheckCircle2, X, Send, Bot, BluetoothOff,
   Cpu, Lightbulb, Music, MapPinned, BatteryCharging, SmartphoneNfc,
-  Timer, ClipboardCheck, Home, Award, Users, Layers, ExternalLink,
+  Timer, ClipboardCheck, Home, Award, Users,
   Ban, Volume2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,7 +30,7 @@ import {
 } from 'recharts';
 
 // ─── Types ───
-type CrisisTab = 'dashboard' | 'vitals' | 'forecast' | 'plan' | 'caregiver' | 'designspec';
+type CrisisTab = 'dashboard' | 'vitals' | 'forecast' | 'plan' | 'caregiver';
 
 // ─── Helpers ───
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -118,9 +118,9 @@ function generatePredictedVsActual() {
   }));
 }
 
-const initialTasks = [
-  { id: '1', task: 'Call Dr. Martinez — review 2 PM medication timing', priority: 'HIGH' as const },
-  { id: '2', task: 'Cancel 5 PM group visit', priority: 'HIGH' as const },
+const fallbackTasks = [
+  { id: '1', task: 'Call Dr. Martinez — review medication timing', priority: 'HIGH' as const },
+  { id: '2', task: 'Cancel afternoon group visit', priority: 'HIGH' as const },
   { id: '3', task: 'Dim lights at 3:30 PM', priority: 'HIGH' as const },
   { id: '4', task: 'Play calming playlist at 4 PM', priority: 'MEDIUM' as const },
   { id: '5', task: 'Ensure Sarah is home 4–7 PM', priority: 'HIGH' as const },
@@ -134,39 +134,6 @@ const careTeam = [
   { name: 'Dr. Martinez', role: 'Physician', status: 'available 9–5', color: iosColors.blue },
 ];
 
-const guidelines = [
-  { title: 'Calmora Watch Typography Scale', body: 'SF Pro Display for headings (28pt Bold), SF Pro Text for body (13pt Regular). Never below 10pt. Prefer system type styles for accessibility.' },
-  { title: 'Color Palette', body: 'Primary surfaces use system grouped background. System Red for alerts, Orange for caution, Green for safe states, Blue for informational.' },
-  { title: 'Lucide Icon Usage', body: 'strokeWidth 1.5 for body, strokeWidth 2 for alerts. Size 16–20px in cards, 24px for tab bar. Always pair with text label.' },
-  { title: 'Card Radii & Spacing', body: 'Cards: 8px (iOS standard). Inner elements: 8px. Badges: 20px. Padding: 20px. Row spacing: 10–12px.' },
-  { title: 'Alert Hierarchy', body: 'RED: Immediate action (crisis predicted, sensor offline). ORANGE: Caution (moderate risk, stale data). GREEN: All good. Max 1 red alert visible.' },
-  { title: 'Watch Removal Pattern', body: 'Immediate banner with pulsing bluetooth icon. Each vital marked Active/Stale/Unknown. Show prediction accuracy drop. Reconnect CTA always visible.' },
-  { title: 'Pattern Match UX', body: 'Show individual factor weights separately. Show historical match count. Write plain English explanation. Separate factor bars from confidence score.' },
-];
-
-const referenceLinks: { category: string; links: { label: string; url: string }[] }[] = [
-  { category: 'Watch Integration', links: [
-    { label: 'HealthKit Documentation', url: 'https://developer.apple.com/documentation/healthkit' },
-    { label: 'Fitbit Web API', url: 'https://dev.fitbit.com/build/reference/web-api/' },
-    { label: 'Google Health Connect', url: 'https://developer.android.com/health-and-fitness/guides/health-connect' },
-  ]},
-  { category: 'Typography', links: [
-    { label: 'SF Pro Font (Apple)', url: 'https://developer.apple.com/fonts/' },
-    { label: 'Apple Typography HIG', url: 'https://developer.apple.com/design/human-interface-guidelines/typography' },
-  ]},
-  { category: 'Charts & Data Viz', links: [
-    { label: 'Recharts Library', url: 'https://recharts.org/en-US/' },
-    { label: 'Apple Health UI Reference', url: 'https://developer.apple.com/health-fitness/' },
-  ]},
-  { category: 'Accessibility', links: [
-    { label: 'Apple Accessibility HIG', url: 'https://developer.apple.com/design/human-interface-guidelines/accessibility' },
-    { label: 'WCAG 2.1 Guidelines', url: 'https://www.w3.org/TR/WCAG21/' },
-  ]},
-  { category: 'Icons', links: [
-    { label: 'Lucide Icons', url: 'https://lucide.dev/icons/' },
-    { label: 'SF Symbols', url: 'https://developer.apple.com/sf-symbols/' },
-  ]},
-];
 
 // ─── Custom Recharts Tooltip ───
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -190,6 +157,8 @@ export default function CrisisPreventionEngine() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [sensorConnected, setSensorConnected] = useState(true);
   const [tasksDone, setTasksDone] = useState<Set<string>>(new Set());
+  const [aiTasks, setAiTasks] = useState<{ id: string; task: string; priority: 'HIGH' | 'MEDIUM' }[]>(fallbackTasks);
+  const [tasksLoading, setTasksLoading] = useState(false);
   const [crisisType, setCrisisType] = useState<string | null>(null);
   const [severity, setSeverity] = useState([5]);
   const [crisisLogged, setCrisisLogged] = useState(false);
@@ -232,8 +201,36 @@ export default function CrisisPreventionEngine() {
   const patternLeadTime = useMemo(() => rand(28, 42), [refreshKey]);
 
   const completedCount = tasksDone.size;
-  const allComplete = completedCount === initialTasks.length;
-  const progressPct = Math.round((completedCount / initialTasks.length) * 100);
+  const allComplete = aiTasks.length > 0 && completedCount === aiTasks.length;
+  const progressPct = aiTasks.length > 0 ? Math.round((completedCount / aiTasks.length) * 100) : 0;
+
+  // Fetch AI-generated action plan when forecast data changes
+  useEffect(() => {
+    const fetchActionPlan = async () => {
+      setTasksLoading(true);
+      setTasksDone(new Set());
+      try {
+        const context = `Agitation risk: ${dashboard.agitationRisk}% (${dashboard.agitationLevel}), window: ${dashboard.agitationWindow}. Wandering risk: ${dashboard.wanderingRisk}% (${dashboard.wanderingLevel}), window: ${dashboard.wanderingWindow}. HR: ${dashboard.heartRate}bpm (baseline 68), HRV: ${dashboard.hrv}ms (baseline 55), Sleep wake-ups: ${dashboard.sleepWakeups} (baseline 1-2), SpO2: ${dashboard.spo2}%, Pressure change: ${dashboard.pressureChange} mb/12h.`;
+        const { data, error } = await supabase.functions.invoke('crisis-coach', {
+          body: { message: 'Generate a prevention action plan for the current risks.', context, mode: 'action-plan' },
+        });
+        if (!error && data?.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
+          setAiTasks(data.tasks.map((t: any, i: number) => ({
+            id: String(i + 1),
+            task: t.task || t.title || `Task ${i + 1}`,
+            priority: (t.priority === 'HIGH' ? 'HIGH' : 'MEDIUM') as 'HIGH' | 'MEDIUM',
+          })));
+        } else {
+          setAiTasks(fallbackTasks);
+        }
+      } catch {
+        setAiTasks(fallbackTasks);
+      } finally {
+        setTasksLoading(false);
+      }
+    };
+    fetchActionPlan();
+  }, [refreshKey, dashboard.agitationRisk, dashboard.wanderingRisk]);
 
   const toggleTask = (id: string) => {
     setTasksDone(prev => {
@@ -306,9 +303,6 @@ export default function CrisisPreventionEngine() {
             <h2 className="text-[16px] font-extrabold text-foreground tracking-tight">CrisisGuard</h2>
             <p className="text-[11px] text-muted-foreground font-semibold">AI monitoring · Updated {dashboard.lastSync} min ago</p>
           </div>
-          <Badge className="bg-primary/10 text-primary border-0 text-[10px] font-bold px-2 py-0.5">
-            Robert M.
-          </Badge>
         </div>
 
         <SegmentedControl
@@ -321,7 +315,6 @@ export default function CrisisPreventionEngine() {
             { value: 'forecast', icon: <Target className="w-3.5 h-3.5" />, label: 'Forecast' },
             { value: 'plan', icon: <CheckCircle2 className="w-3.5 h-3.5" />, label: 'Plan' },
             { value: 'caregiver', icon: <Users className="w-3.5 h-3.5" />, label: 'Caregiver' },
-            { value: 'designspec', icon: <Layers className="w-3.5 h-3.5" />, label: 'Spec' },
           ]}
         />
       </div>
@@ -697,7 +690,7 @@ export default function CrisisPreventionEngine() {
               <Card className="border border-border/50 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-[14px] font-extrabold text-foreground">Progress: {completedCount} of {initialTasks.length} tasks done</p>
+                    <p className="text-[14px] font-extrabold text-foreground">Progress: {completedCount} of {aiTasks.length} tasks done</p>
                     <span className="text-[13px] font-bold text-primary">{progressPct}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -723,10 +716,18 @@ export default function CrisisPreventionEngine() {
                     </Button>
                   </CardContent>
                 </Card>
+              ) : tasksLoading ? (
+                <Card className="border border-border/50 shadow-sm">
+                  <CardContent className="p-6 text-center space-y-3">
+                    <Brain className="w-10 h-10 text-primary mx-auto animate-pulse" />
+                    <p className="text-[14px] font-bold text-foreground">Generating AI Prevention Plan...</p>
+                    <p className="text-[11px] text-muted-foreground">Analyzing forecast data to create targeted tasks</p>
+                  </CardContent>
+                </Card>
               ) : (
                 <Card className="border border-border/50 shadow-sm">
                   <CardContent className="p-3 space-y-1">
-                    {initialTasks.map(t => {
+                    {aiTasks.map(t => {
                       const done = tasksDone.has(t.id);
                       return (
                         <button key={t.id} onClick={() => toggleTask(t.id)}
@@ -864,39 +865,6 @@ export default function CrisisPreventionEngine() {
             </motion.div>
           )}
 
-          {/* ═══ DESIGN SPEC ═══ */}
-          {activeTab === 'designspec' && (
-            <motion.div key="spec" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3 px-5">
-
-              {/* Guidelines */}
-              <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Design Guidelines</p>
-              {guidelines.map((g, i) => (
-                <Card key={i} className="border border-border/50 shadow-sm">
-                  <CardContent className="p-4">
-                    <p className="text-[13px] font-bold text-primary mb-1">{g.title}</p>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">{g.body}</p>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {/* Reference Links */}
-              <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pt-2">Reference Links</p>
-              {referenceLinks.map(cat => (
-                <div key={cat.category}>
-                  <p className="text-[12px] font-bold text-foreground mb-1.5">{cat.category}</p>
-                  <div className="space-y-1.5 mb-3">
-                    {cat.links.map(link => (
-                      <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-colors">
-                        <span className="text-[12px] font-medium text-primary flex-1">{link.label}</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          )}
 
         </AnimatePresence>
       </div>
