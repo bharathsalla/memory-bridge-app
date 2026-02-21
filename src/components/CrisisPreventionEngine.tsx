@@ -332,7 +332,7 @@ export default function CrisisPreventionEngine() {
       setCoachInitialized(true);
       const summary = `Based on REAL vitals: HR ${realVitals.heartRate}bpm, HRV ${realVitals.hrv}ms (baseline 55ms), SpO2 ${realVitals.spo2}%, ${realVitals.sleepWakeups} sleep wake-ups, Deep sleep ${realVitals.deepSleep}h, Pressure ${realVitals.latestPressure}mb (${realVitals.pressureChange}mb change). AI Risk: Agitation ${dashboard.agitationRisk}% (${dashboard.agitationWindow}), Wandering ${dashboard.wanderingRisk}% (${dashboard.wanderingWindow}).`;
       setChatMessages([
-        { id: '0', sender: 'coach', text: `👋 Hi Sarah! Here's your crisis briefing:\n\n${summary}\n\nI can help you with today's prevention plan, de-escalation strategies, or answer any questions about Robert's condition.` },
+        { id: '0', sender: 'coach', text: `Hi Sarah! Here's your crisis briefing:\n\n${summary}\n\nI can help you with today's prevention plan, de-escalation strategies, or answer any questions about Robert's condition.` },
       ]);
     }
   }, [activeTab, coachInitialized, dashboard]);
@@ -365,10 +365,10 @@ export default function CrisisPreventionEngine() {
     setCrisisLogging(true);
     try {
       await supabase.from('activities').insert({
-        description: `🚨 Crisis logged: ${crisisType} — Severity ${severity}/10`,
+        description: `Crisis logged: ${crisisType} — Severity ${severity}/10`,
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         completed: true,
-        icon: '🚨',
+        icon: 'alert',
       });
       setCrisisLogged(true);
       toast({ title: 'Crisis event logged', description: `${crisisType} · Severity ${severity}/10 — AI model will update.` });
@@ -444,13 +444,13 @@ export default function CrisisPreventionEngine() {
 
                     {/* Sensor Status Grid (2 cols) */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
-                      {[
-                        { icon: '♥', label: 'HR: Unknown', color: sys.red },
-                        { icon: '〜', label: 'HRV: Unknown', color: sys.red },
-                        { icon: '○', label: 'SpO₂: Stale (2:11 PM)', color: sys.orange },
-                        { icon: '☽', label: 'Sleep: Paused', color: sys.orange },
-                        { icon: '◉', label: 'GPS: Active', color: sys.green },
-                        { icon: '☁', label: 'Weather: Active', color: sys.green },
+                     {[
+                        { label: 'HR: Unknown', color: sys.red },
+                        { label: 'HRV: Unknown', color: sys.red },
+                        { label: 'SpO₂: Stale (2:11 PM)', color: sys.orange },
+                        { label: 'Sleep: Paused', color: sys.orange },
+                        { label: 'GPS: Active', color: sys.green },
+                        { label: 'Weather: Active', color: sys.green },
                       ].map(s => (
                         <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <div style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: s.color, flexShrink: 0 }} />
@@ -883,7 +883,7 @@ export default function CrisisPreventionEngine() {
               {allComplete ? (
                 <IOSCard style={{ textAlign: 'center', padding: 32 }}>
                   <Star style={{ width: 40, height: 40, color: sys.yellow, margin: '0 auto 12px', fill: sys.yellow }} />
-                  <p style={{ fontSize: 22, fontWeight: 400, color: sys.label }}>Well done! 🎉</p>
+                  <p style={{ fontSize: 22, fontWeight: 400, color: sys.label }}>Well done!</p>
                   <p style={{ fontSize: 17, color: sys.secondaryLabel, marginTop: 8 }}>All tasks complete. You've done everything possible to reduce today's risk.</p>
                   <button onClick={() => setTasksDone(new Set())}
                     style={{ fontSize: 17, color: sys.blue, background: 'none', border: 'none', cursor: 'pointer', marginTop: 16, minHeight: 44 }}>

@@ -77,12 +77,25 @@ Rules:
 
 Respond ONLY with the JSON object, no other text.`;
     } else if (mode === "action-plan") {
-      systemPrompt = `You are CrisisGuard AI — a clinical dementia care assistant. Based on the patient's current biometric data and predicted risks, generate exactly 7 specific, actionable prevention tasks.
+      // Determine task count dynamically based on risk levels from context
+      let taskCount = 5; // default
+      const agitationMatch = context?.match(/Agitation (\d+)%/);
+      const wanderingMatch = context?.match(/Wandering (\d+)%/);
+      const agitationRisk = agitationMatch ? parseInt(agitationMatch[1]) : 50;
+      const wanderingRisk = wanderingMatch ? parseInt(wanderingMatch[1]) : 50;
+      const avgRisk = (agitationRisk + wanderingRisk) / 2;
+      
+      if (avgRisk >= 75) taskCount = 9;
+      else if (avgRisk >= 60) taskCount = 7;
+      else if (avgRisk >= 40) taskCount = 5;
+      else taskCount = 3;
+
+      systemPrompt = `You are CrisisGuard AI — a clinical dementia care assistant. Based on the patient's current biometric data and predicted risks, generate exactly ${taskCount} specific, actionable prevention tasks.
 
 Current patient data:
 ${context || "No specific context provided."}
 
-You MUST respond with a JSON array of exactly 7 task objects. Each task must have:
+You MUST respond with a JSON array of exactly ${taskCount} task objects. Each task must have:
 - "task": a specific, actionable instruction (max 60 chars) directly addressing the predicted risks
 - "priority": either "HIGH" or "MEDIUM"
 

@@ -16,7 +16,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   }, []);
 
   return (
-    <div className="h-full w-full flex items-center justify-center bg-black">
+    <div className="h-full w-full flex items-center justify-center" style={{ background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}>
       {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
         className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
@@ -27,11 +27,15 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
           boxShadow: 'var(--frame-shadow, none)',
         }}
       >
-        {/* Side buttons — titanium style (desktop only) */}
-        <div className="hidden sm:block absolute left-[-2px] top-[155px] w-[2px] h-[32px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="hidden sm:block absolute left-[-2px] top-[200px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="hidden sm:block absolute left-[-2px] top-[265px] w-[2px] h-[55px] rounded-l-sm bg-[#3A3A3C]" />
-        <div className="hidden sm:block absolute right-[-2px] top-[210px] w-[2px] h-[76px] rounded-r-sm bg-[#3A3A3C]" />
+        {/* Side buttons — Natural Titanium style (desktop only) */}
+        {/* Silent/Action button */}
+        <div className="hidden sm:block absolute left-[-3px] top-[140px] w-[3px] h-[28px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        {/* Volume Up */}
+        <div className="hidden sm:block absolute left-[-3px] top-[195px] w-[3px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        {/* Volume Down */}
+        <div className="hidden sm:block absolute left-[-3px] top-[257px] w-[3px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        {/* Power/Side button */}
+        <div className="hidden sm:block absolute right-[-3px] top-[210px] w-[3px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
 
         {/* Screen area */}
         <div

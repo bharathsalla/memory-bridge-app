@@ -52,8 +52,8 @@ export function useSendMemory() {
           title: memory.title,
           description: memory.description,
           type: 'photo',
-          emoji: memory.emoji || '📸',
-          mood: '😊',
+          emoji: memory.emoji || 'camera',
+          mood: 'happy',
           shared_by: memory.shared_by,
           shared_message: memory.shared_message,
           location: memory.location,
@@ -109,7 +109,7 @@ export default function CaregiverMemorySender() {
         shared_message: form.message,
         location: form.location,
         photo_url: form.selectedPhoto,
-        emoji: '📸',
+        emoji: 'camera',
       });
       setJustSent(true);
       setForm({ title: '', message: '', location: '', selectedPhoto: '' });
@@ -350,7 +350,7 @@ export default function CaregiverMemorySender() {
                     {mem.photo_url ? (
                       <img src={mem.photo_url} alt={mem.title} className="w-14 h-14 rounded-lg object-cover shrink-0 ring-1 ring-border" />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center shrink-0 text-xl">{mem.emoji}</div>
+                      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center shrink-0"><Camera className="w-6 h-6 text-muted-foreground" /></div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-bold text-foreground line-clamp-1">{mem.title}</p>

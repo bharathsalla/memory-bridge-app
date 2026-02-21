@@ -122,7 +122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isCaregiverView: false,
     medications: initialMedications,
     activities: initialActivities,
-    currentMood: { emoji: '😊', label: 'Happy', time: '10:00 AM' },
+    currentMood: { emoji: '', label: 'Happy', time: '10:00 AM' },
     stepCount: 2340,
     sleepHours: 7.5,
     medicationAdherence: 95,

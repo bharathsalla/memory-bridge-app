@@ -276,19 +276,19 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
         setTimeout(() => readCurrentPage(), 500);
         break;
       case 'mood_happy':
-        ctx.setMood({ emoji: '😊', label: 'Happy', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        ctx.setMood({ emoji: '', label: 'Happy', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
         break;
       case 'mood_sad':
-        ctx.setMood({ emoji: '😔', label: 'Sad', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        ctx.setMood({ emoji: '', label: 'Sad', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
         break;
       case 'mood_tired':
-        ctx.setMood({ emoji: '😴', label: 'Tired', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        ctx.setMood({ emoji: '', label: 'Tired', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
         break;
       case 'mood_anxious':
-        ctx.setMood({ emoji: '😰', label: 'Anxious', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        ctx.setMood({ emoji: '', label: 'Anxious', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
         break;
       case 'mood_calm':
-        ctx.setMood({ emoji: '😌', label: 'Calm', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+        ctx.setMood({ emoji: '', label: 'Calm', time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
         break;
     }
   }, [readCurrentPage]);
