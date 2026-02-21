@@ -356,14 +356,6 @@ export default function CrisisPreventionEngine() {
                 )}
               </AnimatePresence>
 
-              {/* Morning Greeting (Fix #1: Title1 28px) */}
-              <IOSCard>
-                <p style={{ fontSize: 28, fontWeight: 700, color: sys.label }}>Good morning, Sarah 👋</p>
-                <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4 }}>
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · Robert's forecast is ready
-                </p>
-              </IOSCard>
-
               <SectionHeader>Crisis Forecast</SectionHeader>
 
               {/* Risk Gauges (Fix #4: 44px tap, Fix #5: rounded numerals, Fix #6: grouped bg) */}
