@@ -16,7 +16,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   }, []);
 
   return (
-    <div className="h-full w-full flex items-center justify-center" style={{ background: '#F5F5F7' }}>
+    <div className="h-full w-full flex items-center justify-center overflow-hidden" style={{ background: '#F5F5F7' }}>
       {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
         className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
@@ -43,6 +43,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
           style={{
             borderRadius: 'var(--frame-inner-radius, 0px)',
             backgroundColor: '#F2F2F7',
+            overflow: 'hidden',
           }}
         >
           {/* iOS Status Bar */}
