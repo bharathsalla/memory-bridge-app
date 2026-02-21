@@ -19,7 +19,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
     <div className="h-full w-full flex items-center justify-center overflow-hidden" style={{ background: '#F2F2F7' }}>
       {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
-        className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
+        className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px] bg-black"
         style={{
           maxHeight: '100dvh',
           borderRadius: 'var(--frame-radius, 0px)',
