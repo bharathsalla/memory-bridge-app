@@ -6,6 +6,7 @@ import { VoiceOverProvider } from "@/contexts/VoiceOverContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TabletVitals from "./pages/TabletVitals";
+import LockScreenNotifications from "./pages/LockScreenNotifications";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/tablet-vitals" element={<TabletVitals />} />
+              <Route path="/lock-screen" element={<LockScreenNotifications />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
