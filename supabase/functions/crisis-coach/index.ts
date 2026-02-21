@@ -15,7 +15,39 @@ serve(async (req) => {
 
     let systemPrompt: string;
 
-    if (mode === "action-plan") {
+    if (mode === "forecast") {
+      systemPrompt = `You are CrisisGuard AI — a clinical dementia crisis forecast engine. Analyze the patient's biometric data and provide a detailed 48-hour crisis forecast analysis.
+
+Current patient data:
+${context || "No specific context provided."}
+
+You MUST respond with a JSON object containing:
+1. "summary": A 1-sentence overall risk summary (max 80 chars)
+2. "model_last_ran": current timestamp description like "Today 8:00 AM"
+3. "next_run": next scheduled run like "Today 2:00 PM"
+4. "alert_factors": array of exactly 4 objects, each with:
+   - "label": factor name (e.g. "Sleep Quality: Poor")
+   - "icon": one of "sleep", "hrv", "pressure", "pattern"
+   - "color": one of "indigo", "purple", "blue", "green"
+   - "detail": 2-sentence clinical explanation referencing the actual patient data provided
+5. "pattern_factors": array of 6 objects, each with:
+   - "label": factor name
+   - "weight": number 0-100 (must reflect actual data severity)
+6. "pattern_insight": 2-sentence insight about pattern matching against patient history
+7. "match_count": number of matching past crisis signatures (realistic 4-9)
+8. "match_total": total past signatures checked (realistic 8-12)
+9. "lead_time_hours": average lead time in hours (realistic 24-48)
+10. "predicted_vs_actual": array of 7 objects with "week" (W1-W7), "predicted" (0-5), "actual" (0-4) — realistic clinical data
+11. "confidence_pct": overall confidence percentage
+
+Rules:
+- ALL numbers must directly relate to the patient vitals provided
+- Reference specific values from the context (HR, HRV, sleep disruptions, pressure)
+- Be clinically accurate — do not exaggerate or minimize
+- Pattern weights should reflect actual risk contribution
+
+Respond ONLY with the JSON object, no other text.`;
+    } else if (mode === "action-plan") {
       systemPrompt = `You are CrisisGuard AI — a clinical dementia care assistant. Based on the patient's current biometric data and predicted risks, generate exactly 7 specific, actionable prevention tasks.
 
 Current patient data:
@@ -88,6 +120,22 @@ Guidelines:
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "";
+
+    if (mode === "forecast") {
+      try {
+        let jsonStr = reply;
+        const match = reply.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (match) jsonStr = match[1].trim();
+        const forecast = JSON.parse(jsonStr);
+        return new Response(JSON.stringify({ forecast }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ forecast: null, reply }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     if (mode === "action-plan") {
       try {

@@ -433,13 +433,11 @@ export default function CaregiverDashboard() {
     return (
       <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
         {/* iOS Large Title Header — 24pt side margins, generous top padding */}
-        <div className="pt-3 pb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
-          <h1 className="text-ios-large-title text-foreground">Vitals</h1>
-          <p className="text-[15px] text-muted-foreground mt-1">Health monitoring & mode</p>
+        <div className="pt-1 pb-0" style={{ paddingLeft: 24, paddingRight: 24 }}>
         </div>
 
         {/* Patient View — iOS grouped list card */}
-        <div className="mt-3 mb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
+        <div className="mb-0" style={{ paddingLeft: 24, paddingRight: 24 }}>
           
 
 
@@ -460,7 +458,7 @@ export default function CaregiverDashboard() {
         </div>
 
         {/* Section Header — Crisis Forecast */}
-        <div className="pt-2 pb-1" style={{ paddingLeft: 24, paddingRight: 24 }}>
+        <div className="pt-0 pb-0" style={{ paddingLeft: 24, paddingRight: 24 }}>
         </div>
 
         {/* Crisis Prevention Engine */}
