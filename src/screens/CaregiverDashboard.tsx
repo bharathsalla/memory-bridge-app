@@ -460,10 +460,10 @@ export default function CaregiverDashboard() {
         </div>
 
         {/* Section Header — Crisis Forecast */}
-        
-
-
-
+        <div className="pt-4 pb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
+          
+          <p className="text-[13px] text-muted-foreground mt-0.5">48-hour predictive analysis</p>
+        </div>
 
         {/* Crisis Prevention Engine */}
         <CrisisPreventionEngine />
