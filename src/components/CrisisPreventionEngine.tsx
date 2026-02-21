@@ -471,8 +471,8 @@ export default function CrisisPreventionEngine() {
               {/* Risk Gauges — Light filled cards */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#FFF0F0' },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#EEF4FF' },
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#FFF1EC' },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#F0EDFF' },
                 ].map(g => {
                   const c = riskColor(g.level);
                   return (
