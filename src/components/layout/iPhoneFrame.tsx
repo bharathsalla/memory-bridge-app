@@ -16,7 +16,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   }, []);
 
   return (
-    <div className="h-full w-full flex items-center justify-center" style={{ background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}>
+    <div className="h-full w-full flex items-center justify-center" style={{ background: '#FFFFFF' }}>
       {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
         className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
