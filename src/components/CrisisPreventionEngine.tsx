@@ -468,24 +468,19 @@ export default function CrisisPreventionEngine() {
 
               <SectionHeader>Crisis Forecast</SectionHeader>
 
-              {/* Risk Gauges — Enhanced cards with gradient borders */}
+              {/* Risk Gauges — Light filled cards */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin },
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, Icon: Brain, bg: '#FFF0F0' },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, Icon: MapPin, bg: '#EEF4FF' },
                 ].map(g => {
                   const c = riskColor(g.level);
-                  const bgGrad = g.level === 'high' ? 'linear-gradient(145deg, #FFF5F5, #FFFFFF)' : g.level === 'moderate' ? 'linear-gradient(145deg, #FFF8F0, #FFFFFF)' : 'linear-gradient(145deg, #F0FFF4, #FFFFFF)';
                   return (
                     <div key={g.label} onClick={() => handleTabChange('forecast')}
                       style={{
-                        background: bgGrad, borderRadius: 16, padding: 16, cursor: 'pointer',
+                        background: g.bg, borderRadius: 16, padding: 16, cursor: 'pointer',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
-                        border: `1.5px solid ${c}30`,
-                        boxShadow: `0 4px 16px ${c}15, 0 1px 3px rgba(0,0,0,0.04)`,
-                        transition: 'transform 0.15s, box-shadow 0.15s',
                       }}>
-                      {/* Icon + Badge */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                         <g.Icon style={{ width: 14, height: 14, color: c }} strokeWidth={2} />
                         <div style={{ padding: '3px 10px', borderRadius: 20, backgroundColor: c }}>
