@@ -81,7 +81,7 @@ export default function LockScreenNotifications() {
           <div className="relative z-10 flex flex-col gap-3 px-4" style={{ marginTop: 40 }}>
             {/* Notification 1 — Movement Alert (matching reference) */}
             <NotificationCard
-              appName="MEMOCARE ALERT"
+              appName="CALMORA ALERT"
               time="now"
               title="Nani's movement patterns changed at 10:14 PM."
               details={[
@@ -93,7 +93,7 @@ export default function LockScreenNotifications() {
 
             {/* Notification 2 — Medication Reminder */}
             <NotificationCard
-              appName="MEMOCARE"
+              appName="CALMORA"
               time="2m ago"
               title="💊 Medication reminder for Nani"
               details={[
@@ -104,7 +104,7 @@ export default function LockScreenNotifications() {
 
             {/* Notification 3 — Memory shared */}
             <NotificationCardSimple
-              appName="MEMOCARE"
+              appName="CALMORA"
               time="15m ago"
               body={'Priya shared a new memory: "Beach day with grandkids" 📸'}
             />
