@@ -15,10 +15,39 @@ serve(async (req) => {
 
     let systemPrompt: string;
 
-    if (mode === "forecast") {
-      systemPrompt = `You are CrisisGuard AI — a clinical dementia crisis forecast engine. Analyze the patient's biometric data and provide a detailed 48-hour crisis forecast analysis.
+    if (mode === "risk-assessment") {
+      systemPrompt = `You are CrisisGuard AI — a clinical dementia risk assessment engine. Given the patient's REAL biometric vitals from their wearable device and environmental sensors, compute accurate crisis risk scores.
 
-Current patient data:
+REAL Patient Vitals (from Calmora Watch & sensors):
+${context || "No vitals available."}
+
+You MUST respond with a JSON object:
+{
+  "agitationRisk": number 0-100 (based on HRV deviation, sleep quality, pressure drops),
+  "wanderingRisk": number 0-100 (based on sleep disruption, HRV, time of day patterns),
+  "agitationLevel": "high" | "moderate" | "low",
+  "wanderingLevel": "high" | "moderate" | "low",
+  "agitationWindow": predicted time window string (e.g. "Tomorrow 4–7 PM"),
+  "wanderingWindow": predicted time window string (e.g. "Tonight 10 PM–2 AM"),
+  "riskSummary": 1-sentence summary of overall risk
+}
+
+Clinical rules for risk calculation:
+- HRV below 40ms = HIGH agitation risk (>75%)
+- HRV 40-50ms = MODERATE (50-75%)
+- HRV above 50ms = LOW (<50%)
+- Sleep wake-ups >3 = increases both risks by 15-20%
+- Deep sleep <1h = increases agitation risk by 10-15%
+- Barometric pressure drop >8mb/12h = increases agitation risk by 15-20%
+- SpO2 below 95% = flag additional concern
+- Elevated resting HR (>75bpm) combined with low HRV = compound risk increase
+- Use the ACTUAL numbers provided, do NOT invent data
+
+Respond ONLY with the JSON object, no other text.`;
+    } else if (mode === "forecast") {
+      systemPrompt = `You are CrisisGuard AI — a clinical dementia crisis forecast engine. Analyze the patient's REAL biometric data and provide a detailed 48-hour crisis forecast analysis.
+
+REAL Patient Vitals (from Calmora Watch & sensors):
 ${context || "No specific context provided."}
 
 You MUST respond with a JSON object containing:
@@ -29,22 +58,22 @@ You MUST respond with a JSON object containing:
    - "label": factor name (e.g. "Sleep Quality: Poor")
    - "icon": one of "sleep", "hrv", "pressure", "pattern"
    - "color": one of "indigo", "purple", "blue", "green"
-   - "detail": 2-sentence clinical explanation referencing the actual patient data provided
+   - "detail": 2-sentence clinical explanation referencing the ACTUAL patient data provided. Use real numbers.
 5. "pattern_factors": array of 6 objects, each with:
    - "label": factor name
-   - "weight": number 0-100 (must reflect actual data severity)
-6. "pattern_insight": 2-sentence insight about pattern matching against patient history
+   - "weight": number 0-100 (must reflect actual data severity from the vitals provided)
+6. "pattern_insight": 2-sentence insight about pattern matching against patient history, referencing actual values
 7. "match_count": number of matching past crisis signatures (realistic 4-9)
 8. "match_total": total past signatures checked (realistic 8-12)
 9. "lead_time_hours": average lead time in hours (realistic 24-48)
 10. "predicted_vs_actual": array of 7 objects with "week" (W1-W7), "predicted" (0-5), "actual" (0-4) — realistic clinical data
-11. "confidence_pct": overall confidence percentage
+11. "confidence_pct": overall confidence percentage based on data completeness
 
 Rules:
-- ALL numbers must directly relate to the patient vitals provided
-- Reference specific values from the context (HR, HRV, sleep disruptions, pressure)
-- Be clinically accurate — do not exaggerate or minimize
-- Pattern weights should reflect actual risk contribution
+- ALL numbers must directly relate to the REAL patient vitals provided
+- Reference specific values (HR, HRV, sleep hours, pressure mb values)
+- Be clinically accurate
+- Pattern weights should reflect actual risk contribution from real data
 
 Respond ONLY with the JSON object, no other text.`;
     } else if (mode === "action-plan") {
@@ -120,6 +149,22 @@ Guidelines:
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "";
+
+    if (mode === "risk-assessment") {
+      try {
+        let jsonStr = reply;
+        const match = reply.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (match) jsonStr = match[1].trim();
+        const risk = JSON.parse(jsonStr);
+        return new Response(JSON.stringify({ risk }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ risk: null, reply }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     if (mode === "forecast") {
       try {
