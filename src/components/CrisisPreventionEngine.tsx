@@ -468,25 +468,28 @@ export default function CrisisPreventionEngine() {
 
               <SectionHeader>Crisis Forecast</SectionHeader>
 
-              {/* Risk Gauges — Apple Health Category style cards */}
+              {/* Risk Gauges — iOS severity colors */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px 10px' }}>
                 {[
-                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow, bg: '#F28B54' },
-                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow, bg: '#6C6EC5' },
-                ].map(g => (
-                  <div key={g.label} onClick={() => handleTabChange('forecast')}
-                    style={{
-                      background: g.bg, borderRadius: 14, padding: 16, cursor: 'pointer',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
-                    }}>
-                    <GaugeArc value={g.value} color="#FFFFFF" size={100} trackColor="rgba(255,255,255,0.2)" />
-                    <p style={{ fontSize: 34, fontWeight: 800, color: '#FFFFFF', marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
-                      {g.value}<span style={{ fontSize: 16, fontWeight: 600 }}>%</span>
-                    </p>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>{g.label}</p>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2, textAlign: 'center' }}>{g.window}</p>
-                  </div>
-                ))}
+                  { label: 'Agitation', value: dashboard.agitationRisk, level: dashboard.agitationLevel, window: dashboard.agitationWindow },
+                  { label: 'Wandering', value: dashboard.wanderingRisk, level: dashboard.wanderingLevel, window: dashboard.wanderingWindow },
+                ].map(g => {
+                  const bg = g.level === 'high' ? sys.red : g.level === 'moderate' ? sys.orange : sys.green;
+                  return (
+                    <div key={g.label} onClick={() => handleTabChange('forecast')}
+                      style={{
+                        background: bg, borderRadius: 14, padding: 16, cursor: 'pointer',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 44,
+                      }}>
+                      <GaugeArc value={g.value} color="#FFFFFF" size={100} trackColor="rgba(255,255,255,0.2)" />
+                      <p style={{ fontSize: 34, fontWeight: 800, color: '#FFFFFF', marginTop: -6, fontVariantNumeric: 'tabular-nums' }}>
+                        {g.value}<span style={{ fontSize: 16, fontWeight: 600 }}>%</span>
+                      </p>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', marginTop: 4 }}>{g.label}</p>
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2, textAlign: 'center' }}>{g.window}</p>
+                    </div>
+                  );
+                })}
               </div>
 
               <SectionHeader>Live Vitals</SectionHeader>
@@ -507,7 +510,7 @@ export default function CrisisPreventionEngine() {
                   { Icon: Cloud, color: sys.blue, label: 'Pressure Change', sub: 'Triggers 40% of pts', value: `${dashboard.pressureChange} mb/12h`, trend: 'down' as const },
                 ].map((v, i, arr) => (
                   <div key={v.label}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 44, padding: '0 0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, minHeight: 52, padding: '6px 0' }}>
                       <IconContainer color={v.color}>
                         <v.Icon style={{ width: 22, height: 22, color: v.color }} strokeWidth={1.5} />
                       </IconContainer>
@@ -743,28 +746,25 @@ export default function CrisisPreventionEngine() {
 
                   <SectionHeader>Why This Alert?</SectionHeader>
 
-                  <IOSCard style={{ border: `1px solid ${sys.red}4D` }}>
-                    {(forecastData.alert_factors || []).map((f: any, i: number, arr: any[]) => {
-                      const iconMap: Record<string, typeof Moon> = { sleep: Moon, hrv: Activity, pressure: Cloud, pattern: Cpu };
-                      const colorMap: Record<string, string> = { indigo: sys.indigo, purple: sys.purple, blue: sys.blue, green: sys.green };
-                      const FIcon = iconMap[f.icon] || Brain;
-                      const fColor = colorMap[f.color] || sys.blue;
-                      return (
-                        <div key={i}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0' }}>
-                            <IconContainer color={fColor}>
-                              <FIcon style={{ width: 22, height: 22, color: fColor }} strokeWidth={1.5} />
-                            </IconContainer>
-                            <div style={{ flex: 1 }}>
-                              <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>{f.label}</p>
-                              <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, lineHeight: 1.5 }}>{f.detail}</p>
-                            </div>
+                  {(forecastData.alert_factors || []).map((f: any, i: number) => {
+                    const iconMap: Record<string, typeof Moon> = { sleep: Moon, hrv: Activity, pressure: Cloud, pattern: Cpu };
+                    const colorMap: Record<string, string> = { indigo: sys.indigo, purple: sys.purple, blue: sys.blue, green: sys.green };
+                    const FIcon = iconMap[f.icon] || Brain;
+                    const fColor = colorMap[f.color] || sys.blue;
+                    return (
+                      <IOSCard key={i} style={{ backgroundColor: `${fColor}0D` }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                          <IconContainer color={fColor}>
+                            <FIcon style={{ width: 22, height: 22, color: fColor }} strokeWidth={1.5} />
+                          </IconContainer>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 17, fontWeight: 600, color: sys.label }}>{f.label}</p>
+                            <p style={{ fontSize: 15, color: sys.secondaryLabel, marginTop: 4, lineHeight: 1.6 }}>{f.detail}</p>
                           </div>
-                          {i < arr.length - 1 && <RowSep />}
                         </div>
-                      );
-                    })}
-                  </IOSCard>
+                      </IOSCard>
+                    );
+                  })}
 
                   <SectionHeader>Pattern Match Engine</SectionHeader>
 
