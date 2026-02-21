@@ -16,7 +16,7 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
   }, []);
 
   return (
-    <div className="h-full w-full flex items-center justify-center" style={{ background: '#FFFFFF' }}>
+    <div className="h-full w-full flex items-center justify-center" style={{ background: '#F5F5F7' }}>
       {/* iPhone 16 Pro — logical resolution 402×874, responsive on mobile */}
       <div
         className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
@@ -29,13 +29,13 @@ export default function IPhoneFrame({ children }: iPhoneFrameProps) {
       >
         {/* Side buttons — Natural Titanium style (desktop only) */}
         {/* Silent/Action button */}
-        <div className="hidden sm:block absolute left-[-3px] top-[140px] w-[3px] h-[28px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[140px] w-[2.5px] h-[28px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
         {/* Volume Up */}
-        <div className="hidden sm:block absolute left-[-3px] top-[195px] w-[3px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[195px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
         {/* Volume Down */}
-        <div className="hidden sm:block absolute left-[-3px] top-[257px] w-[3px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[257px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
         {/* Power/Side button */}
-        <div className="hidden sm:block absolute right-[-3px] top-[210px] w-[3px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg, #8A8A8E, #636366, #8A8A8E)' }} />
+        <div className="hidden sm:block absolute right-[-2.5px] top-[210px] w-[2.5px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
 
         {/* Screen area */}
         <div
