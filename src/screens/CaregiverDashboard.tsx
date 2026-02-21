@@ -440,23 +440,23 @@ export default function CaregiverDashboard() {
 
         {/* Patient View — iOS grouped list card */}
         <div className="mt-3 mb-2" style={{ paddingLeft: 24, paddingRight: 24 }}>
-          <button
-            onClick={() => setModeModalOpen(true)}
-            className="w-full ios-card flex items-center justify-between px-4 touch-target"
-            style={{ minHeight: 56 }}>
-            <div className="flex items-center gap-3">
-              <IconBox Icon={Eye} color={iosColors.blue} size={36} iconSize={18} />
-              <span className="text-ios-callout font-medium text-foreground">Patient View</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className={`text-[13px] font-semibold ${
-              mode === 'full' ? 'text-primary' : mode === 'simplified' ? 'text-warning' : 'text-destructive'}`
-              }>
-                {mode === 'full' ? 'Independent' : mode === 'simplified' ? 'Guided' : 'Assisted'}
-              </span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
-            </div>
-          </button>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
 
         {/* Section Header — Crisis Forecast */}
