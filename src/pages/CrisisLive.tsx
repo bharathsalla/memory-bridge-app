@@ -34,7 +34,7 @@ export default function CrisisLive() {
   const data = useMemo(generateMovementData, []);
 
   return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden" style={{ background: '#F2F2F7' }}>
+    <div className="h-full w-full flex items-center justify-center overflow-hidden" style={{ background: '#000' }}>
       <div
         className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]"
         style={{
