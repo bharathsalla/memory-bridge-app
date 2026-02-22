@@ -1,11 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Share2, Lock, Wifi, Signal, Battery, Clock, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Share2, Lock, Clock, CheckCircle2, Wifi, Signal, Battery, Shield, Radio, Navigation, Home, MapPin, ChevronRight, Activity, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SegmentedControl from '@/components/ui/SegmentedControl';
+import IconBox from '@/components/ui/IconBox';
 
-/* ─── types ─── */
 type View = 'smarthome' | 'gps' | 'mapfull';
 type AlarmState = 'disarmed' | 'arming' | 'armed';
 type SlideDir = 'left' | 'right' | 'none';
+
+const SF = '-apple-system, SF Pro Text, SF Pro Display, system-ui, sans-serif';
 
 export default function SmartHomeGPS() {
   const navigate = useNavigate();
@@ -61,286 +64,333 @@ export default function SmartHomeGPS() {
     }, 1200);
   }, [alarm]);
 
-  const title = view === 'smarthome' ? 'Smart Home' : 'GPS Tracker';
+  const tabValue = view === 'smarthome' ? 'smarthome' : 'gps';
 
-  /* ─── Light theme colors ─── */
-  const C = {
-    pageBg: '#F2F2F7',
-    cardBg: '#FFFFFF',
-    cardBorder: 'rgba(0,0,0,.06)',
-    text: '#1C1C1E',
-    textSecondary: '#8E8E93',
-    textTertiary: '#AEAEB2',
-    teal: '#00C7BE',
-    red: '#FF3B30',
-    green: '#34C759',
-    amber: '#FF9500',
-    navBorder: 'rgba(0,0,0,.08)',
-    statusBarBg: 'rgba(242,242,247,.85)',
-  };
+  const sensors = [
+    { name: 'Living Room', icon: Eye, status: 'Active' },
+    { name: 'Hallway', icon: Activity, status: 'Active' },
+    { name: 'Bedroom', icon: Radio, status: 'Active' },
+  ];
 
   return (
     <div className="h-full w-full flex items-center justify-center overflow-hidden" style={{ background: '#000' }}>
       <style>{`
-        @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-        @keyframes armRipple { 0%{transform:scale(0);opacity:.25} 100%{transform:scale(8);opacity:0} }
-        @keyframes redGlowLight { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,.1)} 50%{box-shadow:0 0 18px rgba(255,59,48,.2)} }
-        @keyframes liveDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
-        @keyframes slideInLeft { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
-        @keyframes slideOutLeft { from{transform:translateX(0);opacity:1} to{transform:translateX(-100%);opacity:0} }
-        @keyframes slideInRight { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
-        @keyframes slideOutRight { from{transform:translateX(0);opacity:1} to{transform:translateX(100%);opacity:0} }
-        @keyframes toastSlide { 0%{transform:translateY(-30px);opacity:0} 15%{transform:translateY(0);opacity:1} 85%{transform:translateY(0);opacity:1} 100%{transform:translateY(-30px);opacity:0} }
-        @keyframes mapExpand { from{transform:scale(.92);opacity:.8} to{transform:scale(1);opacity:1} }
-        @keyframes buttonPress { 0%{transform:scale(1)} 50%{transform:scale(.96)} 100%{transform:scale(1)} }
-        @keyframes spinDot { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
+        @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
+        @keyframes armRipple{0%{transform:scale(0);opacity:.2}100%{transform:scale(8);opacity:0}}
+        @keyframes redGlowL{0%,100%{box-shadow:0 0 4px rgba(255,59,48,.06)}50%{box-shadow:0 0 16px rgba(255,59,48,.14)}}
+        @keyframes liveDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+        @keyframes slideInL{from{transform:translateX(100%);opacity:.6}to{transform:translateX(0);opacity:1}}
+        @keyframes slideOutL{from{transform:translateX(0);opacity:1}to{transform:translateX(-100%);opacity:0}}
+        @keyframes slideInR{from{transform:translateX(-100%);opacity:.6}to{transform:translateX(0);opacity:1}}
+        @keyframes slideOutR{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+        @keyframes toastDrop{0%{transform:translateY(-20px);opacity:0}12%{transform:translateY(0);opacity:1}88%{transform:translateY(0);opacity:1}100%{transform:translateY(-20px);opacity:0}}
+        @keyframes mapGrow{from{transform:scale(.94);opacity:.7}to{transform:scale(1);opacity:1}}
+        @keyframes btnPress{0%{transform:scale(1)}50%{transform:scale(.96)}100%{transform:scale(1)}}
+        @keyframes spin3{0%,80%,100%{opacity:.25}40%{opacity:1}}
       `}</style>
 
       <div className="relative overflow-hidden flex flex-col w-full h-full sm:w-[402px] sm:h-[874px]" style={{ maxHeight: '100dvh', borderRadius: 'var(--frame-radius, 0px)', background: '#1C1C1E', boxShadow: 'var(--frame-shadow, none)' }}>
         {/* Side buttons */}
-        <div className="hidden sm:block absolute left-[-2.5px] top-[140px] w-[2.5px] h-[28px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
-        <div className="hidden sm:block absolute left-[-2.5px] top-[195px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
-        <div className="hidden sm:block absolute left-[-2.5px] top-[257px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
-        <div className="hidden sm:block absolute right-[-2.5px] top-[210px] w-[2.5px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg, #C4C4C6, #A8A8AC, #C4C4C6)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[140px] w-[2.5px] h-[28px] rounded-l-sm" style={{ background: 'linear-gradient(180deg,#C4C4C6,#A8A8AC,#C4C4C6)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[195px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg,#C4C4C6,#A8A8AC,#C4C4C6)' }} />
+        <div className="hidden sm:block absolute left-[-2.5px] top-[257px] w-[2.5px] h-[52px] rounded-l-sm" style={{ background: 'linear-gradient(180deg,#C4C4C6,#A8A8AC,#C4C4C6)' }} />
+        <div className="hidden sm:block absolute right-[-2.5px] top-[210px] w-[2.5px] h-[80px] rounded-r-sm" style={{ background: 'linear-gradient(180deg,#C4C4C6,#A8A8AC,#C4C4C6)' }} />
 
-        {/* Screen area */}
-        <div className="absolute overflow-hidden flex flex-col inset-0 sm:inset-[3px]" style={{ borderRadius: 'var(--frame-inner-radius, 0px)', backgroundColor: C.pageBg }}>
+        <div className="absolute overflow-hidden flex flex-col inset-0 sm:inset-[3px]" style={{ borderRadius: 'var(--frame-inner-radius, 0px)', backgroundColor: '#F2F2F7' }}>
 
-          {/* Status bar */}
-          <div className="relative z-50 flex items-center justify-between px-8 shrink-0" style={{ paddingTop: 14, paddingBottom: 6, background: C.statusBarBg, backdropFilter: 'blur(20px)' }}>
-            <span style={{ fontFamily: '-apple-system, SF Pro Text, system-ui', fontSize: 15, fontWeight: 600, color: C.text, width: 54 }}>
-              {timeStr.replace(/ /g, '\u00A0')}
-            </span>
+          {/* iOS Status Bar */}
+          <div className="relative z-50 flex items-center justify-between px-8 shrink-0" style={{ paddingTop: 14, paddingBottom: 6, background: 'rgba(242,242,247,.85)', backdropFilter: 'blur(20px)' }}>
+            <span style={{ fontFamily: SF, fontSize: 15, fontWeight: 600, color: '#1C1C1E', width: 54 }}>{timeStr.replace(/ /g, '\u00A0')}</span>
             <div className="absolute left-1/2 -translate-x-1/2 bg-black hidden sm:block" style={{ top: 10, width: 126, height: 37, borderRadius: 20 }} />
             <div className="flex items-center gap-[5px]">
-              <Signal className="w-4 h-4" style={{ color: C.text }} strokeWidth={2.5} />
-              <Wifi className="w-4 h-4" style={{ color: C.text }} strokeWidth={2.5} />
-              <Battery style={{ width: 25, height: 12, color: C.text }} strokeWidth={2} />
+              <Signal className="w-4 h-4 text-foreground" strokeWidth={2.5} />
+              <Wifi className="w-4 h-4 text-foreground" strokeWidth={2.5} />
+              <Battery className="text-foreground" style={{ width: 25, height: 12 }} strokeWidth={2} />
             </div>
           </div>
 
-          {/* Nav bar */}
-          <div className="flex items-center justify-between px-5 shrink-0" style={{ height: 52, borderBottom: `1px solid ${C.navBorder}`, background: C.cardBg }}>
-            <button onClick={() => navigate(-1)} className="p-1"><ArrowLeft className="w-5 h-5" style={{ color: C.teal }} /></button>
-            <div className="flex items-center gap-2">
-              <span style={{ fontFamily: '-apple-system, SF Pro Display, system-ui', fontSize: 17, fontWeight: 600, color: C.text }}>{title}</span>
-              {(view === 'gps' || view === 'mapfull') && <div style={{ width: 6, height: 6, borderRadius: 3, background: C.green, animation: 'liveDot 2s ease-in-out infinite' }} />}
+          {/* Navigation: iOS large title style */}
+          <div className="shrink-0" style={{ background: 'rgba(242,242,247,.85)', backdropFilter: 'blur(20px)' }}>
+            {/* Top row: back + actions */}
+            <div className="flex items-center justify-between px-4" style={{ height: 44 }}>
+              <button onClick={() => navigate(-1)} className="flex items-center gap-1 p-1" style={{ color: '#007AFF' }}>
+                <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+                <span style={{ fontFamily: SF, fontSize: 17, fontWeight: 400 }}>Back</span>
+              </button>
+              <button className="p-2"><Share2 className="w-5 h-5" style={{ color: '#007AFF' }} strokeWidth={1.8} /></button>
             </div>
-            <button className="p-1"><Share2 className="w-5 h-5" style={{ color: C.teal }} /></button>
+            {/* Large title */}
+            <div className="px-5 pb-2">
+              <div className="flex items-center gap-2">
+                <h1 style={{ fontFamily: SF, fontSize: 34, fontWeight: 700, color: '#1C1C1E', letterSpacing: '0.01em', lineHeight: 1.1 }}>
+                  {view === 'smarthome' ? 'Smart Home' : 'GPS Tracker'}
+                </h1>
+                {(view === 'gps' || view === 'mapfull') && (
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: '#34C759', animation: 'liveDot 2s ease-in-out infinite' }} />
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Tab pills */}
+          {/* Segmented Control */}
           {view !== 'mapfull' && (
-            <div className="flex gap-2 px-5 py-3 shrink-0" style={{ background: C.pageBg }}>
-              {(['smarthome', 'gps'] as const).map(tab => (
-                <button key={tab} onClick={() => goTo(tab)}
-                  className="flex-1 py-2 rounded-full text-center transition-all duration-200"
-                  style={{
-                    fontFamily: '-apple-system, SF Pro Text, system-ui', fontSize: 13, fontWeight: 500,
-                    background: view === tab ? C.cardBg : 'transparent',
-                    color: view === tab ? C.teal : C.textSecondary,
-                    border: view === tab ? `1px solid ${C.cardBorder}` : '1px solid transparent',
-                    boxShadow: view === tab ? '0 1px 3px rgba(0,0,0,.06)' : 'none'
-                  }}>
-                  {tab === 'smarthome' ? 'Smart Home' : 'GPS Tracker'}
-                </button>
-              ))}
+            <div className="px-4 pt-1 pb-2 shrink-0" style={{ background: '#F2F2F7' }}>
+              <SegmentedControl
+                items={[
+                  { value: 'smarthome', label: 'Smart Home', icon: <Home className="w-4 h-4" /> },
+                  { value: 'gps', label: 'GPS Tracker', icon: <Navigation className="w-4 h-4" /> },
+                ]}
+                value={tabValue}
+                onChange={(v) => goTo(v as View)}
+              />
             </div>
           )}
 
-          {/* Content area */}
+          {/* Content */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden relative" style={{ WebkitOverflowScrolling: 'touch' }}>
 
-            {ripple && <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
-              <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,59,48,.15)', animation: 'armRipple .8s ease-out forwards' }} />
-            </div>}
+            {/* Ripple */}
+            {ripple && (
+              <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,59,48,.12)', animation: 'armRipple .8s ease-out forwards' }} />
+              </div>
+            )}
 
+            {/* Toast */}
             {toastVisible && (
-              <div className="absolute top-2 left-4 right-4 z-50 flex items-center justify-center" style={{ animation: 'toastSlide 2.5s ease-out forwards' }}>
-                <div style={{ background: C.cardBg, border: `1px solid ${C.cardBorder}`, borderRadius: 14, padding: '10px 16px', fontFamily: 'monospace', fontSize: 12, color: C.teal, boxShadow: '0 4px 12px rgba(0,0,0,.08)' }}>
-                  📍 Location updated — Nani is inside
+              <div className="absolute top-2 left-4 right-4 z-50 flex justify-center" style={{ animation: 'toastDrop 2.5s ease-out forwards' }}>
+                <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,.06)', borderRadius: 14, padding: '10px 16px', fontFamily: SF, fontSize: 13, color: '#1C1C1E', boxShadow: '0 4px 16px rgba(0,0,0,.1)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <MapPin className="w-4 h-4" style={{ color: '#34C759' }} />
+                  Location updated — Nani is inside
                 </div>
               </div>
             )}
 
-            {/* ═══ VIEW: SMART HOME ═══ */}
+            {/* ═══ SMART HOME VIEW ═══ */}
             {(view === 'smarthome' || prevView === 'smarthome') && (
               <div style={{
                 animation: view === 'smarthome'
-                  ? (slideDir === 'right' ? 'slideInRight .35s ease-out forwards' : slideDir === 'left' ? 'slideInLeft .35s ease-out forwards' : 'none')
-                  : (slideDir === 'left' ? 'slideOutLeft .35s ease-out forwards' : 'slideOutRight .35s ease-out forwards'),
-                display: (prevView === 'smarthome' && view !== 'smarthome') ? 'block' : (view === 'smarthome' ? 'block' : 'none'),
+                  ? (slideDir === 'right' ? 'slideInR .3s ease-out forwards' : slideDir === 'left' ? 'slideInL .3s ease-out forwards' : 'none')
+                  : (slideDir === 'left' ? 'slideOutL .3s ease-out forwards' : 'slideOutR .3s ease-out forwards'),
+                display: prevView === 'smarthome' && view !== 'smarthome' ? 'block' : view === 'smarthome' ? 'block' : 'none',
                 position: prevView === 'smarthome' ? 'absolute' : 'relative', inset: prevView === 'smarthome' ? 0 : undefined,
-                padding: '12px 20px 100px'
+                padding: '8px 16px 120px'
               }}>
-                {/* Home Security Card */}
-                <div style={{
-                  background: C.cardBg, borderRadius: 16, padding: '20px 18px', marginBottom: 14,
-                  border: alarm === 'armed' ? `1.5px solid rgba(255,59,48,.25)` : `1px solid ${C.cardBorder}`,
-                  animation: alarm === 'armed' ? 'redGlowLight 3s infinite' : 'none',
-                  boxShadow: '0 1px 4px rgba(0,0,0,.04)'
-                }}>
-                  <div style={{ fontFamily: '-apple-system, SF Pro Display, system-ui', fontSize: 17, fontWeight: 600, color: C.text, marginBottom: 2 }}>Home Security</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 11, color: C.textSecondary, marginBottom: 18 }}>Chennai Apartment · Live monitoring</div>
+                {/* Section label */}
+                <div style={{ fontFamily: SF, fontSize: 13, fontWeight: 400, color: '#8E8E93', textTransform: 'uppercase' as const, letterSpacing: '.02em', padding: '8px 4px 6px' }}>
+                  Security Controls
+                </div>
+
+                {/* Home Security grouped card */}
+                <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 0.5px 0 rgba(0,0,0,.04)', border: alarm === 'armed' ? '1px solid rgba(255,59,48,.15)' : 'none', animation: alarm === 'armed' ? 'redGlowL 3s infinite' : 'none' }}>
+                  {/* Header row */}
+                  <div className="flex items-center gap-3" style={{ padding: '14px 16px', borderBottom: '0.5px solid rgba(0,0,0,.06)' }}>
+                    <IconBox Icon={Shield} color={alarm === 'armed' ? '#FF3B30' : '#007AFF'} size={40} iconSize={18} />
+                    <div className="flex-1">
+                      <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>Home Security</div>
+                      <div style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>Chennai Apartment · Live</div>
+                    </div>
+                    {alarm === 'armed' && (
+                      <div style={{ width: 8, height: 8, borderRadius: 4, background: '#FF3B30', animation: 'dotPulse 2s ease-in-out infinite' }} />
+                    )}
+                  </div>
 
                   {/* Door Alarm row */}
-                  <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+                  <div className="flex items-center justify-between" style={{ padding: '14px 16px', borderBottom: '0.5px solid rgba(0,0,0,.06)' }}>
                     <div className="flex items-center gap-3">
-                      <div style={{ width: 40, height: 40, borderRadius: 12, background: alarm === 'armed' ? 'rgba(255,59,48,.08)' : '#F2F2F7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Lock className="w-[18px] h-[18px]" style={{ color: alarm === 'armed' ? C.red : C.textSecondary }} />
-                      </div>
+                      <IconBox Icon={Lock} color={alarm === 'armed' ? '#FF3B30' : '#FF9500'} size={36} iconSize={16} />
                       <div>
-                        <div style={{ fontFamily: '-apple-system, SF Pro Text, system-ui', fontSize: 15, fontWeight: 500, color: C.text }}>Door Alarm</div>
-                        <div style={{ fontFamily: 'monospace', fontSize: 11, color: C.textSecondary }}>Main entrance</div>
+                        <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 400, color: '#1C1C1E' }}>Door Alarm</div>
+                        <div style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>Main entrance</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div style={{
-                        width: 51, height: 31, borderRadius: 16, padding: 2, cursor: 'pointer', transition: 'background .3s',
-                        background: alarm === 'armed' ? C.red : '#E9E9EB'
+                      {/* iOS toggle */}
+                      <div onClick={alarm === 'disarmed' ? handleArm : undefined} style={{
+                        width: 51, height: 31, borderRadius: 16, padding: 2, cursor: alarm === 'disarmed' ? 'pointer' : 'default', transition: 'background .3s',
+                        background: alarm === 'armed' ? '#FF3B30' : '#E9E9EB'
                       }}>
                         <div style={{
-                          width: 27, height: 27, borderRadius: 14, background: '#fff', transition: 'transform .3s',
+                          width: 27, height: 27, borderRadius: 14, background: '#fff', transition: 'transform .3s ease',
                           transform: alarm === 'armed' ? 'translateX(20px)' : 'translateX(0)',
-                          boxShadow: '0 2px 4px rgba(0,0,0,.15)'
+                          boxShadow: '0 3px 8px rgba(0,0,0,.15), 0 1px 1px rgba(0,0,0,.06)'
                         }} />
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        {alarm === 'armed' && <div style={{ width: 6, height: 6, borderRadius: 3, background: C.red, animation: 'dotPulse 2s ease-in-out infinite' }} />}
-                        <span style={{
-                          fontFamily: 'monospace', fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const,
-                          color: alarm === 'armed' ? C.red : C.textTertiary
-                        }}>
-                          {alarm === 'armed' ? 'ARMED'.slice(0, letterReveal) : 'DISARMED'}
-                        </span>
-                      </div>
+                      <span style={{
+                        fontFamily: SF, fontSize: 12, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' as const,
+                        color: alarm === 'armed' ? '#FF3B30' : '#8E8E93', minWidth: 70, textAlign: 'right' as const
+                      }}>
+                        {alarm === 'armed' ? 'ARMED'.slice(0, letterReveal) : alarm === 'arming' ? 'Arming...' : 'Disarmed'}
+                      </span>
                     </div>
                   </div>
 
                   {/* Arm button */}
-                  <button onClick={handleArm} disabled={alarm !== 'disarmed'}
-                    style={{
-                      width: '100%', height: 50, borderRadius: 14, border: 'none', cursor: alarm === 'disarmed' ? 'pointer' : 'default',
-                      fontFamily: '-apple-system, SF Pro Display, system-ui', fontSize: 15, fontWeight: 600,
-                      background: alarm === 'armed' ? 'rgba(255,59,48,.08)' : alarm === 'arming' ? 'rgba(255,59,48,.06)' : 'rgba(0,199,190,.1)',
-                      color: alarm === 'armed' ? C.red : alarm === 'arming' ? C.red : C.teal,
-                      transition: 'all .2s', animation: alarm === 'arming' ? 'buttonPress .3s ease-out' : 'none'
-                    }}>
-                    {alarm === 'disarmed' && 'Arm Door Alarm'}
-                    {alarm === 'arming' && (
-                      <span className="flex items-center justify-center gap-1">
-                        Arming
-                        {[0, 1, 2].map(i => (
-                          <span key={i} style={{ width: 4, height: 4, borderRadius: 2, background: C.red, display: 'inline-block', animation: `spinDot 1.2s ${i * .2}s infinite` }} />
-                        ))}
-                      </span>
-                    )}
-                    {alarm === 'armed' && '🔒 Door Alarm Armed'}
-                  </button>
+                  <div style={{ padding: '12px 16px' }}>
+                    <button onClick={handleArm} disabled={alarm !== 'disarmed'}
+                      className="w-full flex items-center justify-center gap-2"
+                      style={{
+                        height: 50, borderRadius: 12, border: 'none', cursor: alarm === 'disarmed' ? 'pointer' : 'default',
+                        fontFamily: SF, fontSize: 17, fontWeight: 600,
+                        background: alarm === 'armed' ? 'rgba(255,59,48,.08)' : alarm === 'arming' ? 'rgba(255,59,48,.06)' : '#007AFF',
+                        color: alarm === 'armed' ? '#FF3B30' : alarm === 'arming' ? '#FF3B30' : '#fff',
+                        transition: 'all .2s', animation: alarm === 'arming' ? 'btnPress .3s ease-out' : 'none'
+                      }}>
+                      {alarm === 'disarmed' && <><Shield className="w-4 h-4" /> Arm Door Alarm</>}
+                      {alarm === 'arming' && (
+                        <span className="flex items-center gap-1">
+                          Arming
+                          {[0, 1, 2].map(i => (
+                            <span key={i} style={{ width: 4, height: 4, borderRadius: 2, background: '#FF3B30', display: 'inline-block', animation: `spin3 1.2s ${i * .2}s infinite` }} />
+                          ))}
+                        </span>
+                      )}
+                      {alarm === 'armed' && <><Lock className="w-4 h-4" /> Door Alarm Armed</>}
+                    </button>
+                  </div>
 
+                  {/* Armed confirmation */}
                   {alarm === 'armed' && (
-                    <div style={{ marginTop: 12, fontFamily: 'monospace', fontSize: 11, color: C.textSecondary, animation: 'slideInLeft .4s ease-out' }}>
-                      Armed at {armedTime} · Monitoring active
+                    <div style={{ padding: '0 16px 14px', fontFamily: SF, fontSize: 13, color: '#8E8E93', animation: 'slideInL .4s ease-out' }}>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" style={{ color: '#8E8E93' }} />
+                        Armed at {armedTime} · Monitoring active
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Motion Sensors card */}
-                <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px', border: `1px solid ${C.cardBorder}`, boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-                  <div style={{ fontFamily: '-apple-system, SF Pro Display, system-ui', fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 14 }}>Motion Sensors</div>
-                  {['Living Room', 'Hallway', 'Bedroom'].map((room, idx) => (
-                    <div key={room} className="flex items-center justify-between" style={{ padding: '10px 0', borderBottom: idx < 2 ? '1px solid #F2F2F7' : 'none' }}>
-                      <div className="flex items-center gap-2.5">
-                        <div style={{ width: 8, height: 8, borderRadius: 4, background: C.teal }} />
-                        <span style={{ fontFamily: '-apple-system, SF Pro Text, system-ui', fontSize: 15, color: C.text }}>{room}</span>
+                {/* Section label */}
+                <div style={{ fontFamily: SF, fontSize: 13, fontWeight: 400, color: '#8E8E93', textTransform: 'uppercase' as const, letterSpacing: '.02em', padding: '20px 4px 6px' }}>
+                  Motion Sensors
+                </div>
+
+                {/* Motion Sensors grouped card */}
+                <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 0.5px 0 rgba(0,0,0,.04)' }}>
+                  {sensors.map((sensor, idx) => (
+                    <div key={sensor.name} className="flex items-center justify-between" style={{ padding: '14px 16px', borderBottom: idx < sensors.length - 1 ? '0.5px solid rgba(0,0,0,.06)' : 'none' }}>
+                      <div className="flex items-center gap-3">
+                        <IconBox Icon={sensor.icon} color="#34C759" size={36} iconSize={16} />
+                        <div>
+                          <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 400, color: '#1C1C1E' }}>{sensor.name}</div>
+                          <div className="flex items-center gap-1.5">
+                            <div style={{ width: 6, height: 6, borderRadius: 3, background: '#34C759' }} />
+                            <span style={{ fontFamily: SF, fontSize: 13, color: '#34C759' }}>{sensor.status}</span>
+                          </div>
+                        </div>
                       </div>
-                      <span style={{ fontFamily: 'monospace', fontSize: 11, color: C.teal, fontWeight: 500 }}>Active</span>
+                      <ChevronRight className="w-4 h-4" style={{ color: '#C7C7CC' }} />
                     </div>
                   ))}
                 </div>
 
                 {/* Floating GPS button */}
-                <button onClick={() => goTo('gps')} style={{
-                  position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
-                  background: C.cardBg, border: `1px solid ${C.cardBorder}`, borderRadius: 24,
-                  padding: '12px 24px', fontFamily: '-apple-system, SF Pro Text, system-ui', fontSize: 14, fontWeight: 500, color: C.teal,
-                  cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 12px rgba(0,0,0,.08)'
-                }}>
-                  View GPS Tracker →
-                </button>
+                <div style={{ position: 'fixed', bottom: 50, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+                  <button onClick={() => goTo('gps')} className="flex items-center gap-2"
+                    style={{
+                      pointerEvents: 'auto', background: '#007AFF', borderRadius: 24, border: 'none',
+                      padding: '12px 24px', fontFamily: SF, fontSize: 15, fontWeight: 600, color: '#fff',
+                      cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,122,255,.3)'
+                    }}>
+                    <Navigation className="w-4 h-4" />
+                    View GPS Tracker
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* ═══ VIEW: GPS TRACKER ═══ */}
+            {/* ═══ GPS TRACKER VIEW ═══ */}
             {(view === 'gps' || prevView === 'gps') && (
               <div style={{
                 animation: view === 'gps'
-                  ? (slideDir === 'left' ? 'slideInLeft .35s ease-out forwards' : slideDir === 'right' ? 'slideInRight .35s ease-out forwards' : 'none')
-                  : (slideDir === 'left' ? 'slideOutLeft .35s ease-out forwards' : 'slideOutRight .35s ease-out forwards'),
-                display: (prevView === 'gps' && view !== 'gps') ? 'block' : (view === 'gps' ? 'block' : 'none'),
+                  ? (slideDir === 'left' ? 'slideInL .3s ease-out forwards' : slideDir === 'right' ? 'slideInR .3s ease-out forwards' : 'none')
+                  : (slideDir === 'left' ? 'slideOutL .3s ease-out forwards' : 'slideOutR .3s ease-out forwards'),
+                display: prevView === 'gps' && view !== 'gps' ? 'block' : view === 'gps' ? 'block' : 'none',
                 position: prevView === 'gps' ? 'absolute' : 'relative', inset: prevView === 'gps' ? 0 : undefined,
-                padding: '12px 20px 40px'
+                padding: '8px 16px 40px'
               }}>
-                {/* Live status row */}
-                <div className="flex items-center justify-between py-2">
+                {/* Live status */}
+                <div className="flex items-center justify-between" style={{ padding: '6px 4px 10px' }}>
                   <div className="flex items-center gap-2">
-                    <div style={{ width: 6, height: 6, borderRadius: 3, background: C.green, animation: 'liveDot 2s ease-in-out infinite' }} />
-                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: C.teal, fontWeight: 500 }}>GPS Tracker: LIVE</span>
+                    <div style={{ width: 8, height: 8, borderRadius: 4, background: '#34C759', animation: 'liveDot 2s ease-in-out infinite' }} />
+                    <span style={{ fontFamily: SF, fontSize: 13, fontWeight: 500, color: '#34C759' }}>LIVE</span>
                   </div>
-                  <span style={{ fontFamily: 'monospace', fontSize: 11, color: C.textSecondary }}>Updates every 30s</span>
+                  <span style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>Updates every 30s</span>
                 </div>
 
-                {/* Map card */}
+                {/* Map card — dark */}
                 <button onClick={() => goTo('mapfull')} style={{
-                  width: '100%', background: '#1C1C1E', borderRadius: 16, border: `1px solid ${C.cardBorder}`,
-                  height: 280, position: 'relative', overflow: 'hidden', cursor: 'pointer', display: 'block',
+                  width: '100%', background: '#1C1C1E', borderRadius: 12, border: 'none',
+                  height: 260, position: 'relative', overflow: 'hidden', cursor: 'pointer', display: 'block',
                   boxShadow: '0 2px 8px rgba(0,0,0,.08)'
                 }}>
                   <ApartmentMap size="normal" />
+                  <div style={{ position: 'absolute', bottom: 12, right: 12, background: 'rgba(255,255,255,.12)', borderRadius: 8, padding: '6px 10px', fontFamily: SF, fontSize: 11, color: '#fff', backdropFilter: 'blur(8px)' }}>
+                    Tap to expand
+                  </div>
                 </button>
 
-                {/* Location card */}
-                <div style={{ background: C.cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${C.cardBorder}`, marginTop: 12, boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-                  <div style={{ fontFamily: '-apple-system, SF Pro Display, system-ui', fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 4 }}>Nani's Location</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 11, color: C.textSecondary, marginBottom: 10 }}>Inside apartment · Chennai · Last updated {lastUpdate}</div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(52,199,89,.08)', border: '1px solid rgba(52,199,89,.2)', borderRadius: 20, padding: '5px 14px' }}>
-                    <div style={{ width: 6, height: 6, borderRadius: 3, background: C.green }} />
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 600, color: C.green, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>Safe · Indoors</span>
+                {/* Section label */}
+                <div style={{ fontFamily: SF, fontSize: 13, fontWeight: 400, color: '#8E8E93', textTransform: 'uppercase' as const, letterSpacing: '.02em', padding: '16px 4px 6px' }}>
+                  Location Status
+                </div>
+
+                {/* Location grouped card */}
+                <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 0.5px 0 rgba(0,0,0,.04)' }}>
+                  {/* Name row */}
+                  <div className="flex items-center gap-3" style={{ padding: '14px 16px', borderBottom: '0.5px solid rgba(0,0,0,.06)' }}>
+                    <IconBox Icon={MapPin} color="#34C759" size={40} iconSize={18} />
+                    <div className="flex-1">
+                      <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 600, color: '#1C1C1E' }}>Nani's Location</div>
+                      <div style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>Inside apartment · Chennai</div>
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(52,199,89,.1)', borderRadius: 20, padding: '4px 10px' }}>
+                      <div style={{ width: 6, height: 6, borderRadius: 3, background: '#34C759' }} />
+                      <span style={{ fontFamily: SF, fontSize: 12, fontWeight: 600, color: '#34C759' }}>Safe</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Last updated */}
-                <div className="flex items-center gap-2 py-3">
-                  <Clock className="w-3.5 h-3.5" style={{ color: C.textSecondary }} />
-                  <span style={{ fontFamily: 'monospace', fontSize: 11, color: C.textSecondary }}>Location confirmed {timeStr}</span>
-                </div>
+                  {/* Last updated row */}
+                  <div className="flex items-center gap-3" style={{ padding: '14px 16px', borderBottom: '0.5px solid rgba(0,0,0,.06)' }}>
+                    <IconBox Icon={Clock} color="#8E8E93" size={36} iconSize={16} />
+                    <div className="flex-1">
+                      <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 400, color: '#1C1C1E' }}>Last Updated</div>
+                      <div style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>{lastUpdate} · {timeStr}</div>
+                    </div>
+                  </div>
 
-                {/* History row */}
-                <div className="flex items-center gap-2" style={{ background: C.cardBg, borderRadius: 14, padding: '14px 16px', border: `1px solid ${C.cardBorder}`, boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-                  <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.green }} />
-                  <span style={{ fontFamily: 'monospace', fontSize: 12, color: C.textSecondary }}>No movement detected outside apartment · Past 2 hours</span>
+                  {/* History row */}
+                  <div className="flex items-center gap-3" style={{ padding: '14px 16px' }}>
+                    <IconBox Icon={CheckCircle2} color="#34C759" size={36} iconSize={16} />
+                    <div className="flex-1">
+                      <div style={{ fontFamily: SF, fontSize: 17, fontWeight: 400, color: '#1C1C1E' }}>Movement History</div>
+                      <div style={{ fontFamily: SF, fontSize: 13, color: '#8E8E93' }}>No outdoor movement · Past 2 hours</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4" style={{ color: '#C7C7CC' }} />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* ═══ VIEW: MAP FULL ═══ */}
+            {/* ═══ MAP FULL VIEW ═══ */}
             {(view === 'mapfull' || prevView === 'mapfull') && (
               <button onClick={() => goTo('gps')} style={{
-                animation: view === 'mapfull' ? 'mapExpand .4s cubic-bezier(.2,.8,.3,1) forwards' : 'none',
-                display: (prevView === 'mapfull' && view !== 'mapfull') ? 'block' : (view === 'mapfull' ? 'block' : 'none'),
+                animation: view === 'mapfull' ? 'mapGrow .4s cubic-bezier(.2,.8,.3,1) forwards' : 'none',
+                display: prevView === 'mapfull' && view !== 'mapfull' ? 'block' : view === 'mapfull' ? 'block' : 'none',
                 position: 'absolute', inset: 0, background: '#1C1C1E', cursor: 'pointer', border: 'none', width: '100%', zIndex: 20
               }}>
                 <ApartmentMap size="full" />
+                {/* Bottom pill */}
                 <div style={{
                   position: 'absolute', bottom: 60, left: '50%', transform: 'translateX(-50%)',
                   display: 'flex', alignItems: 'center', gap: 8,
-                  background: 'rgba(255,255,255,.92)', border: `1px solid ${C.cardBorder}`, borderRadius: 20, padding: '8px 18px',
-                  backdropFilter: 'blur(10px)', boxShadow: '0 2px 8px rgba(0,0,0,.1)'
+                  background: 'rgba(255,255,255,.92)', borderRadius: 22, padding: '10px 20px',
+                  backdropFilter: 'blur(12px)', boxShadow: '0 4px 16px rgba(0,0,0,.12)'
                 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 4, background: C.green }} />
-                  <span style={{ fontFamily: 'monospace', fontSize: 12, color: C.text, fontWeight: 500 }}>Nani · Inside · Safe</span>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: '#34C759' }} />
+                  <span style={{ fontFamily: SF, fontSize: 15, fontWeight: 500, color: '#1C1C1E' }}>Nani · Inside · Safe</span>
                 </div>
-                <div style={{ position: 'absolute', bottom: 36, left: '50%', transform: 'translateX(-50%)', fontFamily: 'monospace', fontSize: 10, color: C.textTertiary }}>
+                <div style={{ position: 'absolute', bottom: 38, left: '50%', transform: 'translateX(-50%)', fontFamily: SF, fontSize: 12, color: '#AEAEB2' }}>
                   Tap anywhere to go back
                 </div>
               </button>
@@ -348,8 +398,8 @@ export default function SmartHomeGPS() {
           </div>
 
           {/* Home indicator */}
-          <div className="relative z-50 flex justify-center shrink-0" style={{ paddingBottom: 8, paddingTop: 4, background: C.statusBarBg }}>
-            <div style={{ width: 134, height: 5, borderRadius: 3, background: 'rgba(0,0,0,.15)' }} />
+          <div className="relative z-50 flex justify-center shrink-0" style={{ paddingBottom: 8, paddingTop: 4, background: 'rgba(242,242,247,.85)' }}>
+            <div className="bg-foreground/15" style={{ width: 134, height: 5, borderRadius: 3 }} />
           </div>
         </div>
       </div>
@@ -357,7 +407,7 @@ export default function SmartHomeGPS() {
   );
 }
 
-/* ─── Apartment Floor Plan SVG ─── */
+/* ─── Apartment Floor Plan ─── */
 function ApartmentMap({ size }: { size: 'normal' | 'full' }) {
   const scale = size === 'full' ? 1.4 : 1;
   const fontSize = size === 'full' ? 10 : 8;
@@ -372,11 +422,11 @@ function ApartmentMap({ size }: { size: 'normal' | 'full' }) {
         <line x1="220" y1="130" x2="220" y2="210" stroke="#3A3A3C" strokeWidth="1" />
         <line x1="140" y1="130" x2="160" y2="130" stroke="#1C1C1E" strokeWidth="2" />
         <line x1="160" y1="60" x2="160" y2="80" stroke="#1C1C1E" strokeWidth="2" />
-        <text x="80" y="75" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="monospace">Living Room</text>
-        <text x="235" y="75" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="monospace">Bedroom</text>
-        <text x="80" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="monospace">Kitchen</text>
-        <text x="265" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="monospace">Hallway</text>
-        <text x="160" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="monospace">Bathroom</text>
+        <text x="80" y="75" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="-apple-system, system-ui">Living Room</text>
+        <text x="235" y="75" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="-apple-system, system-ui">Bedroom</text>
+        <text x="80" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="-apple-system, system-ui">Kitchen</text>
+        <text x="265" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="-apple-system, system-ui">Hallway</text>
+        <text x="160" y="175" textAnchor="middle" fill="#8E8E93" fontSize={fontSize} fontFamily="-apple-system, system-ui">Bathroom</text>
         <circle cx="235" cy="55" r={dotSize * 1.5} fill="none" stroke="#34C759" strokeWidth=".8" opacity=".3">
           <animate attributeName="r" values={`${dotSize};${dotSize * 3};${dotSize * 3}`} dur="2s" repeatCount="indefinite" />
           <animate attributeName="opacity" values=".4;0;0" dur="2s" repeatCount="indefinite" />
@@ -386,7 +436,7 @@ function ApartmentMap({ size }: { size: 'normal' | 'full' }) {
           <animate attributeName="opacity" values=".25;0;0" dur="2s" repeatCount="indefinite" begin=".5s" />
         </circle>
         <circle cx="235" cy="55" r={dotSize / 2} fill="#34C759" />
-        <text x="248" y={58} fill="#fff" fontSize={size === 'full' ? 11 : 9} fontFamily="monospace">Nani</text>
+        <text x="248" y={58} fill="#fff" fontSize={size === 'full' ? 11 : 9} fontFamily="-apple-system, system-ui">Nani</text>
       </svg>
     </div>
   );
