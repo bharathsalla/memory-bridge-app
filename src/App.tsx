@@ -11,6 +11,7 @@ import CrisisLive from "./pages/CrisisLive";
 import PreventionPlan from "./pages/PreventionPlan";
 import SmartHomeGPS from "./pages/SmartHomeGPS";
 import RiskResolution from "./pages/RiskResolution";
+import FinalStatus from "./pages/FinalStatus";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/prevention-plan" element={<PreventionPlan />} />
               <Route path="/smart-home" element={<SmartHomeGPS />} />
               <Route path="/risk-resolution" element={<RiskResolution />} />
+              <Route path="/final-status" element={<FinalStatus />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
