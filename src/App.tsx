@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import TabletVitals from "./pages/TabletVitals";
 import LockScreenNotifications from "./pages/LockScreenNotifications";
 import CrisisLive from "./pages/CrisisLive";
+import PreventionPlan from "./pages/PreventionPlan";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
               <Route path="/tablet-vitals" element={<TabletVitals />} />
               <Route path="/lock-screen" element={<LockScreenNotifications />} />
               <Route path="/crisis-live" element={<CrisisLive />} />
+              <Route path="/prevention-plan" element={<PreventionPlan />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
