@@ -8,8 +8,8 @@ import peopleGrid from '@/assets/onboarding-people-grid.jpg';
 
 const steps = ['welcome', 'voiceChoice', 'assess', 'personalize'] as const;
 
-/* ── Animated MemoCare Logo ── */
-function MemoCareLogo() {
+/* ── Animated Calmora Logo ── */
+function CalmoraLogo() {
   return (
     <motion.div
       initial={{ scale: 0.3, opacity: 0, rotateY: -30 }}
@@ -148,7 +148,7 @@ export default function OnboardingScreen() {
                 >
                   Welcome to
                   <br />
-                  MemoCare
+                  Calmora
                 </motion.h1>
 
                 <motion.p
@@ -209,7 +209,7 @@ export default function OnboardingScreen() {
                 <h1 className="text-[28px] font-extrabold text-foreground mb-3 leading-tight font-display">
                   How would you like
                   <br />
-                  to use MemoCare?
+                  to use Calmora?
                 </h1>
                 <p className="text-[15px] text-muted-foreground max-w-[280px] leading-relaxed mb-10">
                   Choose your preferred way to interact.

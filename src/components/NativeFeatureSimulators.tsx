@@ -87,7 +87,7 @@ export function PushNotificationSimulator() {
                 <div className="w-5 h-5 rounded-md bg-primary flex items-center justify-center">
                   <Bell className="w-3 h-3 text-primary-foreground" />
                 </div>
-                <span className="text-[11px] text-background/60 font-medium">MEMOCARE</span>
+                <span className="text-[11px] text-background/60 font-medium">CALMORA</span>
                 <span className="text-[10px] text-background/40 ml-auto">now</span>
               </div>
               <div className="text-[14px] font-bold text-background">Medication Reminder</div>
@@ -235,8 +235,8 @@ export function AlexaIntegrationSimulator() {
   const [demoStep, setDemoStep] = useState(0);
 
   const demoConversation = [
-    { speaker: 'user', text: 'Alexa, open MemoCare' },
-    { speaker: 'alexa', text: 'Welcome to MemoCare Assistant. You have 3 active reminders.' },
+    { speaker: 'user', text: 'Alexa, open Calmora' },
+    { speaker: 'alexa', text: 'Welcome to Calmora Assistant. You have 3 active reminders.' },
     { speaker: 'user', text: 'What are my reminders?' },
     { speaker: 'alexa', text: '1. Take Lisinopril 10mg. 2. Lunch at 12 PM. 3. Evening walk at 5 PM.' },
     { speaker: 'user', text: 'Mark the first one as done' },
@@ -291,7 +291,7 @@ export function AlexaIntegrationSimulator() {
           <div className="bg-muted/50 rounded-xl p-3 space-y-1.5">
             <div className="flex justify-between text-[12px]">
               <span className="text-muted-foreground">Skill</span>
-              <span className="text-foreground font-medium">MemoCare Assistant</span>
+              <span className="text-foreground font-medium">Calmora Assistant</span>
             </div>
             <div className="flex justify-between text-[12px]">
               <span className="text-muted-foreground">Device</span>
@@ -310,7 +310,7 @@ export function AlexaIntegrationSimulator() {
         <h3 className="text-[13px] font-bold text-foreground mb-3">Voice Commands</h3>
         <div className="space-y-2">
           {[
-            { cmd: '"Alexa, open MemoCare"', desc: 'Launch the skill' },
+            { cmd: '"Alexa, open Calmora"', desc: 'Launch the skill' },
             { cmd: '"What are my reminders?"', desc: 'List active reminders' },
             { cmd: '"Mark number 1 as done"', desc: 'Complete a reminder' },
             { cmd: '"How am I doing today?"', desc: 'Get daily summary' },
@@ -532,7 +532,7 @@ export function PersistentNotificationSimulator() {
                 <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
                   <Bell className="w-3.5 h-3.5 text-primary-foreground" />
                 </div>
-                <span className="text-[12px] text-white/60 font-medium">MEMOCARE • now</span>
+                <span className="text-[12px] text-white/60 font-medium">CALMORA • now</span>
               </div>
               <div className="text-[18px] font-bold text-white">Medication Reminder</div>
               <div className="text-[15px] text-white/70 mt-1 leading-relaxed">

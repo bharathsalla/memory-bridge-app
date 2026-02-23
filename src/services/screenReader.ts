@@ -17,21 +17,21 @@ export function getOnboardingMeta(step: string): ScreenMeta {
   switch (step) {
     case 'welcome':
       return {
-        overview: 'Welcome to MemoCare. This is your getting started screen.',
-        purpose: 'Set up MemoCare for the first time.',
+        overview: 'Welcome to Calmora. This is your getting started screen.',
+        purpose: 'Set up Calmora for the first time.',
         items: [
-          { type: 'heading', label: 'Welcome to MemoCare' },
+          { type: 'heading', label: 'Welcome to Calmora' },
           { type: 'description', label: 'Supporting you every step of the way, with care and kindness.' },
-          { type: 'button', label: 'Get Started', detail: 'Tap this to begin setting up MemoCare. It will ask you how you want to use the app.', action: 'next' },
+          { type: 'button', label: 'Get Started', detail: 'Tap this to begin setting up Calmora. It will ask you how you want to use the app.', action: 'next' },
           { type: 'button', label: 'I am a caregiver', detail: 'Tap this if you are setting up the app for someone you care for.', action: 'caregiver' },
         ],
       };
     case 'voiceChoice':
       return {
-        overview: 'Choose how you want to interact with MemoCare.',
+        overview: 'Choose how you want to interact with Calmora.',
         purpose: 'Select between voice guidance or manual browsing.',
         items: [
-          { type: 'heading', label: 'How would you like to use MemoCare?' },
+          { type: 'heading', label: 'How would you like to use Calmora?' },
           { type: 'description', label: 'Choose your preferred way to interact with the app.' },
           { type: 'button', label: 'Use Voice Over', detail: 'I will guide you with voice. You can speak to navigate, take medicine, call your caregiver, and more. Recommended for easier use.', action: 'voiceover' },
           { type: 'button', label: 'Browse Mode', detail: 'Use the app by tapping and swiping on your own. You can enable voice guidance later from settings.', action: 'browse' },
@@ -52,7 +52,7 @@ export function getOnboardingMeta(step: string): ScreenMeta {
     case 'personalize':
       return {
         overview: 'Personalization. We want to know your name so we can greet you properly.',
-        purpose: 'Tell us your name to personalize MemoCare.',
+        purpose: 'Tell us your name to personalize Calmora.',
         items: [
           { type: 'heading', label: 'What should we call you?' },
           { type: 'description', label: 'We will use this to personalize your experience.' },
@@ -62,13 +62,13 @@ export function getOnboardingMeta(step: string): ScreenMeta {
       };
     case 'complete':
       return {
-        overview: 'All set! MemoCare is ready to help you every day.',
-        purpose: 'Finish setup and start using MemoCare.',
+        overview: 'All set! Calmora is ready to help you every day.',
+        purpose: 'Finish setup and start using Calmora.',
         items: [
           { type: 'heading', label: 'You are all set!' },
-          { type: 'description', label: 'MemoCare is ready to help you every day.' },
-          { type: 'button', label: 'Start with Voice Over', detail: 'Tap this to begin using MemoCare with voice guidance. I will read screens aloud and listen to your commands.', action: 'finish_voice' },
-          { type: 'button', label: 'Start Browsing', detail: 'Tap this to begin using MemoCare on your own by tapping and swiping.', action: 'finish_browse' },
+          { type: 'description', label: 'Calmora is ready to help you every day.' },
+          { type: 'button', label: 'Start with Voice Over', detail: 'Tap this to begin using Calmora with voice guidance. I will read screens aloud and listen to your commands.', action: 'finish_voice' },
+          { type: 'button', label: 'Start Browsing', detail: 'Tap this to begin using Calmora on your own by tapping and swiping.', action: 'finish_browse' },
         ],
       };
     default:

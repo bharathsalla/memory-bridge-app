@@ -1050,7 +1050,7 @@ export default function CaregiverDashboard() {
           <IconBox Icon={LogOut} color="#FF3B30" />
           <span className="text-[14px] font-medium">Sign Out</span>
         </button>
-        <div className="text-center mt-4 text-[11px] text-muted-foreground">MemoCare v1.0.0</div>
+        <div className="text-center mt-4 text-[11px] text-muted-foreground">Calmora v1.0.0</div>
       </div>
     </div>);
 
