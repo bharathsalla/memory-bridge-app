@@ -19,6 +19,7 @@ import CaregiverMemoryInsights from '@/screens/CaregiverMemoryInsights';
 import RemindersScreen from '@/screens/RemindersScreen';
 import CaregiverRemindersPanel from '@/components/CaregiverRemindersPanel';
 import CaregiverSafetyScreen from '@/screens/CaregiverSafetyScreen';
+import SmartHomeScreen from '@/screens/SmartHomeScreen';
 import PatientReminderPopup from '@/components/PatientReminderPopup';
 import { AlertTriangle, Bell, Phone, X, Pill } from 'lucide-react';
 import { useScheduledReminders } from '@/hooks/useReminders';
@@ -44,6 +45,7 @@ const cgNavTitles: Record<string, string> = {
   settings: 'Settings',
   reminders: 'Reminders',
   safety: 'Safety Tracking',
+  smarthome: 'Smart Home',
 };
 
 const Index = () => {
@@ -307,6 +309,7 @@ const Index = () => {
                 activeCaregiverTab === 'memories' ? <CaregiverMemoryInsights /> :
                 activeCaregiverTab === 'reminders' ? <CaregiverRemindersPanel /> :
                 activeCaregiverTab === 'safety' ? <CaregiverSafetyScreen /> :
+                activeCaregiverTab === 'smarthome' ? <SmartHomeScreen /> :
                 <CaregiverDashboard />
               ) : (
                 <>
