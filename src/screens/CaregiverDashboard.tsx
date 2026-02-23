@@ -972,6 +972,24 @@ export default function CaregiverDashboard() {
         </div>
       </div>
 
+      {/* Smart Home Integration */}
+      <div className="px-5 mt-5">
+        <h2 className="text-ios-title3 text-foreground mb-3">Smart Home</h2>
+        <div className="ios-card-elevated divide-y divide-border/60">
+          <button
+            onClick={() => setActiveCaregiverTab('smarthome')}
+            className="w-full flex items-center gap-3 p-4 text-left active:bg-muted/30 touch-target"
+          >
+            <IconBox Icon={Shield} color={iosColors.teal} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] font-medium text-foreground">Smart Home Setup</div>
+              <div className="text-[11px] text-muted-foreground">Connect & control home devices</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      </div>
+
       {/* Native Feature Integrations */}
       <div className="px-5 mt-5">
         <h2 className="text-ios-title3 text-foreground mb-3">Device Integrations</h2>

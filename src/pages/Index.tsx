@@ -254,10 +254,10 @@ const Index = () => {
         {!(mode === 'essential' && !isCaregiverView) && (
           <NavBar
             title={isCaregiverView ? cgNavTitles[activeCaregiverTab] : navTitles[activePatientTab]}
-            showBack={isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety')}
+            showBack={isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety' || activeCaregiverTab === 'smarthome')}
             onBack={() => {
-              if (isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety')) {
-                setActiveCaregiverTab('dashboard');
+              if (isCaregiverView && (activeCaregiverTab === 'reminders' || activeCaregiverTab === 'safety' || activeCaregiverTab === 'smarthome')) {
+                setActiveCaregiverTab('settings');
               } else {
                 toggleCaregiverView();
               }
