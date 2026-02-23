@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, MapPin, Phone, AlertTriangle, ChevronLeft, ChevronRight,
   Watch, Smartphone, Search, Plus, Navigation, Clock, Circle,
-  Battery, Wifi, Check, X, History, Settings2, Bell, Home
+  Battery, Wifi, Check, X, History, Settings2, Bell, Home,
+  Radar, Bath, BedDouble, Tv, Moon, Coffee, UtensilsCrossed, Footprints
 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import IconBox, { iosColors } from '@/components/ui/IconBox';
 
-type SubPage = 'main' | 'connect-device' | 'location-history' | 'set-safe-area' | 'sos-alerts';
+type SubPage = 'main' | 'connect-device' | 'location-history' | 'set-safe-area' | 'sos-alerts' | 'indoor-tracker';
 
 const smartwatchBrands = [
   { name: 'Apple Watch', models: ['Series 9', 'SE', 'Ultra 2'] },
@@ -406,6 +408,11 @@ export default function CaregiverSafetyScreen() {
     );
   }
 
+  // ─── Indoor GPS Tracker ───────────────────────────────────────
+  if (subPage === 'indoor-tracker') {
+    return <IndoorTracker onBack={() => setSubPage('main')} />;
+  }
+
   // MAIN page
   return (
     <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
@@ -536,8 +543,25 @@ export default function CaregiverSafetyScreen() {
       <div className="px-5 space-y-2.5">
         <motion.button
           whileTap={{ scale: 0.97 }}
+          onClick={() => setSubPage('indoor-tracker')}
+          className="w-full bg-card rounded-[10px] p-4 flex items-center gap-3.5 text-left touch-target"
+          style={{ border: '0.5px solid hsl(var(--border))' }}
+        >
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: '#5856D6' }}>
+            <Radar className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="text-[15px] font-semibold text-foreground">Indoor GPS Tracker</div>
+            <div className="text-[12px] text-muted-foreground">Live position inside home</div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.97 }}
           onClick={() => setSubPage('location-history')}
-          className="w-full ios-card-elevated p-4 flex items-center gap-3.5 text-left touch-target"
+          className="w-full bg-card rounded-[10px] p-4 flex items-center gap-3.5 text-left touch-target"
+          style={{ border: '0.5px solid hsl(var(--border))' }}
         >
           <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
             <History className="w-5 h-5 text-muted-foreground" />
@@ -578,6 +602,234 @@ export default function CaregiverSafetyScreen() {
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </motion.button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Indoor GPS Tracker Component ──────────────────────────────
+// Rooms defined as percentage-based positions on a floor plan
+const ROOMS = [
+  { id: 'living', label: 'Living Room', icon: Tv, x: 18, y: 28, w: 32, h: 28, color: '#007AFF' },
+  { id: 'kitchen', label: 'Kitchen', icon: UtensilsCrossed, x: 55, y: 28, w: 25, h: 28, color: '#FF9500' },
+  { id: 'bedroom', label: 'Bedroom', icon: BedDouble, x: 18, y: 60, w: 28, h: 26, color: '#AF52DE' },
+  { id: 'bathroom', label: 'Bathroom', icon: Bath, x: 50, y: 60, w: 18, h: 26, color: '#5AC8FA' },
+  { id: 'hallway', label: 'Hallway', icon: Home, x: 72, y: 60, w: 12, h: 26, color: '#8E8E93' },
+];
+
+// Waypoints the patient moves through (x%, y%, room, activity)
+const WAYPOINTS = [
+  { x: 30, y: 40, room: 'Living Room', activity: 'Watching TV', icon: Tv },
+  { x: 34, y: 42, room: 'Living Room', activity: 'Resting on sofa', icon: Tv },
+  { x: 45, y: 44, room: 'Living Room', activity: 'Walking', icon: Footprints },
+  { x: 60, y: 38, room: 'Kitchen', activity: 'Having tea', icon: Coffee },
+  { x: 65, y: 42, room: 'Kitchen', activity: 'Preparing snack', icon: UtensilsCrossed },
+  { x: 55, y: 44, room: 'Kitchen', activity: 'Walking', icon: Home },
+  { x: 45, y: 55, room: 'Hallway', activity: 'Walking', icon: Home },
+  { x: 30, y: 70, room: 'Bedroom', activity: 'Resting', icon: BedDouble },
+  { x: 32, y: 72, room: 'Bedroom', activity: 'Sleeping', icon: Moon },
+  { x: 35, y: 68, room: 'Bedroom', activity: 'Getting up', icon: BedDouble },
+  { x: 55, y: 70, room: 'Bathroom', activity: 'Freshening up', icon: Bath },
+  { x: 57, y: 72, room: 'Bathroom', activity: 'Washing hands', icon: Bath },
+  { x: 75, y: 68, room: 'Hallway', activity: 'Walking', icon: Home },
+  { x: 35, y: 38, room: 'Living Room', activity: 'Sitting down', icon: Tv },
+];
+
+function IndoorTracker({ onBack }: { onBack: () => void }) {
+  const [waypointIdx, setWaypointIdx] = useState(0);
+  const [dotPos, setDotPos] = useState({ x: WAYPOINTS[0].x, y: WAYPOINTS[0].y });
+  const [trail, setTrail] = useState<{ x: number; y: number }[]>([{ x: WAYPOINTS[0].x, y: WAYPOINTS[0].y }]);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const current = WAYPOINTS[waypointIdx];
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setWaypointIdx((prev) => {
+        const next = (prev + 1) % WAYPOINTS.length;
+        const wp = WAYPOINTS[next];
+        setDotPos({ x: wp.x, y: wp.y });
+        setTrail((t) => [...t.slice(-12), { x: wp.x, y: wp.y }]);
+        return next;
+      });
+    }, 3000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
+  const ActivityIcon = current.icon;
+
+  return (
+    <div className="h-full overflow-y-auto ios-grouped-bg pb-6">
+      {/* Header */}
+      <div className="px-5 pt-4 pb-3 flex items-center gap-3">
+        <button onClick={onBack} className="touch-target">
+          <ChevronLeft className="w-6 h-6 text-primary" />
+        </button>
+        <h1 className="text-[20px] font-bold text-foreground">Indoor Tracker</h1>
+      </div>
+
+      {/* Live status pill */}
+      <div className="px-5 mb-3">
+        <div
+          className="bg-card rounded-[10px] p-3.5 flex items-center gap-3"
+          style={{ border: '0.5px solid hsl(var(--border))' }}
+        >
+          <div className="w-[10px] h-[10px] rounded-full bg-success animate-pulse" />
+          <div className="flex-1">
+            <span className="text-[13px] font-semibold text-foreground">{current.room}</span>
+            <span className="text-[11px] text-muted-foreground ml-2">· {current.activity}</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground font-medium">LIVE</span>
+        </div>
+      </div>
+
+      {/* Floor Plan */}
+      <div className="px-5 mb-4">
+        <div
+          className="bg-card rounded-[10px] overflow-hidden"
+          style={{ border: '0.5px solid hsl(var(--border))' }}
+        >
+          <div className="relative w-full" style={{ paddingBottom: '80%' }}>
+            {/* Background grid */}
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {/* Outer walls */}
+              <rect x="15" y="22" width="70" height="68" rx="2" fill="none" stroke="hsl(var(--border))" strokeWidth="0.8" />
+              
+              {/* Room dividers */}
+              <line x1="50" y1="22" x2="50" y2="56" stroke="hsl(var(--border))" strokeWidth="0.5" />
+              <line x1="15" y1="56" x2="85" y2="56" stroke="hsl(var(--border))" strokeWidth="0.5" />
+              <line x1="46" y1="56" x2="46" y2="90" stroke="hsl(var(--border))" strokeWidth="0.5" />
+              <line x1="68" y1="56" x2="68" y2="90" stroke="hsl(var(--border))" strokeWidth="0.5" />
+
+              {/* Door openings (gaps in walls) */}
+              <line x1="40" y1="56" x2="46" y2="56" stroke="hsl(var(--background))" strokeWidth="1.5" />
+              <line x1="50" y1="40" x2="50" y2="46" stroke="hsl(var(--background))" strokeWidth="1.5" />
+              <line x1="46" y1="68" x2="46" y2="74" stroke="hsl(var(--background))" strokeWidth="1.5" />
+              <line x1="68" y1="68" x2="68" y2="74" stroke="hsl(var(--background))" strokeWidth="1.5" />
+
+              {/* Trail path */}
+              {trail.length > 1 && (
+                <polyline
+                  points={trail.map((p) => `${p.x},${p.y}`).join(' ')}
+                  fill="none"
+                  stroke="#5856D6"
+                  strokeWidth="0.6"
+                  strokeDasharray="1.5 1"
+                  opacity="0.5"
+                />
+              )}
+
+              {/* Trail dots */}
+              {trail.slice(0, -1).map((p, i) => (
+                <circle
+                  key={i}
+                  cx={p.x}
+                  cy={p.y}
+                  r="0.8"
+                  fill="#5856D6"
+                  opacity={0.15 + (i / trail.length) * 0.35}
+                />
+              ))}
+            </svg>
+
+            {/* Room labels */}
+            {ROOMS.map((room) => {
+              const RoomIcon = room.icon;
+              return (
+                <div
+                  key={room.id}
+                  className="absolute flex flex-col items-center justify-center pointer-events-none"
+                  style={{
+                    left: `${room.x}%`,
+                    top: `${room.y}%`,
+                    width: `${room.w}%`,
+                    height: `${room.h}%`,
+                  }}
+                >
+                  <RoomIcon className="w-4 h-4 mb-0.5" style={{ color: room.color, opacity: 0.35 }} />
+                  <span className="text-[7px] font-semibold text-muted-foreground/60 text-center leading-tight">
+                    {room.label}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Moving patient dot */}
+            <motion.div
+              className="absolute z-10"
+              animate={{ left: `${dotPos.x}%`, top: `${dotPos.y}%` }}
+              transition={{ duration: 2.5, ease: [0.4, 0, 0.2, 1] }}
+              style={{ transform: 'translate(-50%, -50%)' }}
+            >
+              {/* Pulse ring */}
+              <div className="absolute inset-0 w-7 h-7 -m-[6px] rounded-full bg-primary/20 animate-ping" style={{ animationDuration: '2s' }} />
+              {/* Dot */}
+              <div className="w-[14px] h-[14px] rounded-full bg-primary border-2 border-white" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }} />
+            </motion.div>
+          </div>
+
+          {/* Legend */}
+          <div className="px-3.5 py-2.5 border-t border-border/40 flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <div className="w-[8px] h-[8px] rounded-full bg-primary" />
+              <span className="text-[10px] text-muted-foreground font-medium">Margaret</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-[8px] h-[1px] bg-primary/50" style={{ borderTop: '1px dashed' }} />
+              <span className="text-[10px] text-muted-foreground font-medium">Trail</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground ml-auto">Updated 2s ago</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Activity Card */}
+      <div className="px-5 mb-3">
+        <div
+          className="bg-card rounded-[10px] p-4 flex items-center gap-3.5"
+          style={{ border: '0.5px solid hsl(var(--border))' }}
+        >
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <ActivityIcon className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <div className="text-[15px] font-semibold text-foreground">{current.activity}</div>
+            <div className="text-[12px] text-muted-foreground">{current.room} · Just now</div>
+          </div>
+          <div className="w-[6px] h-[6px] rounded-full bg-success animate-pulse" />
+        </div>
+      </div>
+
+      {/* Recent Movement Log */}
+      <div className="px-5">
+        <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">
+          Recent Movement
+        </p>
+        <div
+          className="bg-card rounded-[10px] overflow-hidden divide-y"
+          style={{ border: '0.5px solid hsl(var(--border))', borderColor: 'hsl(var(--border))' }}
+        >
+          {WAYPOINTS.slice(Math.max(0, waypointIdx - 4), waypointIdx + 1).reverse().map((wp, i) => {
+            const WpIcon = wp.icon;
+            const minsAgo = i * 3;
+            return (
+              <div
+                key={`${wp.room}-${i}`}
+                className="flex items-center gap-3 px-3.5 py-3"
+                style={{ borderColor: 'hsl(var(--border) / 0.4)' }}
+              >
+                <WpIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-[13px] font-medium text-foreground">{wp.activity}</span>
+                  <span className="text-[11px] text-muted-foreground ml-2">{wp.room}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground shrink-0">
+                  {minsAgo === 0 ? 'Now' : `${minsAgo}m ago`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
