@@ -1,5 +1,5 @@
 import { useApp, PatientTab, CaregiverTab } from '@/contexts/AppContext';
-import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, Settings, BookHeart, Brain, House } from 'lucide-react';
+import { Home, Image, Shield, Users, Heart, LayoutDashboard, ClipboardList, Settings, BookHeart, Brain } from 'lucide-react';
 
 const fullTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
   { id: 'today', label: 'Summary', icon: Home },
@@ -18,7 +18,7 @@ const simplifiedTabs: { id: PatientTab; label: string; icon: typeof Home }[] = [
 const caregiverTabs: { id: CaregiverTab; label: string; icon: typeof Home }[] = [
   { id: 'dashboard', label: 'Summary', icon: LayoutDashboard },
   { id: 'vitals', label: 'Vitals', icon: Heart },
-  { id: 'smarthome', label: 'Home', icon: House },
+  { id: 'memories', label: 'Insights', icon: Brain },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
