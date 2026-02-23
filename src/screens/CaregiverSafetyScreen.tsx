@@ -671,15 +671,15 @@ function IndoorTracker({ onBack }: { onBack: () => void }) {
       {/* Live status pill */}
       <div className="px-5 mb-3">
         <div
-          className="bg-card rounded-[10px] p-3.5 flex items-center gap-3"
+          className="bg-card rounded-[10px] p-4 flex items-center gap-3"
           style={{ border: '0.5px solid hsl(var(--border))' }}
         >
           <div className="w-[10px] h-[10px] rounded-full bg-success animate-pulse" />
           <div className="flex-1">
-            <span className="text-[13px] font-semibold text-foreground">{current.room}</span>
-            <span className="text-[11px] text-muted-foreground ml-2">· {current.activity}</span>
+            <span className="text-[15px] font-semibold text-foreground">{current.room}</span>
+            <span className="text-[13px] text-muted-foreground ml-2">· {current.activity}</span>
           </div>
-          <span className="text-[10px] text-muted-foreground font-medium">LIVE</span>
+          <span className="text-[12px] text-success font-semibold">LIVE</span>
         </div>
       </div>
 
@@ -746,8 +746,8 @@ function IndoorTracker({ onBack }: { onBack: () => void }) {
                     height: `${room.h}%`,
                   }}
                 >
-                  <RoomIcon className="w-4 h-4 mb-0.5" style={{ color: room.color, opacity: 0.35 }} />
-                  <span className="text-[7px] font-semibold text-muted-foreground/60 text-center leading-tight">
+                  <RoomIcon className="w-5 h-5 mb-0.5" style={{ color: room.color, opacity: 0.5 }} />
+                  <span className="text-[9px] font-semibold text-muted-foreground/70 text-center leading-tight">
                     {room.label}
                   </span>
                 </div>
@@ -769,22 +769,22 @@ function IndoorTracker({ onBack }: { onBack: () => void }) {
           </div>
 
           {/* Legend */}
-          <div className="px-3.5 py-2.5 border-t border-border/40 flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
+          <div className="px-4 py-3 border-t border-border/40 flex items-center gap-5">
+            <div className="flex items-center gap-2">
               <div className="w-[8px] h-[8px] rounded-full bg-primary" />
-              <span className="text-[10px] text-muted-foreground font-medium">Margaret</span>
+              <span className="text-[13px] text-muted-foreground font-medium">Margaret</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-[8px] h-[1px] bg-primary/50" style={{ borderTop: '1px dashed' }} />
-              <span className="text-[10px] text-muted-foreground font-medium">Trail</span>
+            <div className="flex items-center gap-2">
+              <div className="w-[12px] h-[1px] bg-primary/50" style={{ borderTop: '1.5px dashed hsl(var(--primary))' }} />
+              <span className="text-[13px] text-muted-foreground font-medium">Trail</span>
             </div>
-            <span className="text-[10px] text-muted-foreground ml-auto">Updated 2s ago</span>
+            <span className="text-[12px] text-muted-foreground ml-auto">Updated 2s ago</span>
           </div>
         </div>
       </div>
 
       {/* Current Activity Card */}
-      <div className="px-5 mb-3">
+      <div className="px-5 mb-4">
         <div
           className="bg-card rounded-[10px] p-4 flex items-center gap-3.5"
           style={{ border: '0.5px solid hsl(var(--border))' }}
@@ -793,16 +793,16 @@ function IndoorTracker({ onBack }: { onBack: () => void }) {
             <ActivityIcon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <div className="text-[15px] font-semibold text-foreground">{current.activity}</div>
-            <div className="text-[12px] text-muted-foreground">{current.room} · Just now</div>
+            <div className="text-[17px] font-semibold text-foreground">{current.activity}</div>
+            <div className="text-[13px] text-muted-foreground">{current.room} · Just now</div>
           </div>
-          <div className="w-[6px] h-[6px] rounded-full bg-success animate-pulse" />
+          <div className="w-[8px] h-[8px] rounded-full bg-success animate-pulse" />
         </div>
       </div>
 
       {/* Recent Movement Log */}
       <div className="px-5">
-        <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">
+        <p className="text-ios-footnote font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2.5">
           Recent Movement
         </p>
         <div
@@ -815,15 +815,15 @@ function IndoorTracker({ onBack }: { onBack: () => void }) {
             return (
               <div
                 key={`${wp.room}-${i}`}
-                className="flex items-center gap-3 px-3.5 py-3"
+                className="flex items-center gap-3 px-4 py-3.5"
                 style={{ borderColor: 'hsl(var(--border) / 0.4)' }}
               >
-                <WpIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                <WpIcon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[13px] font-medium text-foreground">{wp.activity}</span>
-                  <span className="text-[11px] text-muted-foreground ml-2">{wp.room}</span>
+                  <span className="text-[15px] font-medium text-foreground">{wp.activity}</span>
+                  <span className="text-[13px] text-muted-foreground ml-2">{wp.room}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground shrink-0">
+                <span className="text-[12px] text-muted-foreground shrink-0">
                   {minsAgo === 0 ? 'Now' : `${minsAgo}m ago`}
                 </span>
               </div>

@@ -189,9 +189,9 @@ export default function CaregiverMemoryInsights() {
       {/* ── Risk Legend ── */}
       <div className="px-6 mt-3 flex items-center gap-5">
         {(['low', 'moderate', 'high'] as RiskLevel[]).map((level) => (
-          <div key={level} className="flex items-center gap-1.5">
-            <div className="w-[7px] h-[7px] rounded-full" style={{ backgroundColor: riskMeta[level].dot }} />
-            <span className="text-[11px] font-medium text-muted-foreground">{riskMeta[level].label}</span>
+          <div key={level} className="flex items-center gap-2">
+            <div className="w-[8px] h-[8px] rounded-full" style={{ backgroundColor: riskMeta[level].dot }} />
+            <span className="text-[13px] font-medium text-muted-foreground">{riskMeta[level].label}</span>
           </div>
         ))}
       </div>
@@ -230,34 +230,34 @@ export default function CaregiverMemoryInsights() {
                 style={{ border: '0.5px solid hsl(var(--border))' }}
               >
                 {/* ── Card Header ── */}
-                <div className="px-3.5 pt-3 pb-2">
-                  <div className="flex items-center gap-2 mb-1.5">
+                <div className="px-4 pt-3.5 pb-2.5">
+                  <div className="flex items-center gap-2.5 mb-2">
                     <div
-                      className="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center"
+                      className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center"
                       style={{ backgroundColor: config.color }}
                     >
-                      <Icon className="w-[14px] h-[14px] text-white" style={{ strokeWidth: 2 }} />
+                      <Icon className="w-[16px] h-[16px] text-white" style={{ strokeWidth: 2 }} />
                     </div>
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex-1">
+                    <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wide flex-1">
                       {config.label}
                     </span>
                     <ChevronDown
-                      className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                     />
                   </div>
 
                   {/* Value + Risk + Trend */}
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-[24px] font-bold text-foreground leading-none">{displayVal}</span>
-                    <span className="text-[12px] text-muted-foreground">{config.unit}</span>
-                    {trendDir === 'up' && <TrendingUp className="w-3 h-3 text-destructive ml-1" />}
-                    {trendDir === 'down' && <TrendingDown className="w-3 h-3 text-success ml-1" />}
-                    {trendDir === 'stable' && <Minus className="w-3 h-3 text-muted-foreground ml-1" />}
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[26px] font-bold text-foreground leading-none">{displayVal}</span>
+                    <span className="text-[14px] text-muted-foreground">{config.unit}</span>
+                    {trendDir === 'up' && <TrendingUp className="w-4 h-4 text-destructive ml-1" />}
+                    {trendDir === 'down' && <TrendingDown className="w-4 h-4 text-success ml-1" />}
+                    {trendDir === 'stable' && <Minus className="w-4 h-4 text-muted-foreground ml-1" />}
                   </div>
 
                   {/* Risk stage bar */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="flex-1 h-[4px] rounded-full overflow-hidden flex">
+                  <div className="mt-2.5 flex items-center gap-2.5">
+                    <div className="flex-1 h-[5px] rounded-full overflow-hidden flex">
                       <div className="flex-1" style={{ backgroundColor: '#FF3B30', opacity: 0.2 }} />
                       <div className="flex-1" style={{ backgroundColor: '#FF9500', opacity: 0.2 }} />
                       <div className="flex-[2]" style={{ backgroundColor: '#34C759', opacity: 0.2 }} />
@@ -265,7 +265,7 @@ export default function CaregiverMemoryInsights() {
                       <div className="flex-1" style={{ backgroundColor: '#FF3B30', opacity: 0.2 }} />
                     </div>
                     <span
-                      className="text-[10px] font-bold"
+                      className="text-[12px] font-bold"
                       style={{ color: riskMeta[risk].dot }}
                     >
                       {riskMeta[risk].label}
@@ -275,7 +275,7 @@ export default function CaregiverMemoryInsights() {
 
                 {/* ── Expanded: Chart + History ── */}
                 {isExpanded && (
-                  <div className="px-3.5 pb-3.5">
+                  <div className="px-4 pb-4">
                     <div className="border-t border-border/40 pt-3">
                       {config.chartType === 'area' && (
                         <HealthAreaChart data={chartData} dataKey="value" xKey="time" color={config.color} name={config.label} height={130} />
@@ -292,20 +292,20 @@ export default function CaregiverMemoryInsights() {
                       )}
 
                       {/* Recent readings */}
-                      <div className="mt-2.5 space-y-0">
+                      <div className="mt-3 space-y-0">
                         {readings.slice(-4).reverse().map((r, i) => {
                           const rl = getRiskLevel(r.value, config.thresholds);
                           return (
                             <div
                               key={i}
-                              className="flex items-center py-1.5"
+                              className="flex items-center py-2"
                               style={i < readings.slice(-4).length - 1 ? { borderBottom: '0.5px solid hsl(var(--border) / 0.4)' } : {}}
                             >
-                              <div className="w-[6px] h-[6px] rounded-full mr-2" style={{ backgroundColor: riskMeta[rl].dot }} />
-                              <span className="text-[11px] text-muted-foreground flex-1">
+                              <div className="w-[7px] h-[7px] rounded-full mr-2.5" style={{ backgroundColor: riskMeta[rl].dot }} />
+                              <span className="text-[13px] text-muted-foreground flex-1">
                                 {new Date(r.recorded_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                               </span>
-                              <span className="text-[11px] font-semibold text-foreground">
+                              <span className="text-[13px] font-semibold text-foreground">
                                 {config.format ? config.format(r.value) : r.value} {config.unit}
                               </span>
                             </div>
@@ -341,9 +341,9 @@ export default function CaregiverMemoryInsights() {
                   className="bg-card rounded-[10px] px-3.5 py-3 flex items-center gap-3"
                   style={{ border: '0.5px solid hsl(var(--border))' }}
                 >
-                  <div className="w-[6px] h-[6px] rounded-full" style={{ backgroundColor: riskMeta[risk].dot }} />
+                  <div className="w-[7px] h-[7px] rounded-full" style={{ backgroundColor: riskMeta[risk].dot }} />
                   <div className="flex-1 min-w-0">
-                    <span className="text-[11px] text-muted-foreground block">{cfg.label}</span>
+                    <span className="text-[13px] text-muted-foreground block">{cfg.label}</span>
                     <span className="text-[17px] font-bold text-foreground leading-tight">
                       {type === 'sleep_wakeups' ? latest.value : latest.value.toFixed(1)}{unit}
                     </span>
