@@ -618,7 +618,7 @@ export function VoiceOverProvider({ children }: { children: ReactNode }) {
       const h = new Date().getHours();
       const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
       const name = appContextRef.current.patientName;
-      speak(`${greeting}${name ? ', ' + name : ''}. I am your MemoCare companion. I will read each screen for you and listen to what you say. You can interrupt me anytime by speaking. Say "hold on" to pause, or "stop" to turn me off. Let me tell you about this page.`, true);
+      speak(`${greeting}${name ? ', ' + name : ''}. I am your Calmora companion. I will read each screen for you and listen to what you say. You can interrupt me anytime by speaking. Say "hold on" to pause, or "stop" to turn me off. Let me tell you about this page.`, true);
       setTimeout(() => readCurrentPage(), 500);
     }, 600);
     return () => clearTimeout(timer);
